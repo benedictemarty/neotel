@@ -42,21 +42,19 @@ la barre de statut, ce qui permet de voir ce qu'un serveur demande.
 
 ## Ce qui n'est PAS (encore) émulé du Minitel 2
 
-- **DRCS, écarts connus** : l'interruption d'un téléchargement par un accès
-  en rangée 00 avec reprise sur `LF` (§2.3.4) n'est pas gérée — tout `US`
-  termine le téléchargement (la forme en cours est complétée en fond, le
-  `US X` est interprété). La 10ᵉ rangée des formes est fusionnée avec la 9ᵉ
-  (cellule 8 × 9). La double hauteur d'une forme G'0 suit la règle générale
-  de NeoTel, pas la règle « 1ʳᵉ ligne triplée » du §2.3.6.
-- **Mode téléinformatique 80 colonnes** : séquences de bascule connues
-  (`CSI 3/C 3/3 6/8` 40 col., `CSI 3/F 3/3 6/C` 80 col.), mais le décodage
-  lui-même renvoie à la STUM 1B (p. 105 et 161), non récupérée ; et l'écran
-  320 px du Neo6502 ne donne que 4 px par colonne en mode 0 (mode Hercules
-  du fork envisageable). Non implémenté.
+- **DRCS, écarts connus** : la 10ᵉ rangée des formes est fusionnée (OU)
+  avec la 9ᵉ (cellule 8 × 9) ; la double hauteur d'une forme G'0 suit la
+  règle générale de NeoTel (rangées doublées), la « 1ʳᵉ ligne triplée » du
+  §2.3.6 n'ayant pas de place en 18 lignes. L'interruption par la rangée 00
+  (§2.3.4) est gérée depuis la v0.2.1.
+- **Modes Mixte et Téléinformatique (80 colonnes)** : ils existent sur le
+  1B comme sur le 2 (STUM 1B partie 2 p. 106 et partie 3 ; le Minitel 2
+  ajoute des jeux et des séquences, STUM 2 §3). Décodage ISO 6429 sur 80 × 25
+  non implémenté : l'écran 320 px du Neo6502 ne donne que 4 px par colonne
+  en mode 0 (mode Hercules du fork envisageable). PRO2 `0x32 0x7D` reste
+  refusé silencieusement, comme dans OricTel.
 - **Retournement de modem**, prise péripherique à 9600 bauds : sans objet
   avec un modem Hayes sur USB.
-- Les modes **MIXTE** (PRO2 $32 $7D) sont refusés silencieusement dans les
-  deux profils, comme dans OricTel.
 
 ## Aspect « gris (1B mono) »
 

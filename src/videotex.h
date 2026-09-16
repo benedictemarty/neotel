@@ -186,6 +186,12 @@ typedef struct {
                                      * meme taille sur cc65 et sur l'hote (offsets
                                      * identiques pour les dumps RAM des tests) */
     unsigned char drcs_form[DRCS_ROWS];
+    unsigned char drcs_suspended;   /* telechargement interrompu par un acces en
+                                     * rangee 00 (STUM 2 par. 2.3.4) : 1 = transfert,
+                                     * 2 = en-tete ; reprise sur le LF qui quitte
+                                     * la rangee 00. (Place apres drcs_acc pour
+                                     * garder drcs_acc a un offset pair : pas de
+                                     * bourrage sur l'hote, memes offsets que cc65) */
     unsigned char drcs[2][DRCS_COUNT][DRCS_ROWS];
 
     /* Buffer ecran (40x25 cellules) */

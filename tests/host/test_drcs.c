@@ -15,6 +15,7 @@
  */
 
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include "videotex.h"
 #include "terminal.h"
@@ -85,7 +86,7 @@ int main(void)
             0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x7F,   /* forme 4/2 : 13 x 0 + 1 */
             0x7F, 0x7F, 0x7F,               /* excedent : filtre */
             0x30, 0x1B, 0x41, 0x21, 0x7F,   /* forme 4/3 : ESC, 4/1, 2/1 = fond, puis 7/F */
-            0x1F, 0x40, 0x41 };             /* sortie (rangee 00 : cas simple) */
+            0x1F, 0x41, 0x41 };             /* sortie par US rangee 1 */
         FEED(seq);
     }
     f = vtx_drcs_form(&ctx, 1, 0x41);
@@ -95,6 +96,39 @@ int main(void)
     f = vtx_drcs_form(&ctx, 1, 0x43);
     CHECK(f[0] == 0x00 && f[1] == 0x10 && f[2] == 0x3F && f[3] == 0x00, "ESC / 2/1 = fond (pas de resync), 4/1 et 7/F = donnees");
     CHECK(ctx.state == VTX_STATE_NORMAL, "sortie propre");
+
+    /* --- rangee 00 : suspension, reprise sur LF, abandon sur FF (par. 2.3.4) --- */
+    fresh();
+    FEED(HDR_G1);
+    {
+        static const unsigned char part1[] = { 0x1F, 0x23, 0x53, 0x30, 0x44, 0x43, 0x60, 0x50, 0x44, 0x41, 0x40 };
+        static const unsigned char row0[]  = { 0x1F, 0x40, 0x41, 'I', 'N', 'F', 'O', 0x0A };   /* rangee 00 puis LF */
+        static const unsigned char part2[] = { 0x68, 0x51, 0x44, 0x50, 0x68, 0x44, 0x40, 0x1F, 0x41, 0x41 };
+        FEED(part1);
+        FEED(row0);
+        CHECK(ctx.state == VTX_STATE_DRCS_XFER && ctx.drcs_suspended == 0 && ctx.screen[0][0].ch == 'I' && ctx.cur_y == 1,
+              "rangee 00 : texte affiche, LF reprend le transfert");
+        FEED(part2);
+    }
+    f = vtx_drcs_form(&ctx, 1, 0x53);
+    CHECK(memcmp(f, EXPECT, 10) == 0, "forme complete apres interruption par la rangee 00");
+    {   /* FF en rangee 00 : sortie sans completer -> forme 5/4 abandonnee */
+        static const unsigned char abort_[] = { 0x1F, 0x23, 0x54, 0x30, 0x7F, 0x7F, 0x1F, 0x40, 0x41, 0x0C, 'A' };
+        FEED(abort_);
+    }
+    CHECK(ctx.state == VTX_STATE_NORMAL && ctx.drcs_suspended == 0 && vtx_drcs_form(&ctx, 1, 0x54)[0] == 0
+          && ctx.screen[1][0].ch == 'A', "FF en rangee 00 : telechargement abandonne, FF execute");
+    {   /* US vers une autre rangee depuis la rangee 00 : sortie en completant */
+        static const unsigned char cpl[] = { 0x1F, 0x23, 0x55, 0x30, 0x7F, 0x1F, 0x40, 0x41, 0x1F, 0x42, 0x41 };
+        FEED(cpl);
+    }
+    CHECK(ctx.state == VTX_STATE_NORMAL && vtx_drcs_form(&ctx, 1, 0x55)[0] == 0xFC && ctx.cur_y == 2,
+          "US rangee 00 puis US rangee 2 : forme completee, curseur place");
+    {   /* en-tete interrompue par la rangee 00 puis reprise */
+        static const unsigned char hdr[] = { 0x1F, 0x23, 0x20, 0x20, 0x1F, 0x40, 0x41, 0x0A, 0x20, 0x42, 0x49 };
+        FEED(hdr);
+    }
+    CHECK(ctx.state == VTX_STATE_NORMAL && ctx.drcs_hdr_set == 0, "en-tete G'0 reprise apres la rangee 00");
 
     /* --- en-tete erronee : la precedente reste valide ; C0 resynchronise --- */
     fresh();
@@ -212,6 +246,12 @@ int main(void)
         FEED(req);
     }
     CHECK(host_tx_len == 0, "1B : CSI 6n sans reponse");
+
+    /* --- disposition partagee hote / cc65 (dumps RAM des tests cible) : aucun
+     * bourrage possible, drcs_acc (short) a un offset pair --- */
+    CHECK(offsetof(vtx_context_t, drcs_acc) % 2 == 0, "drcs_acc a un offset pair (pas de bourrage gcc)");
+    CHECK(offsetof(vtx_context_t, screen) == 37 + 9 + 2 + DRCS_ROWS + 1 + 2 * DRCS_COUNT * DRCS_ROWS,
+          "offset de screen = somme des champs (identique sur cc65)");
 
     /* --- vtx_init efface les formes --- */
     fresh();

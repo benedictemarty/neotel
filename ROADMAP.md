@@ -26,8 +26,9 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
       sortie sur US, SS2 en G'0 ; rendu 8 × 10 → 8 × 9 (rangées 9 et 10
       fusionnées) ; 33 tests hôte + page DRCS + capture cible == oracle.
 - [x] Demande de position curseur `CSI 3/6 6/E` → `CSI Pr;Pc R` (§2.5).
-- [ ] Interruption / reprise du téléchargement par la rangée 00 (§2.3.4).
-- [ ] Double hauteur d'une forme G'0 : 1ʳᵉ ligne triplée (§2.3.6).
+- [x] Interruption / reprise du téléchargement par la rangée 00 (§2.3.4) — v0.2.1.
+- [x] Double hauteur d'une forme G'0 (§2.3.6) : non applicable en 8 × 9,
+      la règle générale s'y ramène (décision v0.2.1).
 
 ## v0.3 — Carte réelle et performance [PLANIFIÉ]
 - [ ] Exécution sur Neo6502 physique + PicoWiFiModemUSB : session PAVI 3617
@@ -42,8 +43,10 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [ ] Bip Videotex (BEL) par 8,7 plutôt que le bip système.
 - [ ] Jingle du splash (son du RP2040), option pour le couper.
 
-## v0.4 — Mode téléinformatique 80 colonnes [CONDITIONNEL]
-- [ ] Récupérer la STUM 1B (décodage mixte p. 105, téléinformatique p. 161).
+## v0.4 — Modes Mixte et Téléinformatique (80 colonnes) [CONDITIONNEL]
+- [x] STUM 1B récupérée (transcription jbellue, `docs/ref/STUM1B-NOTES.md`) :
+      le mode Mixte 80 colonnes (ISO 6429) existe sur le 1B comme sur le 2.
+- [ ] Moteur 80 × 25 ISO 6429 (rangées 01-24) + rangée 00 Vidéotex.
 - [ ] Séquences relevées dans la STUM 2 : `CSI 3/C 3/3 6/8` 40 col.,
       `CSI 3/F 3/3 6/C` 80 col., curseur `CSI 3/C 3/1 6/8|6/C`.
 - [ ] Étudier le mode Hercules 720 × 350 du fork pour 80 colonnes.
