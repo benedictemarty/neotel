@@ -13,6 +13,10 @@ extern unsigned char host_cdc_connected;    /* 0xFF = groupe 14 absent */
 extern unsigned char host_uart_route;
 extern unsigned long host_uart_baud;
 
+extern unsigned char host_file[256];        /* contenu de neotel.cfg */
+extern int host_file_len;                   /* 0 = absent */
+extern unsigned char host_file_ro;          /* 1 = ecriture refusee */
+
 void host_key_push(unsigned char ascii);
 void host_rx_push(const unsigned char* data, int n);
 void host_tx_reset(void);

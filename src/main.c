@@ -25,10 +25,11 @@
 #include "ui.h"
 #include "neo_time.h"
 #include "terminal.h"
+#include "settings.h"
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.2.1"
+#define NEOTEL_VERSION "v0.3.0"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -223,15 +224,21 @@ static unsigned char select_mode(vtx_context_t* ctx)
             if (key == '3') {
                 term_set_model(g_term_model == TERM_MINITEL_2
                                ? TERM_MINITEL_1B : TERM_MINITEL_2);
+                g_settings.model = g_term_model;
+                settings_save();
                 break;
             }
             if (key == '4' || key == KEY_TOGGLE_RENDER) {
                 display_set_look(display_get_look() == DISPLAY_LOOK_GREY
                                  ? DISPLAY_LOOK_COLOR : DISPLAY_LOOK_GREY);
+                g_settings.look = display_get_look();
+                settings_save();
                 break;
             }
             if (key == '5') {
                 g_ident_enabled ^= 1;
+                g_settings.ident = g_ident_enabled;
+                settings_save();
                 break;
             }
         }
@@ -260,6 +267,11 @@ static unsigned char select_server(vtx_context_t* ctx)
 
     g_dbg_state = ST_SERVER;
     ui_print(ctx, 8, 5, "Serveur:", VTX_WHITE);
+    /* Dernier serveur (reglages sauves) : ENVOI le reprend */
+    ui_print(ctx, 20, 3, "ENVOI = dernier:", VTX_WHITE);
+    ui_print(ctx, 20, 20, (g_settings.server_idx == 255) ? g_settings.server
+                          : (g_settings.server_idx < NUM_SERVERS)
+                            ? server_names[g_settings.server_idx] : "?", VTX_GREEN);
 
     for (sel = 0; sel < NUM_SERVERS; ++sel) {
         unsigned char row = 10 + sel * 2;
@@ -284,6 +296,13 @@ static unsigned char select_server(vtx_context_t* ctx)
         unsigned char key = keyboard_scan();
         if (key >= '1' && key < '1' + NUM_SERVERS) {
             return key - '1';
+        }
+        if ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_ENVOI) {
+            if (g_settings.server_idx == 255 && g_settings.server[0]) {
+                strcpy(custom_server, g_settings.server);
+                return 255;
+            }
+            if (g_settings.server_idx < NUM_SERVERS) return g_settings.server_idx;
         }
         if (key == '3') {
             unsigned char row = 10 + NUM_SERVERS * 2 + 2;
@@ -689,6 +708,13 @@ int main(void)
     display_init();
     keyboard_init();
 
+    /* Reglages sauves sur la carte (neotel.cfg) : profil, aspect,
+     * identification, dernier serveur. Sans fichier : valeurs par defaut. */
+    settings_load();
+    term_set_model(g_settings.model);
+    display_set_look(g_settings.look);
+    g_ident_enabled = g_settings.ident;
+
     splash_screen(&vtx);
 
     /* Liaison serie : routage AUTO (modem USB CDC si present, sinon UART UEXT)
@@ -725,6 +751,13 @@ int main(void)
         vtx_clear_page(&vtx);
         status_server = (srv_idx == 255) ? custom_server : server_names[srv_idx];
         status_bar_draw();
+        /* Memoriser le serveur choisi */
+        g_settings.server_idx = srv_idx;
+        if (srv_idx == 255) {
+            strncpy(g_settings.server, custom_server, SETTINGS_SERVER_MAX - 1);
+            g_settings.server[SETTINGS_SERVER_MAX - 1] = 0;
+        }
+        settings_save();
 
         (void)mode;
         neo_delay_ms(100);

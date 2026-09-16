@@ -27,7 +27,7 @@ fail=0
 [ -x tests/host/render_page ] || make -C tests/host render_page >/dev/null
 
 sym() { grep " \._$1\$" build/neotel.lbl | awk '{print $2}' | sed 's/^00//'; }
-KI=$(sym keyboard_inject); ST=$(sym g_dbg_state); VTX=$(sym vtx); NB=$(sym g_vtx_bytes); HU=$(sym g_dbg_hangups)
+KI=$(sym keyboard_inject); ST=$(sym g_dbg_state); VTX=$(sym vtx); NB=$(sym g_vtx_bytes); HU=$(sym g_dbg_hangups); TM=$(sym g_term_model)
 [ -n "$KI" ] && [ -n "$ST" ] && [ -n "$VTX" ] && [ -n "$NB" ] && [ -n "$HU" ] || { echo "FAIL: symboles absents de build/neotel.lbl"; exit 1; }
 SCREEN_OFF=$(tests/host/render_page --screen-offset)
 PAGE_LEN=$(printf '%X' $(wc -c < tests/page_test.vdt))    # octets de la page (hexa, < 256)
@@ -39,13 +39,18 @@ ST_MENU=3; ST_SESSION=6; ST_CARRIER=8; ST_EXIT=10; ST_HUNGUP=12
 KEYS="--poke-at 9000000:$KI=20 --poke-at 12000000:$KI=20 --poke-at 15000000:$KI=31 --poke-at 18000000:$KI=31"
 
 # Lance Phosphoneo avec le faux modem ; $1 = options du modem, reste = phosphoneo
+# Stockage (carte SD emulee) : repertoire neuf a chaque scenario, sauf si
+# STORAGE_KEEP=1 (scenario des reglages persistants).
+STORAGE=$OUT/storage
 run() {
     mopts=$1; shift
     rm -f build/pty.txt build/modem.log
+    [ "${STORAGE_KEEP:-0}" = 1 ] || rm -rf "$STORAGE"
+    mkdir -p "$STORAGE"
     python3 tools/fake_modem.py build/pty.txt $mopts --log build/modem.log &
     mpid=$!
     i=0; while [ ! -s build/pty.txt ] && [ $i -lt 50 ]; do sleep 0.1; i=$((i+1)); done
-    NEO_CDC_TTY=$(cat build/pty.txt) timeout 900 "$PHOS" build/neotel.neo "$@" >"$OUT/phos.log" 2>&1
+    NEO_CDC_TTY=$(cat build/pty.txt) timeout 900 "$PHOS" build/neotel.neo --storage "$STORAGE" "$@" >"$OUT/phos.log" 2>&1
     rc=$?
     kill $mpid 2>/dev/null; wait $mpid 2>/dev/null
     return $rc
@@ -135,6 +140,23 @@ if [ -f "$OUT/carrier.bin" ] && page_has "$OUT/carrier.bin" "PERTE DE PORTEUSE";
     echo "PASS carrier (NO CARRIER confirme par le silence -> ecran)"
 else
     echo "FAIL carrier"; fail=1
+fi
+
+# --- 4b. reglages persistants : profil Minitel 2 sauve puis recharge -------
+rm -rf "$STORAGE"
+run "--serve" --cycles 20000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "15000000:$KI=33"
+if [ -f "$STORAGE/neotel.cfg" ] && [ "$(od -An -tu1 -j3 -N1 "$STORAGE/neotel.cfg" | tr -d ' ')" = 1 ]; then
+    echo "PASS settings-save (neotel.cfg ecrit, profil Minitel 2)"
+else
+    echo "FAIL settings-save ($STORAGE/neotel.cfg)"; fail=1
+fi
+STORAGE_KEEP=1 run "--serve" --cycles 20000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --dump-ram-when "$ST:$ST_MENU:$OUT/settings.bin"
+if [ -f "$OUT/settings.bin" ] && [ "$(od -An -tu1 -j$((0x$TM)) -N1 "$OUT/settings.bin" | tr -d ' ')" = 1 ]; then
+    echo "PASS settings-load (profil Minitel 2 restaure au demarrage)"
+else
+    echo "FAIL settings-load"; fail=1
 fi
 
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------

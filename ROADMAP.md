@@ -38,8 +38,8 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
       perdent à 115200 bauds.
 - [ ] Rendu : ignorer les cellules inchangées (comparaison avec un cache
       de la ligne précédente), rendu d'une page complète < 100 ms.
-- [ ] Réglages persistants (profil, aspect, dernier serveur) via l'API
-      fichiers (3,3 / 3,2) sur la carte SD.
+- [x] Réglages persistants (profil, aspect, identification, dernier serveur)
+      via l'API fichiers (3,3 / 3,2) sur la carte SD — v0.3.0.
 - [ ] Bip Videotex (BEL) par 8,7 plutôt que le bip système.
 - [ ] Jingle du splash (son du RP2040), option pour le couper.
 
