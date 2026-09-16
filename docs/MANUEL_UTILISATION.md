@@ -32,7 +32,11 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
    (`go.minipavi.fr:516`), `3` saisie libre `hôte:port` (Envoi valide,
-   Annulation/ESC annule).
+   Annulation/ESC annule), `ENVOI` = dernier serveur utilisé.
+
+Les réglages (profil, aspect, identification, dernier serveur) sont sauvés
+dans `neotel.cfg` sur la carte SD / clé USB à chaque changement et relus au
+démarrage. Sans carte ou sans fichier : valeurs par défaut, sans message.
 5. **Connexion** : `ATZ` (si pas de `OK` : `+++`/`ATH` pour raccrocher un
    modem resté en ligne, puis `ATZ` à nouveau), `ATI` jusqu'à
    « CONNECTED TO WIFI » (immédiat sur un modem sans Wi-Fi), `ATDT hôte:port`,

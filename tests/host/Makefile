@@ -3,10 +3,10 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Wno-unused-parameter -I ../../src -I . -DTEST_HOST
 SRC = ../../src
-STUB = neo_stub.c
+STUB = neo_stub.c $(SRC)/settings.c
 HDRS = $(wildcard $(SRC)/*.h) neo_stub.h
 
-TESTS = test_videotex test_atmodem test_ui test_keyboard test_display test_terminal test_drcs
+TESTS = test_videotex test_atmodem test_ui test_keyboard test_display test_terminal test_drcs test_settings
 TOOLS = render_page
 
 all: $(TESTS) $(TOOLS)
@@ -33,6 +33,9 @@ test_terminal: test_terminal.c $(SRC)/terminal.c $(SRC)/serial.c $(SRC)/videotex
 
 test_drcs: test_drcs.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB) $(HDRS)
 	$(CC) $(CFLAGS) -o $@ test_drcs.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB)
+
+test_settings: test_settings.c $(STUB) $(HDRS)
+	$(CC) $(CFLAGS) -o $@ test_settings.c $(STUB)
 
 render_page: render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(STUB) $(HDRS)
 	$(CC) $(CFLAGS) -o $@ render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(STUB)

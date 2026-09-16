@@ -15,6 +15,7 @@
 #include "neo_gfx.h"
 #include "neo_time.h"
 #include "neo_stub.h"
+#include "settings.h"
 
 unsigned char neo_regs[16];
 
@@ -91,6 +92,11 @@ void host_rx_push(const unsigned char* data, int n)
 
 void host_tx_reset(void) { host_tx_len = 0; }
 
+/* --- fichier unique (neotel.cfg) ---------------------------------------- */
+unsigned char host_file[256];
+int host_file_len;
+unsigned char host_file_ro;
+
 /* --- dispatch ----------------------------------------------------------- */
 void neo_host_dispatch(void)
 {
@@ -114,6 +120,17 @@ void neo_host_dispatch(void)
         } else if (f == NEO_F_CON_STATUS) {
             NEO_P[0] = (kq_head == kq_tail) ? 0xFF : 0x00;
         }
+        break;
+    case 3:     /* fichiers : un seul fichier en memoire, neotel.cfg. Les
+                 * adresses 16 bits du bloc $FF00 ne sont pas des pointeurs
+                 * hote : le stub lit/ecrit g_settings directement. */
+        if (f == 2) {                       /* Load File */
+            if (host_file_len) memcpy(&g_settings, host_file, host_file_len);
+            else NEO_ERR = 1;
+        } else if (f == 3) {                /* Store File */
+            if (host_file_ro) NEO_ERR = 1;
+            else { host_file_len = sizeof g_settings; memcpy(host_file, &g_settings, host_file_len); }
+        } else NEO_ERR = 1;
         break;
     case NEO_G_GRAPHICS:
     case NEO_G_BLITTER:

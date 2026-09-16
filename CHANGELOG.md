@@ -3,6 +3,20 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [0.3.0] — 2026-09-17
+
+### Ajouté
+- `src/settings.c/h` : réglages persistants dans `neotel.cfg` (carte SD /
+  clé USB, API fichiers 3,2 / 3,3) : profil terminal, aspect, identification,
+  dernier serveur (index ou saisie libre). Chargés au démarrage, sauvés à
+  chaque changement au menu et à chaque choix de serveur ; au menu Serveur,
+  `ENVOI` reprend le dernier serveur. Fichier absent ou corrompu : défauts
+  et valeurs bornées, sans message. Dépôt distant `github.com/benedictemarty/neotel`.
+- Tests : `test_settings` (7 assertions, fichier en mémoire dans `neo_stub`),
+  scénarios cible `settings-save` / `settings-load` (stockage Phosphoneo
+  `--storage`, un répertoire neuf par scénario, `neotel.cfg` relu au second
+  démarrage). `storage/` ignoré par git.
+
 ## [0.2.1] — 2026-09-17
 
 ### Ajouté

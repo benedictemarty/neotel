@@ -13,3 +13,5 @@ __pycache__/
 memory.dump
 docs/ref/STUM2.pdf
 tests/host/test_drcs
+storage/
+tests/host/test_settings

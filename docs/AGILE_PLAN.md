@@ -52,11 +52,15 @@ la BSS (dépendances d'en-têtes ajoutées aux Makefiles) ; `unsigned int`
 n'a pas la même taille sur l'hôte et sur cc65 (structures partagées en
 `unsigned char`/`unsigned short` seulement).
 
-## Sprint 3 — v0.3 (à planifier)
+## Sprint 3 — v0.3.0 (2026-09-17) — TERMINÉ
+| User story | État |
+|---|---|
+| US-16 Mes réglages (profil, aspect, identification, dernier serveur) sont conservés d'un lancement à l'autre | fait (`settings.c`, 7 tests hôte, 2 scénarios cible) |
+| US-18 Le projet est publié (dépôt distant) | fait (`github.com/benedictemarty/neotel`, public comme AsteroNeo/OricTel) |
+
+## Sprint 4 — v0.4 (à planifier)
 - Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-13).
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
   budget de rendu sous flux 115200 (US-14).
 - Rendu : sauter les cellules inchangées / lignes vides (US-15).
-- Sauvegarde des réglages (profil, aspect, serveur) sur la carte SD par
-  l'API fichiers (US-16).
 - 80 colonnes Minitel 2 après récupération de la STUM 1B (US-17, conditionnelle).

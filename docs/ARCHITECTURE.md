@@ -14,6 +14,7 @@ logique de session sont ceux d'OricTel.
 |   ui.c        helpers de menus (ecriture page, saisie bornee)        |
 |   at_modem.c  ATZ / ATI / ATDT, +++ ATH, veille "NO CARRIER"         |
 |   terminal.c  profil Minitel 1B / Minitel 2 (ident, vitesses)        |
+|   settings.c  neotel.cfg sur la carte (3,2 / 3,3) : profil, aspect...|
 |   videotex.c  machine a etats Videotex -> screen[25][40] + dirty     |
 |   fonts.c     G0 (ASCII + accents), G2 (CEPT), 6x8                   |
 |   display.c   lignes sales -> tampon de ligne 320x9 -> blitter       |
