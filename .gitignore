@@ -1,0 +1,12 @@
+build/
+tests/out/
+tests/host/test_videotex
+tests/host/test_atmodem
+tests/host/test_ui
+tests/host/test_keyboard
+tests/host/test_display
+tests/host/test_terminal
+tests/host/render_page
+tests/host/fuzz_videotex
+__pycache__/
+*.pyc
