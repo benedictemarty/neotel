@@ -1,0 +1,63 @@
+# Stratégie de tests — NeoTel
+
+Principe hérité d'OricTel et de Phosphoneo : **exactitude déclarée, pas
+supposée**. Chaque couche a un test qui la falsifierait ; `make test` doit
+être vert avant tout commit.
+
+## Tests hôte (`make test-host`, gcc, `tests/host/`)
+
+Compilés avec `-DTEST_HOST` contre **`neo_stub.c`**, un Neo6502 logiciel :
+bloc `$FF00` dispatché en C (timer, clavier scripté, état HID, UART en
+mémoire, présence CDC), VRAM 320 × 240, palette, compteurs de blits.
+
+| Test | Assertions | Couvre |
+|---|---|---|
+| `test_videotex` | 219 | décodeur Videotex (repris d'OricTel tel quel) |
+| `test_atmodem` | 28 | machine à états AT (repris d'OricTel) |
+| `test_ui` | 11 | helpers de menus, bornes de saisie (repris) |
+| `test_keyboard` | 50 | traduction firmware → Minitel, flèches vs CTRL, hotkeys F1-F10, injection, émission SEP/CSI, aiguillages |
+| `test_display` | 46 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear` |
+| `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |
+
+`render_page` (même Makefile) est l'**oracle** : il rend une page `.vdt`
+avec le chemin C de `display.c` et écrit deux PPM (phases de clignotement).
+
+`make -C tests/host fuzz_videotex` construit le fuzzer libFuzzer d'OricTel
+(clang) : ~780 000 exécutions / 10 s sans plantage sur la v0.1.0.
+
+## Tests cible (`make test-emu`, `tests/run.sh`)
+
+Phosphoneo headless (65C02 cycle-exact, API du vrai firmware liée) + faux
+modem Hayes sur pty (`tools/fake_modem.py`, exposé via `NEO_CDC_TTY`).
+Touches injectées par `--poke-at` dans `keyboard_inject`, états attendus
+par `--dump-ram-when` sur `g_dbg_state` / `g_vtx_bytes` / `g_dbg_hangups`,
+adresses lues dans `build/neotel.lbl`.
+
+1. **session** : splash → liaison → menu `1` → serveur `1` → ATZ/ATI/ATDT →
+   page décodée (« PAGE DE TEST NEOTEL » lu dans `vtx.screen` du dump RAM).
+2. **ATDT** : le journal du modem contient `ATDTpavi.3617.fr:3617`.
+3. **page** : la capture de la page (rendu **assembleur** sur cible) est
+   **identique pixel pour pixel** au rendu **C** de l'hôte (`render_page`,
+   l'une des deux phases de clignotement). C'est la preuve que
+   `display_asm.s` et `display.c` font la même chose.
+4. **page-ref** : la capture est identique à `tests/ref/page.ppm`
+   (`make ref` après un changement visuel voulu et inspecté).
+5. **escape** : ESC ESC en session → `+++` puis `ATH` émis, retour au menu
+   (garde Hayes du faux modem réduite : l'émulateur va plus vite que le
+   temps réel).
+6. **carrier** : `NO CARRIER` 1 s après la page → écran « PERTE DE
+   PORTEUSE » après confirmation par le silence.
+7. **exit** : ESC au menu → NeoBASIC répond (`PRINT 6*7` → `42`).
+8. **neo** : fumée dans l'émulateur officiel `neo` (splash affiché).
+
+Durée : ~9 s. Les scénarios sont déterministes côté 65C02 ; seul le faux
+modem est asynchrone (il répond en quelques ms, bien avant les timeouts).
+
+## Ce qui n'est pas testé
+
+- **La carte réelle** : aucun Neo6502 physique n'était disponible. Les
+  risques spécifiques (latence réelle des appels API, débit du CDC, tenue
+  du tampon RX de 1 Ko à haut débit, comportement d'un vrai
+  PicoWiFiModemUSB) sont listés dans le ROADMAP.
+- Le mode Wi-Fi (`AT$SCAN`…) n'est joué que par le faux modem (réponses
+  fictives), pas contre un Pico.
