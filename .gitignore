@@ -10,3 +10,4 @@ tests/host/render_page
 tests/host/fuzz_videotex
 __pycache__/
 *.pyc
+memory.dump
