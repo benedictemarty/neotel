@@ -38,12 +38,25 @@ ligne (41 ms) ; passage de la course de cellules en assembleur → ~60 000
 temps réel (garde Hayes réglable). Les états de test doivent être posés
 APRÈS le rendu d'un écran pour que le dump RAM le contienne.
 
-## Sprint 2 — v0.2 (à planifier)
-- Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-10).
+## Sprint 2 — v0.2.0 (2026-09-17) — TERMINÉ
+Objectif : Minitel 2 fidèle sur les DRCS, à partir de la STUM 2 récupérée.
+
+| User story | État |
+|---|---|
+| US-10 En tant que PO, je dispose de la STUM Minitel 2 dans le projet, relue | fait (`docs/ref/STUM2-NOTES.md`, OCR) |
+| US-11 Un serveur Minitel 2 peut télécharger des jeux DRCS et les afficher | fait (33 tests, page cible == oracle) |
+| US-12 Le serveur peut demander la position du curseur (`CSI 6n`) | fait |
+
+Rétrospective : un `.o` non recompilé après changement d'en-tête a corrompu
+la BSS (dépendances d'en-têtes ajoutées aux Makefiles) ; `unsigned int`
+n'a pas la même taille sur l'hôte et sur cc65 (structures partagées en
+`unsigned char`/`unsigned short` seulement).
+
+## Sprint 3 — v0.3 (à planifier)
+- Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-13).
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
-  budget de rendu sous flux 115200 (US-11).
-- Rendu : sauter les cellules inchangées / lignes vides (US-12).
-- DRCS et 80 colonnes Minitel 2 après obtention de la STUM 2 (US-13,
-  conditionnelle).
+  budget de rendu sous flux 115200 (US-14).
+- Rendu : sauter les cellules inchangées / lignes vides (US-15).
 - Sauvegarde des réglages (profil, aspect, serveur) sur la carte SD par
-  l'API fichiers (US-14).
+  l'API fichiers (US-16).
+- 80 colonnes Minitel 2 après récupération de la STUM 1B (US-17, conditionnelle).

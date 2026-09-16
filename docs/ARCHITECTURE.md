@@ -42,7 +42,7 @@ logique de session sont ceux d'OricTel.
 $0000-$00FF  page zero (cc65 + 17 octets de display_asm.s)
 $0100-$01FF  pile 65C02
 $0800-       STARTUP, CODE (~22 Ko), RODATA (polices, tables), DATA
-             BSS : contexte Videotex (6,2 Ko), tampon de ligne (2 880 o),
+             BSS : contexte Videotex (8 Ko dont 1 880 o de DRCS), tampon de ligne (2 880 o),
                    cache G1 (1 152 o), page Wi-Fi, etc.  Fin ~ $9E00
 $F800-$FBFF  pile C cc65 (1 Ko)
 $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
@@ -50,7 +50,9 @@ $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
 
 `build/neotel.map` donne les tailles exactes, `build/neotel.lbl` les
 symboles (les tests cible y lisent `_keyboard_inject`, `_g_dbg_state`,
-`_g_vtx_bytes`, `_g_dbg_hangups`, `_vtx`).
+`_g_vtx_bytes`, `_g_dbg_hangups`, `_vtx`). Les dumps RAM sont lus avec
+`offsetof(vtx_context_t, screen)` calculé sur l'hôte : la structure ne doit
+contenir que des `unsigned char` / `unsigned short` (même taille sur cc65).
 
 ## Affichage (display.c, display_asm.s)
 
@@ -132,7 +134,13 @@ Machine à états de `videotex.c`, inchangée par rapport à OricTel (voir
 tailles, flash, masquage, souligné/séparé, inversion, CSI, PRO1/2/3, SS2
 accents), US, REP, SEP, masque global, modes rouleau/minuscules,
 aiguillages, ACK PRO3. Ajouts NeoTel : `g_vtx_bytes` (compteur pour les
-tests), PRO2 PROG → `term_prog_speed`, identification → `term_send_ident`.
+tests), PRO2 PROG → `term_prog_speed`, identification → `term_send_ident`,
+et, dans le profil Minitel 2 (STUM 2, `docs/ref/STUM2-NOTES.md`) : jeux
+DRCS G'0/G'1 (états `DRCS_HDR`/`DRCS_XFER` traités AVANT la resynchronisation
+ESC, formes 8 × 10 dans le contexte, associations `ESC 2/8|2/9`, cellules
+`CHARSET_DRCS0/1`), `CSI 6n`. Le rendu d'une cellule DRCS passe par
+`drcs_pattern9` (display.c, rangées 9 et 10 fusionnées) que `blit_run`
+appelle comme `font_get_g2`.
 
 ## Tests
 

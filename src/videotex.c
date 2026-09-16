@@ -66,6 +66,10 @@ static void send_ident(void)
 /* Declaree tot: s_ctx est defini plus bas, pres de put_char. */
 static vtx_context_t* s_ctx;
 
+/* Contexte du dernier vtx_init/vtx_process, pour le rendu des cellules
+ * DRCS (display.c, display_asm.s) : les formes vivent dans le contexte. */
+vtx_context_t* vtx_current;
+
 /* Variante interne de vtx_touch travaillant sur s_ctx. Un argument de moins
  * (le pointeur, que cc65 empile via pushax) et plus aucun rechargement du
  * pointeur parametre. vtx_touch reste l'entree publique (display.c, main.c
@@ -136,6 +140,12 @@ void vtx_init(vtx_context_t* ctx)
     ctx->kbd_cursor = 0;
     ctx->global_mask = 1;  /* defaut: cellules concealed cachees */
     g_global_mask = 1;     /* garder la copie renderer synchronisee */
+    /* Minitel 2 : jeux de base associes a G0/G1, en-tete DRCS par defaut
+     * G'0 (STUM 2 par. 2.2.2 et 2.3.2) ; les formes sont effacees (memset). */
+    ctx->drcs_g0 = 0;
+    ctx->drcs_g1 = 0;
+    ctx->drcs_hdr_set = 0;
+    vtx_current = ctx;
 
     vtx_clear_page(ctx);
     vtx_clear_status(ctx);
@@ -267,6 +277,13 @@ static void put_char(unsigned char ch, unsigned char cs)
 
     if (s_ctx->cur_y >= VTX_ROWS || s_ctx->cur_x >= VTX_COLS) {
         return;
+    }
+
+    /* Minitel 2 : jeu DRCS associe a G0 / G1 (STUM 2 par. 2.2.2). Les codes
+     * 2/0 et 7/F restent ceux du jeu de base (par. 2.3.3.1, remarque). */
+    if (ch != 0x20 && ch != 0x7F) {
+        if (cs == CHARSET_G0 && s_ctx->drcs_g0)      cs = CHARSET_DRCS0;
+        else if (cs == CHARSET_G1 && s_ctx->drcs_g1) cs = CHARSET_DRCS1;
     }
 
     /* Mode majuscule force (defaut Minitel 1B) : 'a'-'z' -> 'A'-'Z'.
@@ -534,8 +551,176 @@ static void process_esc(vtx_context_t* ctx, unsigned char byte)
         return;
     }
 
+    /* Minitel 2 : association des jeux (STUM 2 par. 2.2.2).
+     *   ESC 2/8 4/0 : jeu alphanumerique de base -> G0
+     *   ESC 2/8 2/0 4/2 : jeu DRCS G'0 -> G0
+     *   ESC 2/9 6/3 : jeu semi-graphique de base -> G1
+     *   ESC 2/9 2/0 4/3 : jeu DRCS G'1 -> G1
+     * Les attributs actifs sont conserves. Un Minitel 1B ignore ESC 2/8. */
+    if (g_term_model == TERM_MINITEL_2 && (byte == 0x28 || byte == 0x29)) {
+        ctx->state = (byte == 0x28) ? VTX_STATE_ESC_G0SET : VTX_STATE_ESC_G1SET;
+        return;
+    }
+
     /* Non reconnu: ignorer et revenir a NORMAL */
     ctx->state = VTX_STATE_NORMAL;
+}
+
+/* Suite de ESC 2/8 / ESC 2/9 (Minitel 2). Toute autre valeur : sequence
+ * ignoree, retour a NORMAL sans effet. */
+static void process_charset_assoc(vtx_context_t* ctx, unsigned char byte)
+{
+    switch (ctx->state) {
+        case VTX_STATE_ESC_G0SET:
+            if (byte == 0x40)      { ctx->drcs_g0 = 0; break; }
+            else if (byte == 0x20) { ctx->state = VTX_STATE_ESC_G0SET2; return; }
+            break;
+        case VTX_STATE_ESC_G0SET2:
+            if (byte == 0x42) ctx->drcs_g0 = 1;
+            break;
+        case VTX_STATE_ESC_G1SET:
+            if (byte == 0x63)      { ctx->drcs_g1 = 0; break; }
+            else if (byte == 0x20) { ctx->state = VTX_STATE_ESC_G1SET2; return; }
+            break;
+        default: /* VTX_STATE_ESC_G1SET2 */
+            if (byte == 0x43) ctx->drcs_g1 = 1;
+            break;
+    }
+    ctx->state = VTX_STATE_NORMAL;
+}
+
+/* ===================================================================
+ *  Telechargement DRCS (Minitel 2, STUM 2 par. 2.3)
+ *
+ *  En-tete  : US 2/3 2/0 2/0 2/0 4/2|4/3 4/9  (jeu G'0 | G'1)
+ *  Transfert: US 2/3 Y  puis, pour chaque forme, B1 (3/0) + 14 octets de
+ *             6 bits (colonnes 4 a 7) ; Y = code de la premiere forme,
+ *             les suivantes occupent Y+1, Y+2...
+ *  Sortie   : tout US (la forme en cours est completee en fond, le US est
+ *             interprete normalement).
+ * =================================================================== */
+
+/* Range la forme en cours (completee de rangees vides) si son code est
+ * telechargeable (2/1..7/E), sinon l'ignore. */
+static void drcs_form_store(vtx_context_t* ctx)
+{
+    if (!ctx->drcs_started) return;
+    ctx->drcs_started = 0;
+    /* Bits en attente d'une rangee incomplete : le reste est du fond */
+    if (ctx->drcs_nbits && ctx->drcs_nrow < DRCS_ROWS) {
+        ctx->drcs_form[ctx->drcs_nrow] =
+            (unsigned char)(ctx->drcs_acc << (8 - ctx->drcs_nbits));
+    }
+    if (ctx->drcs_code >= DRCS_FIRST && ctx->drcs_code <= DRCS_LAST) {
+        memcpy(&ctx->drcs[ctx->drcs_hdr_set][ctx->drcs_code - DRCS_FIRST][0],
+               ctx->drcs_form, DRCS_ROWS);
+    }
+}
+
+static void drcs_form_begin(vtx_context_t* ctx)
+{
+    ctx->drcs_started = 1;
+    ctx->drcs_nbyte = 0;
+    ctx->drcs_nrow = 0;
+    ctx->drcs_nbits = 0;
+    ctx->drcs_acc = 0;
+    memset(ctx->drcs_form, 0, DRCS_ROWS);
+}
+
+/* Un octet de donnees : 6 bits (b5..b0), rangees de 8 pixels remplies de
+ * gauche a droite et de haut en bas, les bits excedentaires passant a la
+ * rangee suivante ; au-dela de 14 octets, filtre (par. 2.3.3.2). */
+static void drcs_data(vtx_context_t* ctx, unsigned char six)
+{
+    if (!ctx->drcs_started || ctx->drcs_nbyte >= DRCS_BYTES) return;
+    ++ctx->drcs_nbyte;
+    ctx->drcs_acc = (unsigned short)((ctx->drcs_acc << 6) | (six & 0x3F));
+    ctx->drcs_nbits += 6;
+    while (ctx->drcs_nbits >= 8) {
+        ctx->drcs_nbits -= 8;
+        if (ctx->drcs_nrow < DRCS_ROWS) {
+            ctx->drcs_form[ctx->drcs_nrow++] =
+                (unsigned char)(ctx->drcs_acc >> ctx->drcs_nbits);
+        }
+        ctx->drcs_acc &= (unsigned short)((1u << ctx->drcs_nbits) - 1);
+    }
+}
+
+/* Octet suivant US 2/3. Retourne 1 si consomme ; 0 si l'octet doit etre
+ * traite normalement (resynchronisation C0 en cours d'en-tete). */
+static unsigned char drcs_header(vtx_context_t* ctx, unsigned char byte)
+{
+    static const unsigned char hdr[4] = { 0x20, 0x20, 0x42, 0x49 };
+    unsigned char i = ctx->drcs_hdr_idx;
+
+    if (i == 0) {
+        if (byte == 0x20) {                     /* en-tete */
+            ctx->drcs_hdr_idx = 1;
+            return 1;
+        }
+        if (byte >= DRCS_FIRST && byte <= DRCS_LAST) {   /* transfert : Y */
+            ctx->drcs_code = byte;
+            ctx->drcs_started = 0;
+            ctx->state = VTX_STATE_DRCS_XFER;
+            return 1;
+        }
+        ctx->state = VTX_STATE_NORMAL;          /* erronee : ignoree */
+        return (byte < 0x20) ? 0 : 1;
+    }
+    if (byte < 0x20) {                          /* C0 : resynchronisation */
+        ctx->state = VTX_STATE_NORMAL;
+        return 0;
+    }
+    /* i = 1..4 : 2/0 2/0 (4/2|4/3) 4/9 */
+    if ((i == 3 && (byte == 0x42 || byte == 0x43)) ||
+        (i != 3 && byte == hdr[i - 1])) {
+        if (i == 3) ctx->drcs_code = (byte == 0x43) ? 1 : 0;   /* candidat */
+        if (i == 4) {
+            ctx->drcs_hdr_set = ctx->drcs_code;  /* en-tete complete */
+            ctx->state = VTX_STATE_NORMAL;
+        } else {
+            ctx->drcs_hdr_idx = i + 1;
+        }
+        return 1;
+    }
+    /* Syntaxe erronee : l'en-tete precedente reste valide (le jeu candidat
+     * n'a pas ete retenu). */
+    ctx->state = VTX_STATE_NORMAL;
+    return 1;
+}
+
+/* Octet en cours de transfert. Retourne 1 si consomme. */
+static unsigned char drcs_xfer(vtx_context_t* ctx, unsigned char byte)
+{
+    if (byte == 0x1F) {                         /* US : sortie, US X normal */
+        drcs_form_store(ctx);
+        ctx->state = VTX_STATE_US_ROW;
+        return 1;
+    }
+    if (byte == 0x00) return 1;                 /* NUL : rien */
+    if (byte == 0x30) {                         /* B1 : delimiteur de forme */
+        if (ctx->drcs_started) {
+            drcs_form_store(ctx);
+            ++ctx->drcs_code;
+        }
+        drcs_form_begin(ctx);
+        return 1;
+    }
+    if (byte >= 0x40) {                         /* colonnes 4 a 7 : donnees */
+        drcs_data(ctx, byte);
+    } else {
+        /* C0 (sauf US, NUL) et colonnes 2-3 (sauf B1) : pixels en fond,
+         * sans resynchronisation (par. 2.3.3.2). */
+        drcs_data(ctx, 0);
+    }
+    return 1;
+}
+
+const unsigned char* vtx_drcs_form(const vtx_context_t* ctx,
+                                   unsigned char set, unsigned char ch)
+{
+    if (ch < DRCS_FIRST || ch > DRCS_LAST) return 0;
+    return &ctx->drcs[set ? 1 : 0][ch - DRCS_FIRST][0];
 }
 
 /* ===================================================================
@@ -613,6 +798,24 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
             break;
         case 'l':   /* Mode reset (curseur invisible) */
             ctx->cur_visible = 0;
+            break;
+        case 'n':   /* Minitel 2 (STUM 2 par. 2.5) : CSI 3/6 6/E = demande de
+                     * position curseur ; reponse CSI Pr 3/B Pc 5/2. Pr = rangee
+                     * (0-24) et Pc = colonne 1-based, comme CSI H les lit. */
+            if (param == 6 && g_term_model == TERM_MINITEL_2) {
+                unsigned char v;
+                serial_send(0x1B);
+                serial_send(0x5B);
+                v = ctx->cur_y;
+                if (v >= 10) serial_send((unsigned char)('0' + v / 10));
+                serial_send((unsigned char)('0' + v % 10));
+                serial_send(0x3B);
+                v = (unsigned char)(ctx->cur_x + 1);
+                if (v >= 10) serial_send((unsigned char)('0' + v / 10));
+                serial_send((unsigned char)('0' + v % 10));
+                serial_send(0x52);
+                serial_tx_flush();
+            }
             break;
         default:
             break;
@@ -804,10 +1007,20 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
 {
     /* Contexte courant pour put_char (voir s_ctx). */
     s_ctx = ctx;
+    vtx_current = ctx;
     ++g_vtx_bytes;
 
     /* Masquer bit 7 (7 bits Videotex) */
     byte &= 0x7F;
+
+    /* Telechargement DRCS (Minitel 2) : AVANT la resynchronisation ESC, un
+     * C0 en cours de forme est une donnee (STUM 2 par. 2.3.3.2). */
+    if (ctx->state == VTX_STATE_DRCS_XFER) {
+        if (drcs_xfer(ctx, byte)) return;
+    } else if (ctx->state == VTX_STATE_DRCS_HDR) {
+        if (drcs_header(ctx, byte)) return;
+        /* C0 : l'en-tete est abandonnee, l'octet est traite normalement */
+    }
 
     /* Re-sync: un ESC ($1B) recu en milieu de sequence multi-octets
      * abandonne l'etat courant et redemarre une nouvelle sequence ESC.
@@ -830,7 +1043,20 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
         process_csi(ctx, byte);
         return;
 
+    case VTX_STATE_ESC_G0SET:
+    case VTX_STATE_ESC_G0SET2:
+    case VTX_STATE_ESC_G1SET:
+    case VTX_STATE_ESC_G1SET2:
+        process_charset_assoc(ctx, byte);
+        return;
+
     case VTX_STATE_US_ROW:
+        /* Minitel 2 : US 2/3 ouvre une en-tete ou un transfert DRCS */
+        if (byte == 0x23 && g_term_model == TERM_MINITEL_2) {
+            ctx->drcs_hdr_idx = 0;
+            ctx->state = VTX_STATE_DRCS_HDR;
+            return;
+        }
         /* Valider la plage en amont: un octet < $40 sous-deborderait
          * l'unsigned char (vtx_set_cursor reclampe en US_COL, mais on rejette
          * proprement plutot que de s'appuyer sur ce filet). */
@@ -851,6 +1077,12 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
         ctx->attr_flags = 0;            /* souligne, inversion, clignotement = false */
         ctx->attr_size = SIZE_NORMAL;   /* taille = 0 */
         ctx->has_pending = 0;
+        /* Minitel 2 : un acces en rangee 00 reassocie les jeux de base a
+         * G0 et G1 (STUM 2 par. 2.2.2). */
+        if (ctx->us_row == 0) {
+            ctx->drcs_g0 = 0;
+            ctx->drcs_g1 = 0;
+        }
         ctx->state = VTX_STATE_NORMAL;
         return;
 
@@ -907,7 +1139,11 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                     else if (byte == 0x43) acc_ch = 0x92; /* C, */
                     break;
             }
-            if (acc_ch) {
+            if (ctx->drcs_g0 && ctx->charset == CHARSET_G0) {
+                /* Minitel 2, G'0 actif : SS2 <accent> X affiche la forme X
+                 * du jeu DRCS (STUM 2 par. 2.3.7) ; put_char fait le mapping. */
+                put_char(byte, CHARSET_G0);
+            } else if (acc_ch) {
                 put_char(acc_ch, CHARSET_G2);
             } else {
                 /* Combinaison inconnue: afficher la lettre de base */
@@ -1025,6 +1261,11 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                 break;
             case 0x16:  /* SS2 - single shift G2 (accents) */
             case 0x19:  /* SS2 - single shift G2 (variante) */
+                /* Minitel 2 : SS2 ignore si le jeu invoque est G1/G'1
+                 * (STUM 2 par. 2.3.7). */
+                if (g_term_model == TERM_MINITEL_2 && ctx->charset == CHARSET_G1) {
+                    break;
+                }
                 ctx->state = VTX_STATE_SS2;
                 break;
             case 0x18:  /* CAN - effacer jusqu'a fin de ligne */

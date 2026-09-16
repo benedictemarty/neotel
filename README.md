@@ -23,16 +23,17 @@ NeoTel sur le 65C02 : Videotex → cellules 40x25 → tampon de ligne → blitte
 
 ## État
 
-**v0.1.0 — sprint 1 livré.** Minitel 1B complet (Videotex 40 colonnes :
+**v0.2.0 — sprints 1 et 2 livrés.** Minitel 1B complet (Videotex 40 colonnes :
 G0/G1/G2, couleurs, attributs, doubles tailles, PRO1/2/3, aiguillages),
-profil Minitel 2 (identification, vitesses PRO2 PROG jusqu'à 9600), menus,
+profil Minitel 2 (identification, vitesses PRO2 PROG jusqu'à 9600, **jeux
+DRCS téléchargeables** conformes à la STUM 2, demande de position curseur), menus,
 connexion AT, page de configuration Wi-Fi du Pico, perte de porteuse,
 retour à NeoBASIC. Vérifié dans les émulateurs Phosphoneo et `neo` avec un
 faux modem ; **non exécuté sur une carte Neo6502 physique** (aucune
 disponible) — voir [ROADMAP.md](ROADMAP.md).
 
-Ce qui n'est pas émulé du Minitel 2 (mode téléinformatique 80 colonnes,
-caractères redéfinissables DRCS) est détaillé dans
+Ce qui n'est pas émulé du Minitel 2 (mode téléinformatique 80 colonnes)
+et les écarts DRCS connus sont détaillés dans
 [docs/MINITEL_1B_VS_2.md](docs/MINITEL_1B_VS_2.md).
 
 ## Prérequis
@@ -53,8 +54,8 @@ make run               # émulateur neo + faux modem (ATDT hôte:port = vraie co
 make run-phos          # idem sous Phosphoneo (SDL)
 make run MODEM=--serve # page de test locale, sans réseau
 make test              # tests hôte (gcc) + tests cible (Phosphoneo headless)
-make test-host         # 379 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
-make test-emu          # menus → session, page cible == oracle hôte, ESC ESC, NO CARRIER, sortie, neo
+make test-host         # 412 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
+make test-emu          # menus → session, page cible == oracle hôte, DRCS Minitel 2, ESC ESC, NO CARRIER, sortie, neo
 make ref               # régénère tests/ref/page.ppm après un changement visuel voulu
 ```
 
