@@ -2,8 +2,8 @@
  * @file render_page.c
  * @brief Rendu hote d'une page Videotex avec le moteur de NeoTel (oracle)
  *
- *   render_page PAGE.vdt SORTIE0.ppm SORTIE1.ppm
- *       decode PAGE.vdt (flux Videotex brut, comme envoye par le serveur),
+ *   render_page [--m2] PAGE.vdt SORTIE0.ppm SORTIE1.ppm
+ *       (--m2 : profil Minitel 2, DRCS) decode PAGE.vdt (flux Videotex brut, comme envoye par le serveur),
  *       rend la page (y 0-224) avec display.c + fonts.c en C (chemin hote),
  *       palette couleur, et ecrit deux PPM : phase de clignotement 0 et 1.
  *       La zone de statut (y >= 225) est laissee noire.
@@ -19,6 +19,7 @@
 #include <string.h>
 #include "display.h"
 #include "videotex.h"
+#include "terminal.h"
 #include "neo_stub.h"
 
 unsigned char g_blink_phase;
@@ -58,8 +59,12 @@ int main(int argc, char** argv)
         printf("%u\n", (unsigned)offsetof(vtx_context_t, screen));
         return 0;
     }
+    if (argc == 5 && strcmp(argv[1], "--m2") == 0) {
+        term_set_model(TERM_MINITEL_2);
+        ++argv; --argc;
+    }
     if (argc != 4) {
-        fprintf(stderr, "usage : render_page PAGE.vdt PHASE0.ppm PHASE1.ppm | --screen-offset\n");
+        fprintf(stderr, "usage : render_page [--m2] PAGE.vdt PHASE0.ppm PHASE1.ppm | --screen-offset\n");
         return 2;
     }
     f = fopen(argv[1], "rb");

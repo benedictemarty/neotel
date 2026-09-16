@@ -44,7 +44,11 @@ all: $(NEO)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(BUILD)/%.o: src/%.c | $(BUILD)
+# Tout .o depend de tous les en-tetes : un vtx_context_t qui change de taille
+# dans un .o et pas dans l'autre corrompt la BSS (constate, v0.2).
+HDRS = $(wildcard src/*.h)
+
+$(BUILD)/%.o: src/%.c $(HDRS) | $(BUILD)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD)/%.o: src/asm/%.s | $(BUILD)

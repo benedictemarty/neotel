@@ -96,6 +96,26 @@ if [ "$mode" = ref ]; then cp "$OUT/page.ppm" "$REF/page.ppm"; echo "REF  page"
 elif [ -f "$REF/page.ppm" ] && cmp -s "$OUT/page.ppm" "$REF/page.ppm"; then echo "PASS page-ref (identique a tests/ref/page.ppm)"
 elif [ -f "$REF/page.ppm" ]; then echo "FAIL page-ref (capture != tests/ref/page.ppm)"; fail=1; fi
 
+# --- 2b. profil Minitel 2 : page DRCS (STUM 2 par. 2.3) == oracle hote -----
+tests/host/render_page --m2 tests/page_drcs.vdt "$OUT/drcs_gold0.ppm" "$OUT/drcs_gold1.ppm"
+run "--serve --page tests/page_drcs.vdt" --cycles 44000000 \
+    --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" --poke-at "15000000:$KI=33" \
+    --poke-at "18000000:$KI=31" --poke-at "21000000:$KI=31" \
+    --screenshot-at "43000000:$OUT/drcs.ppm"
+python3 - "$OUT/drcs.ppm" "$OUT/drcs_gold0.ppm" "$OUT/drcs_gold1.ppm" <<'EOF2'
+import sys
+def load(p):
+    return open(p, 'rb').read().split(b'\n', 3)[3]
+cap = load(sys.argv[1]); g0 = load(sys.argv[2]); g1 = load(sys.argv[3])
+n = 320 * 225 * 3
+sys.exit(0 if (cap[:n] == g0[:n] or cap[:n] == g1[:n]) else 1)
+EOF2
+if [ $? -eq 0 ]; then echo "PASS drcs (Minitel 2 : formes telechargees, capture == oracle hote)"
+else echo "FAIL drcs (capture != oracle, voir $OUT/drcs.ppm et $OUT/drcs_gold0.ppm)"; fail=1; fi
+if [ "$mode" = ref ]; then cp "$OUT/drcs.ppm" "$REF/drcs.ppm"; echo "REF  drcs"
+elif [ -f "$REF/drcs.ppm" ] && cmp -s "$OUT/drcs.ppm" "$REF/drcs.ppm"; then echo "PASS drcs-ref"
+elif [ -f "$REF/drcs.ppm" ]; then echo "FAIL drcs-ref (capture != tests/ref/drcs.ppm)"; fail=1; fi
+
 # --- 3. ESC ESC en session -> raccrochage, retour au menu ------------------
 # NB : Phosphoneo va plus vite que le temps reel ; la garde de silence Hayes
 # du faux modem est reduite (--guard 0.02) pour qu'il voie le "+++".

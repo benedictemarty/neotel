@@ -3,9 +3,30 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [Non publié]
+## [0.2.0] — 2026-09-17
+
+Minitel 2 : jeux de caractères téléchargeables (DRCS), conformes à la STUM 2.
 
 ### Ajouté
+- `videotex.c/h` : téléchargement DRCS (STUM 2 §2.3) — en-tête
+  `US 2/3 2/0 2/0 2/0 4/2|4/3 4/9`, transfert `US 2/3 Y` + `B1` + 14 octets
+  de 6 bits par forme (8 × 10), formes successives, B1 anticipé, excédent
+  filtré, C0 / colonnes 2-3 = fond sans resynchronisation, sortie sur US,
+  code > 7/E ignoré ; associations `ESC 2/8 4/0`, `ESC 2/8 2/0 4/2`,
+  `ESC 2/9 6/3`, `ESC 2/9 2/0 4/3` (§2.2.2) ; 2/0 et 7/F restent au jeu de
+  base ; accès en rangée 00 = jeux de base ; `SS2 <accent> X` en G'0 =
+  forme X, SS2 ignoré si G1 invoqué (§2.3.7) ; jeux effacés par `vtx_init`
+  (connexion). Nouveaux jeux de cellule `CHARSET_DRCS0/1`. 1 880 octets de
+  BSS dans le contexte. Actif dans le profil **Minitel 2** seulement.
+- `CSI 3/6 6/E` (demande de position curseur, STUM 2 §2.5) : réponse
+  `CSI Pr;Pc R` (Pr rangée 0-24, Pc colonne 1-based comme `CSI H`), Minitel 2.
+- `display.c` / `display_asm.s` : rendu des cellules DRCS (`drcs_pattern9`,
+  appelé aussi par `blit_run`) ; la forme 8 × 10 devient 8 × 9 en fusionnant
+  (OU) les rangées 9 et 10 ; le lignage n'a pas d'effet en G'1 (§2.3.6).
+- Tests : `tests/host/test_drcs.c` (33 assertions, vecteur = exemple du
+  §2.3.5 de la STUM 2), page `tests/page_drcs.vdt`, scénario cible `drcs`
+  (profil Minitel 2 par le menu, capture == oracle hôte `render_page --m2`),
+  référence `tests/ref/drcs.ppm`.
 - `docs/ref/STUM2-NOTES.md` : extraits relus de la STUM Minitel 2 (France
   Télécom, février 1991, scan de wiki.labomedia.org, SHA-256 consignée) :
   identification ROM (annexe 6.6), DRCS (§2.3), associations de jeux,
@@ -18,6 +39,13 @@ Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
   du Minitel 2 passent de « non vérifié » à **vérifié** ; DRCS désormais
   spécifié et planifié (ROADMAP v0.3), séquences 80 colonnes relevées.
 - `src/terminal.h` : références STUM 2 dans les commentaires.
+- `vtx_context_t.drcs_acc` en `unsigned short` : même taille sur cc65 et
+  sur l'hôte, les dumps RAM des tests lisant `offsetof(screen)` côté hôte.
+
+### Corrigé
+- Makefiles : tout `.o` dépend des en-têtes. Sans cela, `main.o` compilé
+  avec l'ancienne taille de `vtx_context_t` faisait chevaucher `vtx` et les
+  statiques de `videotex.o` (boucle sans fin dans `reset_cells`).
 
 ## [0.1.0] — 2026-09-17
 

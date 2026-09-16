@@ -36,11 +36,28 @@
 #define VTX_STATE_MASK_SP   10  /* Mask global: attend $20 apres ESC # */
 #define VTX_STATE_MASK_END  11  /* Mask global: attend $58 (set) ou $5F (reset) */
 #define VTX_STATE_SEP       12  /* SEP ($13) recu: consommer le code fonction */
+/* Minitel 2 (STUM 2, chapitre L'ecran par. 2.2.2 et 2.3) */
+#define VTX_STATE_DRCS_HDR  13  /* US 2/3 recu: en-tete ou debut de transfert */
+#define VTX_STATE_DRCS_XFER 14  /* transfert de formes DRCS en cours */
+#define VTX_STATE_ESC_G0SET 15  /* ESC 2/8 : association du jeu G0 */
+#define VTX_STATE_ESC_G1SET 16  /* ESC 2/9 : association du jeu G1 */
+#define VTX_STATE_ESC_G0SET2 17 /* ESC 2/8 2/0 recu : attend 4/2 */
+#define VTX_STATE_ESC_G1SET2 18 /* ESC 2/9 2/0 recu : attend 4/3 */
 
 /* Jeux de caracteres */
 #define CHARSET_G0  0       /* Alphanumerique */
 #define CHARSET_G1  1       /* Mosaiques semi-graphiques */
 #define CHARSET_G2  2       /* Supplementaire (accents) */
+#define CHARSET_DRCS0 3     /* Jeu telecharge G'0 (Minitel 2), associe a G0 */
+#define CHARSET_DRCS1 4     /* Jeu telecharge G'1 (Minitel 2), associe a G1 */
+
+/* Jeux DRCS (STUM 2 par. 2.3) : 94 formes (codes 2/1 a 7/E) de 8x10 pixels,
+ * 1 octet par rangee (bit 7 = pixel de gauche). */
+#define DRCS_FIRST  0x21
+#define DRCS_LAST   0x7E
+#define DRCS_COUNT  (DRCS_LAST - DRCS_FIRST + 1)
+#define DRCS_ROWS   10
+#define DRCS_BYTES  14      /* octets de 6 bits par forme */
 
 /* Attributs de taille */
 #define SIZE_NORMAL         0
@@ -155,6 +172,22 @@ typedef struct {
     unsigned char pro_idx;
     unsigned char pro_buf[3];
 
+    /* --- Minitel 2 : jeux DRCS (STUM 2 par. 2.3) --- */
+    unsigned char drcs_g0;          /* 1 = G'0 associe a G0 (ESC 2/8 2/0 4/2) */
+    unsigned char drcs_g1;          /* 1 = G'1 associe a G1 (ESC 2/9 2/0 4/3) */
+    unsigned char drcs_hdr_set;     /* en-tete valide : 0 = G'0 (defaut), 1 = G'1 */
+    unsigned char drcs_hdr_idx;     /* octets d'en-tete recus apres US 2/3 */
+    unsigned char drcs_code;        /* code de la forme en cours de transfert */
+    unsigned char drcs_started;     /* 1 = un B1 a ete recu (forme en cours) */
+    unsigned char drcs_nbyte;       /* octets recus pour la forme (0..14) */
+    unsigned char drcs_nrow;        /* rangees completes (0..10) */
+    unsigned char drcs_nbits;       /* bits en attente dans drcs_acc */
+    unsigned short drcs_acc;        /* accumulateur de bits (6 par octet) ; short :
+                                     * meme taille sur cc65 et sur l'hote (offsets
+                                     * identiques pour les dumps RAM des tests) */
+    unsigned char drcs_form[DRCS_ROWS];
+    unsigned char drcs[2][DRCS_COUNT][DRCS_ROWS];
+
     /* Buffer ecran (40x25 cellules) */
     vtx_cell_t screen[VTX_ROWS][VTX_COLS];
 
@@ -203,5 +236,18 @@ void vtx_set_cursor(vtx_context_t* ctx, unsigned char row, unsigned char col);
  */
 void vtx_touch(vtx_context_t* ctx, unsigned char row,
                unsigned char col_from, unsigned char col_to);
+
+/**
+ * Forme DRCS (10 rangees) du code ch dans le jeu set (0 = G'0, 1 = G'1) ;
+ * NULL si le code n'est pas telechargeable (2/0, 7/F, hors plage).
+ */
+const unsigned char* vtx_drcs_form(const vtx_context_t* ctx,
+                                   unsigned char set, unsigned char ch);
+
+/**
+ * Contexte du dernier vtx_process (pour le rendu des cellules DRCS par
+ * display.c / display_asm.s : les formes vivent dans le contexte).
+ */
+extern vtx_context_t* vtx_current;
 
 #endif /* VIDEOTEX_H */

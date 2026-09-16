@@ -164,6 +164,25 @@ static const unsigned char* g1_pattern(unsigned char ch, unsigned char separated
     return &g1_cache[separated][(ch & 0x1F) | ((ch & 0x40) >> 1)][0];
 }
 
+/* Motif 8x9 d'une forme DRCS (Minitel 2). La forme fait 8x10 (STUM 2
+ * par. 2.3.1) et la cellule de NeoTel 8x9 : les rangees 9 et 10 sont
+ * fusionnees (OU) sur la ligne 8, pour ne perdre aucun pixel d'encre. Set
+ * dans drcs_pattern_set (0 = G'0, 1 = G'1) ; appele aussi par blit_run. */
+unsigned char drcs_pattern_set;
+static unsigned char s_drcs_pat[CELL_H];
+
+const unsigned char* __fastcall__ drcs_pattern9(unsigned char ch)
+{
+    const unsigned char* form = vtx_current ? vtx_drcs_form(vtx_current, drcs_pattern_set, ch) : 0;
+    if (form) {
+        memcpy(s_drcs_pat, form, 8);
+        s_drcs_pat[8] = (unsigned char)(form[8] | form[9]);
+    } else {
+        memset(s_drcs_pat, 0, CELL_H);
+    }
+    return s_drcs_pat;
+}
+
 void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
                           unsigned char* fg, unsigned char* bg)
 {
@@ -189,6 +208,10 @@ void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
 
     if (cell->charset == CHARSET_G1) {
         memcpy(pat, g1_pattern(ch, (cell->flags & ATTR_SEPARATED) ? 1 : 0), CELL_H);
+    } else if (cell->charset == CHARSET_DRCS0 || cell->charset == CHARSET_DRCS1) {
+        drcs_pattern_set = (unsigned char)(cell->charset - CHARSET_DRCS0);
+        memcpy(pat, drcs_pattern9(ch), CELL_H);
+        if (cell->charset == CHARSET_DRCS1) return;   /* pas de lignage en G'1 */
     } else {
         glyph = (cell->charset == CHARSET_G2) ? font_get_g2(ch) : font_get_g0(ch);
         /* 6 pixels utiles (bits 5-0) centres : colonnes 1-6 */

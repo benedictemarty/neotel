@@ -22,6 +22,9 @@ pas la différence, et NeoTel non plus.
 |---|---|---|---|
 | Nom (menu, statut) | `Minitel 1B` / `1B` | `Minitel 2` / `M2` | — |
 | Octet de type de l'identification ENQROM | `u` (7/5) | `v` (7/6) | **Vérifié** : STUM 2 annexe 6.6 p. 103 (Minitel 1 bistandard = 7/5, Minitel 2 = 7/6). La table de `~/telenet-workspace` (`x`) est fausse. |
+| **Jeux DRCS G'0 / G'1** (téléchargement `US 2/3 …`, associations `ESC 2/8|2/9 …`) | ignorés (ESC 2/8 = séquence inconnue, US 2/3 = adresse) | **émulés** (v0.2.0) | STUM 2 §2.2.2 et §2.3, exemple §2.3.5 comme vecteur de test. Forme 8 × 10 rendue en 8 × 9 (rangées 9 et 10 fusionnées). |
+| `CSI 3/6 6/E` demande de position curseur | sans réponse | réponse `CSI Pr;Pc R` | STUM 2 §2.5 (Pr rangée, Pc colonne ; NeoTel : rangée 0-24, colonne 1-based comme `CSI H`). |
+| `SS2` quand G1 est invoqué | traité (OricTel) | ignoré | STUM 2 §2.3.7. |
 | Vitesses acceptées par PRO2 PROG (`ESC $3A $6B code`) | 300, 1200, 4800 | 300, 1200, 4800, **9600** | **Vérifié** : STUM 2 p. 103, note 3 (« 300, 1 200, 4 800, 9 600 programmable par le périphérique » pour le Minitel 2, note 2 sans 9600 pour le 1B). Codes `$52/$64/$76/$7F` : non relus dans la STUM 2 (chapitre prise), concordance de deux sources. |
 
 L'identification (`SOH`, constructeur `C`, type, version `1`, `EOT`) est
@@ -39,19 +42,17 @@ la barre de statut, ce qui permet de voir ce qu'un serveur demande.
 
 ## Ce qui n'est PAS (encore) émulé du Minitel 2
 
-- **Caractères redéfinissables (DRCS)** : jeux G'0 / G'1 téléchargés par
-  `US 2/3 2/0 2/0 2/0 4/2|4/3 4/9` puis `US 2/3 Y 3/0 <14 octets> 3/0 …`,
-  associés par `ESC 2/8 2/0 4/2` / `ESC 2/9 2/0 4/3`, matrice 8 × 10 codée
-  6 bits par octet. **Spécifié** (STUM 2 §2.3, détail dans
-  `docs/ref/STUM2-NOTES.md`), implémentation planifiée (ROADMAP v0.3) ;
-  la cellule 8 × 9 de NeoTel devra approximer la 10ᵉ rangée.
+- **DRCS, écarts connus** : l'interruption d'un téléchargement par un accès
+  en rangée 00 avec reprise sur `LF` (§2.3.4) n'est pas gérée — tout `US`
+  termine le téléchargement (la forme en cours est complétée en fond, le
+  `US X` est interprété). La 10ᵉ rangée des formes est fusionnée avec la 9ᵉ
+  (cellule 8 × 9). La double hauteur d'une forme G'0 suit la règle générale
+  de NeoTel, pas la règle « 1ʳᵉ ligne triplée » du §2.3.6.
 - **Mode téléinformatique 80 colonnes** : séquences de bascule connues
   (`CSI 3/C 3/3 6/8` 40 col., `CSI 3/F 3/3 6/C` 80 col.), mais le décodage
   lui-même renvoie à la STUM 1B (p. 105 et 161), non récupérée ; et l'écran
   320 px du Neo6502 ne donne que 4 px par colonne en mode 0 (mode Hercules
   du fork envisageable). Non implémenté.
-- **Demande de position curseur** `CSI 3/6 6/E` (réponse `CSI Pr;Pc R`) :
-  nouvelle séquence du Minitel 2, non implémentée (simple, à faire).
 - **Retournement de modem**, prise péripherique à 9600 bauds : sans objet
   avec un modem Hayes sur USB.
 - Les modes **MIXTE** (PRO2 $32 $7D) sont refusés silencieusement dans les

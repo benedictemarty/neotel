@@ -16,7 +16,20 @@ Minitel d'Internet, entièrement testé dans les émulateurs avant la carte.
       modem), preuve asm == C par capture, fumée dans `neo`, fuzzer.
 - [x] Documentation complète (architecture, manuel, 1B vs 2, tests, agile).
 
-## v0.2 — Carte réelle et performance [PLANIFIÉ]
+## v0.2.0 — Minitel 2 : DRCS [TERMINÉ, 2026-09-17]
+Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
+(`docs/ref/STUM2-NOTES.md`, OCR `docs/ref/STUM2-ocr.txt`).
+- [x] Vérifier les octets d'identification : `u` (7/5) = 1B, `v` (7/6) =
+      Minitel 2, 9600 bauds réservé au Minitel 2 (annexe 6.6 p. 103).
+- [x] Caractères redéfinissables DRCS G'0/G'1 (STUM 2 §2.3) : en-tête,
+      transfert 14 octets × 6 bits, associations ESC 2/8|2/9 2/0 4/2|4/3,
+      sortie sur US, SS2 en G'0 ; rendu 8 × 10 → 8 × 9 (rangées 9 et 10
+      fusionnées) ; 33 tests hôte + page DRCS + capture cible == oracle.
+- [x] Demande de position curseur `CSI 3/6 6/E` → `CSI Pr;Pc R` (§2.5).
+- [ ] Interruption / reprise du téléchargement par la rangée 00 (§2.3.4).
+- [ ] Double hauteur d'une forme G'0 : 1ʳᵉ ligne triplée (§2.3.6).
+
+## v0.3 — Carte réelle et performance [PLANIFIÉ]
 - [ ] Exécution sur Neo6502 physique + PicoWiFiModemUSB : session PAVI 3617
       de bout en bout, mesure de la latence des appels API, du débit CDC
       (RX 1 Ko du firmware, `tuh_task` à ~100 Hz : risque R16 de F-90) et du
@@ -29,18 +42,11 @@ Minitel d'Internet, entièrement testé dans les émulateurs avant la carte.
 - [ ] Bip Videotex (BEL) par 8,7 plutôt que le bip système.
 - [ ] Jingle du splash (son du RP2040), option pour le couper.
 
-## v0.3 — Minitel 2 [PLANIFIÉ]
-Préalable levé le 2026-09-17 : la STUM Minitel 2 (France Télécom, 1991) est
-récupérée (`docs/ref/STUM2-NOTES.md`, OCR `docs/ref/STUM2-ocr.txt`).
-- [x] Vérifier les octets d'identification : `u` (7/5) = 1B, `v` (7/6) =
-      Minitel 2, 9600 bauds réservé au Minitel 2 (annexe 6.6 p. 103).
-- [ ] Caractères redéfinissables DRCS G'0/G'1 (STUM 2 §2.3) : en-tête,
-      transfert 14 octets × 6 bits, associations ESC 2/8|2/9 2/0 4/2|4/3,
-      sortie sur US, SS2 en G'0 ; rendu 8 × 10 → 8 × 9 (règle à choisir,
-      documentée) ; tests hôte + page DRCS dans le faux modem.
-- [ ] Demande de position curseur `CSI 3/6 6/E` → `CSI Pr;Pc R` (§2.5).
-- [ ] Mode téléinformatique 80 colonnes : récupérer la STUM 1B (décodage
-      p. 105 / 161), puis étudier le mode Hercules 720 × 350 du fork.
+## v0.4 — Mode téléinformatique 80 colonnes [CONDITIONNEL]
+- [ ] Récupérer la STUM 1B (décodage mixte p. 105, téléinformatique p. 161).
+- [ ] Séquences relevées dans la STUM 2 : `CSI 3/C 3/3 6/8` 40 col.,
+      `CSI 3/F 3/3 6/C` 80 col., curseur `CSI 3/C 3/1 6/8|6/C`.
+- [ ] Étudier le mode Hercules 720 × 350 du fork pour 80 colonnes.
 
 ## Idées
 - Enregistrement des pages reçues (.vdt) sur la carte SD, relecture.

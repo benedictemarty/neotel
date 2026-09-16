@@ -26,6 +26,10 @@
 
 #include "videotex.h"
 
+#ifndef __CC65__
+#define __fastcall__
+#endif
+
 /* Dimensions */
 #define SCREEN_COLS   40
 #define SCREEN_ROWS   25
@@ -125,6 +129,13 @@ void display_beep(void);
  */
 void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
                           unsigned char* fg, unsigned char* bg);
+
+/**
+ * Motif 8x9 de la forme DRCS ch du jeu drcs_pattern_set (0 = G'0, 1 = G'1)
+ * du contexte courant (vtx_current) ; rangees 9 et 10 fusionnees.
+ */
+extern unsigned char drcs_pattern_set;
+const unsigned char* __fastcall__ drcs_pattern9(unsigned char ch);
 
 /**
  * Tampon de ligne (CELL_H x SCREEN_W octets), pour inspection en test.

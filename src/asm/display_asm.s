@@ -11,7 +11,8 @@
 ;   par le C. Retourne le nombre de cellules rendues.
 ;   Gere : inversion, masquage (g_global_mask), clignotement (g_blink_phase),
 ;   G0 (font_g0, 6 pixels centres), G1 (cache g1_cache, 8x9 natif, $60 =
-;   trait haut), G2 (font_get_g2 en C), souligne (ligne 8).
+;   trait haut), G2 (font_get_g2 en C), DRCS G'0/G'1 (drcs_pattern9 en C),
+;   souligne (ligne 8).
 ;
 ; void __fastcall__ blit_cell9(void)
 ;   Rend UN motif 8x9 deja construit (blit_pat, 9 octets, bit 7 = pixel de
@@ -30,6 +31,7 @@
         .export   _blit_pat, _blit_col, _blit_fg, _blit_bg
         .import   _display_rowbuf, _font_g0, _g1_cache, _font_get_g2
         .import   _g_global_mask, _g_blink_phase
+        .import   _drcs_pattern9, _drcs_pattern_set
 
 ROWBUF  = _display_rowbuf
 STRIDE  = 320
@@ -236,7 +238,26 @@ _blit_run:
         beq  @g0
         cmp  #1
         beq  @g1
-        ; G2 : glyphe par la table C (fastcall : A = code)
+        cmp  #2
+        beq  @g2
+        ; DRCS G'0 (3) / G'1 (4) : motif 8x9 par le C (fastcall : A = code)
+        sec
+        sbc  #3
+        sta  _drcs_pattern_set
+        lda  (cellp)
+        jsr  _drcs_pattern9
+        sta  glyph
+        stx  glyph+1
+        ldy  #8
+:       lda  (glyph),y
+        sta  pat,y
+        dey
+        bpl  :-
+        lda  _drcs_pattern_set
+        bne  :+
+        jmp  @underline     ; G'0 : lignage comme G0
+:       jmp  @paint         ; G'1 : le lignage n'a pas d'effet visuel
+@g2:    ; G2 : glyphe par la table C (fastcall : A = code)
         lda  (cellp)
         jsr  _font_get_g2
         sta  glyph
