@@ -11,7 +11,8 @@ unsigned char g_ident_enabled = 0;
 
 static unsigned int s_speed = 1200;
 
-/* Constructeur et version annonces (non verifies, voir terminal.h) */
+/* Constructeur et version annonces : 'C' = Telic ; "Cv1" est l'identifiant
+ * d'un Minitel 2 Telic (STUM 2 annexe 6.6 p. 103). */
 #define IDENT_MAKER   'C'
 #define IDENT_VERSION '1'
 

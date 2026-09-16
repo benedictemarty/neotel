@@ -3,6 +3,22 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [Non publié]
+
+### Ajouté
+- `docs/ref/STUM2-NOTES.md` : extraits relus de la STUM Minitel 2 (France
+  Télécom, février 1991, scan de wiki.labomedia.org, SHA-256 consignée) :
+  identification ROM (annexe 6.6), DRCS (§2.3), associations de jeux,
+  nouvelles séquences Vidéotex / mixte / téléinformatique, vitesses.
+  `docs/ref/STUM2-ocr.txt` : OCR des 118 pages (recherche plein texte). Le
+  PDF (23 Mo) reste local, hors dépôt.
+
+### Modifié
+- `docs/MINITEL_1B_VS_2.md` : les octets de type `u`/`v` et le 9600 bauds
+  du Minitel 2 passent de « non vérifié » à **vérifié** ; DRCS désormais
+  spécifié et planifié (ROADMAP v0.3), séquences 80 colonnes relevées.
+- `src/terminal.h` : références STUM 2 dans les commentaires.
+
 ## [0.1.0] — 2026-09-17
 
 Première version : portage d'OricTel (Oric 1/Atmos) sur le Neo6502.
