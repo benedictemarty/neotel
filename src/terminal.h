@@ -7,19 +7,18 @@
  * modelisable ici :
  *
  *  - l'identification renvoyee a ENQ / PRO1 ENQROM ($7B) : SOH, constructeur,
- *    type, version, EOT. Octet de type : 'u' = Minitel 1B, 'v' = Minitel 2
- *    (valeurs de la bibliotheque Python "Minitel" de F. Bisson ; une autre
- *    source locale, telenet-workspace, donne 'x' pour le Minitel 2 : NON
- *    VERIFIE contre la STUM, voir docs/MINITEL_1B_VS_2.md). La reponse est
- *    DESACTIVEE par defaut, comme dans OricTel : les serveurs modernes
- *    (MiniPavi, PAVI) l'echoient comme une frappe.
+ *    type, version, EOT. Octet de type : 'u' (7/5) = Minitel 1 bistandard
+ *    (1B), 'v' (7/6) = Minitel 2 - VERIFIE dans la STUM Minitel 2, annexe
+ *    6.6 p. 103 (docs/ref/STUM2-NOTES.md). La reponse est DESACTIVEE par
+ *    defaut, comme dans OricTel : les serveurs modernes (MiniPavi, PAVI)
+ *    l'echoient comme une frappe.
  *  - les vitesses acceptees par PRO2 PROG ($6B) : 300/1200/4800 bauds sur le
- *    1B, plus 9600 sur le Minitel 2. La liaison physique (modem USB) n'en
- *    depend pas ; la vitesse "programmee" est memorisee et affichee.
+ *    1B, plus 9600 sur le Minitel 2 (STUM 2 p. 103, notes 2 et 3). La liaison
+ *    physique (modem USB) n'en depend pas ; la vitesse "programmee" est
+ *    memorisee et affichee.
  *
- * Ce qui n'est PAS emule (Minitel 2) : le mode teleinformatique 80 colonnes
- * et les jeux de caracteres redefinissables (DRCS), faute de specification
- * verifiee sous la main. Voir ROADMAP.
+ * Pas encore emule (Minitel 2) : les jeux DRCS (STUM 2 par. 2.3, specifie,
+ * ROADMAP v0.3) et le mode teleinformatique 80 colonnes. Voir ROADMAP.
  */
 
 #ifndef TERMINAL_H

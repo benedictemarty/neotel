@@ -29,12 +29,18 @@ Minitel d'Internet, entièrement testé dans les émulateurs avant la carte.
 - [ ] Bip Videotex (BEL) par 8,7 plutôt que le bip système.
 - [ ] Jingle du splash (son du RP2040), option pour le couper.
 
-## v0.3 — Minitel 2 [CONDITIONNEL]
-Préalable : obtenir la STUM Minitel 2 (ou relever les séquences sur un
-Minitel 2 réel). Sans cela, rien n'est implémenté (règle « rien d'inventé »).
-- [ ] Caractères redéfinissables (DRCS G0'/G1').
-- [ ] Mode téléinformatique 80 colonnes (mode Hercules 720 × 350 du fork ?).
-- [ ] Vérifier les octets d'identification (`u`/`v` vs `x`).
+## v0.3 — Minitel 2 [PLANIFIÉ]
+Préalable levé le 2026-09-17 : la STUM Minitel 2 (France Télécom, 1991) est
+récupérée (`docs/ref/STUM2-NOTES.md`, OCR `docs/ref/STUM2-ocr.txt`).
+- [x] Vérifier les octets d'identification : `u` (7/5) = 1B, `v` (7/6) =
+      Minitel 2, 9600 bauds réservé au Minitel 2 (annexe 6.6 p. 103).
+- [ ] Caractères redéfinissables DRCS G'0/G'1 (STUM 2 §2.3) : en-tête,
+      transfert 14 octets × 6 bits, associations ESC 2/8|2/9 2/0 4/2|4/3,
+      sortie sur US, SS2 en G'0 ; rendu 8 × 10 → 8 × 9 (règle à choisir,
+      documentée) ; tests hôte + page DRCS dans le faux modem.
+- [ ] Demande de position curseur `CSI 3/6 6/E` → `CSI Pr;Pc R` (§2.5).
+- [ ] Mode téléinformatique 80 colonnes : récupérer la STUM 1B (décodage
+      p. 105 / 161), puis étudier le mode Hercules 720 × 350 du fork.
 
 ## Idées
 - Enregistrement des pages reçues (.vdt) sur la carte SD, relecture.

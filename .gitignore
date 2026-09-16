@@ -11,3 +11,4 @@ tests/host/fuzz_videotex
 __pycache__/
 *.pyc
 memory.dump
+docs/ref/STUM2.pdf

@@ -1,0 +1,3451 @@
+===== page scan 001 =====
+| É
+;
+| Eee
+reLIe CRE Mie ce Hi me Go)
+El el
+===== page scan 002 =====
+===== page scan 003 =====
+FRANCE
+TELECOM |(®
+FRANCE TELECOM - Direction Générale
+Direction des Affaires Commerciales et Télématiques
+Spécifications Techniques d'Utilisation
+du Minitel 2
+© Février 1991 - FRANCE TELECOM
+Direction des Affaires Commerciales et Télématiques, Service Télétel et Services d'Information
+6 Place d'Alleray - 75505 PARIS CEDEX 15
+RCS Paris B 380 129 866
+===== page scan 004 =====
+===== page scan 005 =====
+Sommaire
+Page
+PRESENTATION GENERALE
+1 Présentation générale du Minitel 222 1
+2 L'architecture du Minitel 22
+8 L'utilisation du Minitel 2 2
+4 Introduction à la configuration du terminal
+en vue d'une connexion à une base de donnée 2" 9
+5 Plan de la documentation 2222" 2
+LA VEILLE VIDEO ET LE VERROUILLAGE
+ON, EEE
+2 La veille en version Cvi, Cv:, Bvt à BV6 2 4
+2.1 Passage en veille — _—..— À#
+2.1.1 La mise en œuvre 4
+2.1.2 Effets du passage en veille 2" 4
+2.1.3 Etat du terminal en veille 2" 5
+2.2 Sortie de veille" 5
+2.2.1 Mise en Œuvre 5
+2.2.2 Effet de la sortie de veille 2" 5
+8 La veille à partir des versions Cv; et BV8 2 5
+8.1 Inhibition de la veille trois heures 5
+3.2 Détection de l'activité périphérique 2222222" 5
+3.3 Passage en veille 6
+3.3.1 Mise en œuvre "6
+3.3.2 Effets du passage en veille 2 6
+8.8.8 Etat du terminal en veille 22" 7
+8.4 Sortie de veille 2 7
+8.4.1 Mise en œuvre 7
+3.4.2 Effets de la sortie de veille 2 7
+4 Le verrouillage _ |
+4.1 Commande de verrouillage 2" 7
+4.1.1 Effets du verrouillage partiel D 8
+4.1.2 Effets du verrouillage total 2 8
+4.2 Commandes de déverrouillage bd 9
+1 Présentation 2" 4
+2 Activation/Désactivation du dialogue local 2222" 42
+2.1 Action 2 12
+2.2 Désactivation 2" 12
+8 Le répertoire télématique 2" 12
+3.1 Sélection d'une fiche 2" 13
+3.2 Saisie d'une fiche 2" 13
+8.2.1 Le champ “él 13
+8.2.2 Le champ “code” 13
+8.2.3 Les commandes autorisées _—_—— __ 14
+4 La programmation du terminal 14
+4.1 Le champ “protection” 2 5
+4.2 Le champ “mot de passe” 2" 5
+4.3 Le champ “ligne” 5
+44 Le champ “D” 2 5
+45 Le champ “2° 2 5
+4.6 Les champs “NAT” et °RES" 2 5
+4.7 Commandes autorisées 2 5
+Il
+===== page scan 006 =====
+Page
+5 Sauvegarde du répertoire et de la programmation du terminal 2 16
+6 Réinitialisation du terminal 22" 16
+LE CLAVIER
+1 Présentation 2" 18
+2 Accès aux fonctions locales 2" 18
+3 Le mode minuscule/majuscule 2" 19
+4 Fonctionnement dans les différents états" 19
+5 Commandes et codes émis par le clavier 2" 20
+6 Incidences des variations de PT, DP et DCL 2" 20
+LE MODULE TELEPHONIQUE
+1 Présentation 2" 22
+2 L'interface de ligne "22
+8 Gestion du courant de ligne "22
+4 Prise de ligne 2" 22
+5 Libération de ligne 2" 23
+6 Déconnexion et état du bit RPL 2 23
+7 Commandes téléphoniques dans les différents états du terminal 2 24
+8 Caractéristiques de la numérotation 2" ?4
+8.1 Numérotation décimale 2" 24
+8.2 Numérotation à fréquences vocales 2" 25
+9 Commandes liées à la numérotation "265
+9.1 La pause" 25
+9.2 Les préfixes d'accès "25
+9.3 Les commandes de numérotation 2" 26
+10 La réception amplifiée "26
+11 La numérotation 26
+11.1 La numérotation chiffre à chiffre 2" 26
+11.1.1 L'exploitation par l'usager —_____ 2%
+11.1.2 L'exploitation par la prise 2" 26
+11.1.2.1 La numérotation secrète 26
+11.2 L'exploitation du répertoire 2. 1
+11.2.1 Syntaxe des numéros mémorisés dans le répertoire 2 27
+11.2.2 Exploitation d'un numéro du répertoire 27
+11.2.8 Envoi du code de service mémorisé dans le répertoire 7 28
+11.3 Les numéros téléchargés et la numérotation EC 28
+11.8.1 Syntaxe du numéro téléchargé 28
+11.8.2 Téléchargement d'un numéro 222222 29
+11.3.3 Le contrôle de cohérence 29
+11.8.4 Exploitation du numéro téléchargé par le périphérique ___ 29
+12 Détection des appels entrants 2" 30
+12.1 Présentation 2" 30
+12.2 Description de la détection d'appel 222" 30
+13 Protocole concernant le module téléphonique 2" 31
+13.1 Le status Terminal 31
+13.2 Le status module téléphonique 222" 31
+13.3 Les séquences Protocole utilisées 2" 32
+13.4 Incidences des variations de PT, DP et DCE 2 32
+L'ECRAN
+1 Présentation 2" 34
+2 Le standard Télétel mode vidéotex 2" 34
+IV
+===== page scan 007 =====
+Page
+2.1 Les jeux de caractère 2" ________ 34
+2.2 Invocation/Association des jeux "34
+2.2.1 Les invocations de jeux "34
+2.2.2 Les associations de jeux pour la visualisation 2 35
+2.3 Le téléchargement DRCS 2" 35
+2.8.1 Définition 2 _ 35
+2.3.2 Séquence d'entête "36
+2.33 Le protocole de téléchargement 36
+2.8.38.1 Séquences de transfert de formes 36
+2.3.8.2 Syntaxe des données 2" 36
+2.3.3.3 Sortie du téléchargement 7 3
+2.8.4 Accès en rangée 00 2" 38
+2.8.5 Exemple "38
+2.8.6 Les Aïttributs Vidéotex en DRCS 2 38
+2.8.7 Accès au jeu G2 39
+2.4 Gestion de la restitution du contexte en Vidéotex 39
+2.5 Nouvelles séquences en standard Télétel mode Vidéotex ____ 39
+3 Les standards Télétel mode mixte et téléinformatique __________ 39
+3.1 Les jeux de caractère "39
+8.2 Invocation/Association des jeux =" 40
+3.2.1 Les invocations de jeux 2" 40
+3.2.2 Les associations de jeux" 40
+8.3 Les nouvelles séquences en standard Télétel mode Mixte 2 40
+8.4 Les nouvelles séquences en standard Téléinformatique 40
+
+4 Sauvegarde du contexte en standard Télétel mode mixte
+et standard téléinformatique "41
+5 Protocole concernant l'écran 2" "4
+5.1 Le status écran 2" 4j
+6 incidences des variations de PT, DP et DCL en standard Télétel 41
+6.t Les variations de PT 2 4
+6.2 Les variations de DP 42
+6.3 Les variations de DCL 42
+1 Présentation 2"  _ 44
+2 Bouclage en état local 2" "44
+3 Connexion en mode standard 22" 44
+4 Connexion en mode opposé 44
+5 Connexion avec signalisation d'appel automatique 2" 45
+5.1 Présentation _ |
+5.2 Description de la procédure d'appel automatique 2" 45
+6 Déconnexion 45
+7 Retournement du modem 22" 4G
+8 Procédure de correction d'erreur 2" 46
+9 Emission du break "46
+10 Prise en compte de l'indicateur d'appel en instance 46
+10.1 Caractéristiques du signal d'IAI généré par le réseau téléphonique ____ 46
+10.2 Détection du signal d'IAI 46
+11 Protocole concernant le modem 46
+11.1 Le status Modem _ 46
+15.2 Les séquences d'activation/désactivation de l'appel automatique = 47
+11.3 incidences des variations de PT, DP et DCL 2 47
+V
+===== page scan 008 =====
+Page
+LA PRISE PERI-INFORMATIQUE
+4 Psion 0)
+2 Programmation de la vitesse 2" 50
+2.1 Programmation par l'usager "2" 50
+2.2 Programmation par le périphérique 2" 50
+3 Emission du break 50
+4 Protocole concernant la prise péri-informatique 2 51
+4.1 Le status vitesse prise 2" 51
+4.2 Incidences des variations de PT, DP et DCL 2 51
+LA COPIE D'ECRAN
+1 Présentation. 54
+1.1 Mise en œuvre de la copie 2" 54
+1.2 Arrêt de la copie _ ——_—._—. _— ————
+2 Description du processus de copie d'écran 2" 54
+2.1 Description générale. 54
+2.2 Copie d'un écran du dialogue local 2" 54
+8 Traitement des informations reçues pendant le processus de copie d'écran 55
+8.1 Le clavier 55
+8.2 La prise |
+8.8 Le modem "55
+8.4 Le Changement de mode du terminal 2" 55
+4 Transcodage des caractères visualisés 2" 55
+LE PROTOCOLE VIDEOTEX
+1 Présentation "58
+2 Les modules et leurs aiguillages 222" 58
+2.1 Les aiguillages standards du terminal 222222" 58
+2.1.1 Les aiguilages du standard Télétel __ 5
+2.1.2 Les aiguilages du standard Téléinformatique = 60
+2.1.8 Les aiguillages lorsque le dialogue local est actif 2 61
+2.1.4 Les aiguillages pendant la copie d'écran 2 61
+2.2 Modifications des aiguillages _ 6
+2.3 Blocage-déblocage des modules 2 62
+2.4 Le status aiguilage 2" 62
+3 Les identifications 63
+8.1 L'identification ROM 2 63
+8.2 Demande d'identification RAM 1 63
+4 Conséquences des transitions du signal PT 63
+5 Conséquences des transitions du signal DP 2 64
+6 Conséquences des transitions du signal DCL 2" 64
+ANNEXE
+VI
+===== page scan 009 =====
+Présentation générale
+1 | Présentation générale du Minitel 2
+Le Minitel 2 est un terminal à usage télématique qui permet la visualisation sur un écran, et l'émission
+de données à partir d'un clavier. || possède un numéroteur intégré.
+Il comprend un dialogue local qui permet à l'usager de configurer certaines fonctions (numérotation,
+protection, etc...)
+Lorsqu'il est sous tension (y compris en veille), il possède les fonctions d'un terminal télématique haut
+de gamme dont un répertoire qui peut contenir dix numéros de services télématiques. Conçu pour
+répondre aux besoins des utilisateurs des serveurs Vidéotex et informatiques, ce terminal offre deux
+standards :
+ele standard Télétel,
+e le standard Téléinformatique.
+2 |L’architecture du Minitel 2
+L'architecture du Minitel 2 se compose de cinq sous-ensembles ou modules regroupant des éléments
+physiques et logiciels :
+— le module écran qui assure le décodage et la visualisation des informations,
+— le module clavier qui assure l'interface avec l'usager
+— le module modem qui assure la transmission des informations entre le Minitel et les bases de données,
+— le module prise qui permet le raccordement de périphériques tels que imprimante ou LECAM pour
+la constitution éventuelle d'un réseau Minitel,
+— le module téléphonique qui assure la prise de ligne et la numérotation.
+L'ensemble de ces modules est géré en standard Télétel uniquement par une couche de logiciel cen-
+tralisé appelé Protocole permettant l'aiguillage des données entre les différents modules et la mise
+en œuvre de fonctionnements particuliers.
+Le Minitel 2 possède une seule mémoire d'identification appelée RAM1.
+Il existe différentes versions de logiciels équipant le Minitel 2 :
+— Cvi, Cv: et Cv; (modèle Télic),
+— Bvi à Bv8 (modèle Philips).
+Lorsqu'une version présente des spécificités, celles-ci sont précisées.
+À partir des versions Cv ; et Bv&, l'utilisateur peut inhiber la veille vidéo par configuration clavier ; la
+sortie de veille peut également être commandée par séquence Protocole, ce qui permet une utilisa-
+tion plus souple du terminal raccordé à un réseau ou devant fonctionner avec une application locale
+sur la prise péri-informatique.
+3 |L'’utilisation du Minitel 2
+Destiné à une large diffusion, tant auprès du grand public que dans les secteurs professionnel et insti-
+tutionnel, le Minitel 2 répond à des critères techniques et ergonomiques qui lui assurent une grande
+facilité d'utilisation.
+Le Minitel 2 peut être utilisé :
+— en état local, où il peut servir de “console de visualisation” pour des applications informatiques,
+— en état connecté, où il permet des échanges télématiques entre tout lieu disposant du téléphone
+et une majorité de bases de données.
+La durée de vie dans des conditions normales d'utilisation et d'installation est supérieure à 10 ans
+pour tous les éléments constituant l'équipement.
+1
+===== page scan 010 =====
+4 | Introduction à la configuration du terminal en vue
+d’une connexion à une base de données
+
+Généralement la configuration du terminal est réalisée d'office par le point d'accès ou le serveur, par
+des commandes du Protocole, en état connecté. Ce n'est cependant pas toujours le cas ; il appartient
+parois à l'utilisateur ou au périphérique de préparer son terminal en vue d'une connexion sur un ser-
+vice ou à un type de réseau qui nécessite une configuration appropriée.
+
+5 | Plan de la documentation
+Cette documentation constitue un complément aux Spécifications Techniques du Minitel 1 B éditées
+par France Télécom en Novembre 1986.
+Elle sapplique à présenter par différences les modules communs à M1 B.
+Les fonctions nouvelles et module nouveau (module téléphonique) sont présentés en détail. Ce sont
+essentiellement :
+— la fonction veille en chapitre 1,
+— la fonction verrouillage en chapitre 1,
+— le module téléphonique en chapitre 4,
+— le téléchargement et l'affichage de formes DRCS en chapitre 5, paragraphe 28.
+À la fin du document, une annexe complète présente la liste de tous les codes et séquences générés
+et reçus par le terminal côté prise et côté modem.
+
+2
+===== page scan 011 =====
+La veille vidéo et le verrouillage
+3
+===== page scan 012 =====
+1. [Présentation |
+
+La veille et le verrouillage sont deux nouvelles fonctions du Minitel 2 accessibles par l'usager.
+
+L'état de veille est destiné à diminuer la consommation d'énergie tout en augmentant la fiabilité du
+
+terminal qui conserve ses fonctions.
+
+La fonction veille est systématiquement activée lors d'une commande de verrouillage.
+
+À partir des versions Cv ; et Bv&, la fonction veille est accessible par un périphérique, par l'intermé-
+
+diaire de nouvelles séquences Protocole et d'un status écran indiquant l'état de veille.
+
+Le verrouillage partiel ou total du Minitel 2 est programmable uniquement par l'usager ; il s'applique :
+
+— au dialogue local (programmation du répertoire et des fonctions locales) mais non aux comman-
+des de type Fnct X + Y (à l'exception de l'état de veille et des configurations “prise” à partir de
+la version Cv ; et Bv8),
+
+— à l'utilisation du terminal en vue d'une consultation télématique.
+
+La veille et le verrouillage sont activables en tout point du dialogue local ou de l'écran télématique
+
+quel que soit l'état du terminal.
+
+Ce chapitre distingue la fonction veille des versions Cvi, Cv:, Bvi à Bv6 de celles des versions Cv :
+
+ou Bv8.
+
+La fonction verrouillage est décrite dans un paragraphe unique pour toutes les versions.
+
+2 [La veille en version Ci, Cv ;, Bvi à Be |
+2.1 Passage en veille
+2.11 La mise en œuvre
+
+Le passage en veille se fait par les événements suivants :
+
+— Un appui sur la touche “Veille” provoque immédiatement une extinction d'écran et le passage en
+ue sera effectif après 5 secondes ; pendant ces 5 secondes où le terminal est dans un état pré-
+— l'appui de touche “Veille” réveille l'écran,
+
+— la commande de verrouillage est active,
+— tout autre appui de touche réveille l'écran et est pris en compte.
+
+— la commande de verrouillage (si le mot de passe est non vide) provoque une extinction d'écran
+et un passage en veille immédiat,
+
+— l'inactivité clavier (modèles Cv1 et Cv :) ou l'inactivité clavier et écran (modèles Bvi à Bv6), tels qu'ils
+sont définis au paragraphe 31.1, pendant trois heures provoquent une extinction d'écran et un pas-
+sage en veille immédiat,
+
+— une mise sous tension, sauf la première.
+
+2.1.2 Effets du passage en veille
+
+Tout passage en veille provoque les actions suivantes :
+
+— un arrêt de l'alimentation vidéo,
+
+— l'envoi de la séquence SEP 7/2 sur la prise,
+
+— un effacement de l'écran.
+
+Dans le cas où la mise en veille est commandée par l'usager, elle provoque en plus :
+
+Terminal en phonie ;
+
+— une libération de ligne (SEP 5/B émis sur la prise),
+
+Terminal en phase de connexion
+
+— un arrêt de la phase de connexion en cours (SEP 5/9 émis sur la prise),
+
+4
+===== page scan 013 =====
+Eee)
+Terminal connecté
+— une déconnexion (SEP 5/9 SEP 5/3 émis sur la prise).
+2.1.3 Etat du terminal en veille
+Vu de la prise, l'état de veille est transparent, toutes les fonctions du Minitel 2 restant accessibles par
+la prise, y compris l'affichage sur l'écran télématique (non visualisé).
+Vu de l'usager, le terminal en veille est inactif.
+2.2 Sortie de veille
+2.21 Mise en œuvre
+La sortie de veille se fait uniquement par action usager :
+— par appui de touche “Veille”,
+— par appui de touche “PLSD” ou “Connexion/Fin”,
+— par commande Mem.
+2.2.2 Effet de la sortie de veille
+Toute sortie de veille provoque :
+— une mise en service de l'alimentation vidéo,
+— l'émission de la séquence SEP 7/2 vers la prise,
+— un reset Vidéotex (émission de SEP 5/E sur la prise), en conservant l'état du codage PAD-X3,
+— un allumage de l'écran après 1 seconde.
+En sortie de veille par commande Mem où appui de touche “Veille”, la page RÉPERTOIRE du dialo-
+gue local est affichée. Si le terminal est verrouillé totalement, la page de saisie du mot de passe est
+affichée.
+En sortie de veille par appui de touche “PLSD” ou “Connexion/Fin’, l'écran télématique est affiché.
+Si le terminal est verrouillé, la page de saisie du mot de passe est affichée.
+3 [EN parues venons Ov ete]
+Les effets en entrée et sortie de veille dépendent de :
+— l'inhibition de la veille trois heures,
+— l'activité périphérique,
+— la commande d'entrée ou de sortie de veille,
+— l'état du terminal.
+3.14 Inhibition de la veille trois heures
+Pour une compatibilité M1 B, vis-à-vis des périphériques, la veille trois heures du Minitel 2 peut être
+inhibée par commande usager de la façon suivante :
+— Fnct E + A (Arrêt) pour inhiber la veille trois heures,
+— Fnct E + M (Marche) pour autoriser le passage en veille trois heures.
+L'état d'inhibition de veille est mémorisé en EEPROM.
+3.2 Détection de l’activité périphérique
+Le critère de présence d'un périphérique (LECAM, TPV, imprimante, etc.) ayant pris le contrôle du
+terminal est la modification des aiguillages standards.
+La présence d'activité périphérique est annulée sur les événements suivants :
+— la séquence Protocole PRO1 RESET,
+— transition de PT de O vers 1 (y compris celle de fin de copie d'écran),
+— transition de DP (Détection de Porteuse),
+— transition de DCL (Détection de Courant de Ligne).
+5
+===== page scan 014 =====
+3.3 Passage en veille
+3.3.1 Mise en œuvre
+
+Le passage en veille a lieu sur les événements suivants :
+
+— un appui sur la touche “Veille” provoque immédiatement une extinction d'écran et le passage
+en veille sera effectif après 5 secondes ; pendant ces 5 secondes, le terminal est dans un état pré-
+veille :
+
+— l'appui de touche “Veille” réveille l'écran,
+— la séquence PRO3 START VEILLE est filtrée,
+— tout autre appui de touche réveille l'écran et est pris en compte.
+
+— commande de verrouillage dans les conditions définies paragraphe 4, page 00, provoque une extinc-
+tion d'écran et un passage en veille immédiat,
+
+— Séquence Protocole PRO3 START VEILLE (1/B 3/B 6/9 5/8 4/1), provoque une extinction d'écran
+et un passage en veille immédiat,
+
+— inactivité clavier et écran (aucun caractère n'est émis vers l'écran) pendant trois heures, provo-
+que une extinction d'écran et un passage en veille immédiat (si la veille trois heures n'est pas inhi-
+bée),
+
+— Mise sous tension dans tous les cas (si la veille trois heures n'est pas inhibée),
+
+— réinitialisation du terminal.
+
+3.3.2 Effets du passage en veille
+
+Les effets du passage en veille dépendent de la commande d'entrée en veille et sont conditionnés
+
+par l'inhibition ou non de la veille trois heures et par la présence ou non d'activité périphérique.
+
+Tout passage en veille provoque les actions suivantes :
+
+— un arrêt de l'alimentation vidéo,
+
+— envoi de la séquence SEP 7/2 sur la prise (jamais sous forme PAD-X3),
+
+— mise à O du bit VEILLE du status écran.
+
+Remarque :
+
+Si la veille a pour origine la séquence PRO3 START VEILLE en provenance du modem, l'acquittement
+
+SEP 7/2 sera aussi émis sur le modem.
+
++ Par appui de touches ou inactivité des trois heures
+
+Elle provoque en plus :
+
+Terminal en phonie
+
+— une libération de ligne (SEP 5/B émis sur la prise),
+
+Terminal en phase de connexion
+
+— un arrêt de la phase de connexion en cours (SEP 5/9 émis sur la prise),
+
+Terminal connecté
+
+— une déconnexion (SEP 5/9 SEP 5/3 émis sur la prise).
+
+Si la veille trois heures n'est pas inhibée et si l'activité périphérique n'est pas détectée (si le terminal
+
+n'était pas en état local), elle provoque :
+
+— un effacement d'écran télématique (rangée 00 comprise pour la version Cv ;),
+
+— une réinitialisation Vidéotex (SEP 5/E émis sur la prise) et une réinitialisation de l'état PAD-X3 le
+cas échéant.
+
+Remarque :
+Lors du passage en veille le reset du mode PAD-X3 est acquitté :
+
+— par ESC 2/X 3/Y 0/D suivi de SEP 7/2 pour les modèles Télic,
+
+— par SEP X suivi de SEP 7/2 pour les modèles Philips.
+
+6
+===== page scan 015 =====
+CR
+3.3.3 Etat du terminal en veille
+
+Quand le terminal est en veille, la commande de verrouillage a pour seul effet le passage dans l'état
+
+verrouillé et ne provoque pas l'émission de SEP 7/2 vers la prise.
+
+Vu de la prise, l'état de veille est transparent :
+
+à l'exception de la séquence PRO3 START VEILLE qui ne génère pas de passage en veille (pas de
+
+SEP 7/2 vers le périphérique) toutes les fonctions du Minitel 2 restent accessibles par la prise, y compris
+
+l'affichage sur l'écran télématique (non visualisé).
+
+Vu de l'usager le terminal en veille est inactif.
+
+34 Sortie de veille
+341 Mise en œuvre
+
+La sortie de veille a lieu sur les événements suivants :
+
+— appui de touche “Veille”,
+
+— appui de touche “PLSD” ou “Connexion/Fin”,
+
+— séquence Protocole PRO3 STOP VEILLE (1/B 3/B 6/A 5/8 4/1),
+
+— commande Mem.
+
+3.4.2 Effets de la sortie de veille
+
+Toute sortie de veille provoque les actions suivantes :
+
+— mise en service de l'alimentation vidéo,
+
+— émission de SEP 7/2 vers la prise,
+
+— mise à 1 du bit VEILLE du status écran,
+
+— allumage de l'écran après 1 seconde. Pendant ce temps de 1 seconde, le terminal est en post-veille :
+les séquences PR03 START VEILLE (passage en veille) et PRO3 STOP VEILLE (sortie de veille)
+sont filtrées.
+
+Remarque :
+
+Si la sortie de veille a pour origine la séquence PRO3 STOP VEILLE en provenance du modem, l'acquit
+
+tement SEP 7/2 sera aussi émis sur le modem.
+
+En sortie de veille, les écrans suivants sont visualisés :
+
+e l'écran télématique sur les événements suivants :
+
+— appui de touche “Veille” dans les cas suivants :
+
+— terminal dans l'état local et veille trois heures inhibée ou présence d'activité périphérique détectée,
+— terminal dans l'état phonie, connexion en cours ou connecté.
+
+— appui de touche “PLSD” ou “Connexion/Fin” si le terminal n'est pas verrouillé,
+
+— séquence PRO3 STOP VEILLE quel que soit l'état du terminal.
+
+Dans les autres cas, la sortie de veille affiche l'écran du dialogue local :
+
+— si le terminal est totalement verrouillé, la page de saisie du mot de passe est affichée, sinon la page
+REPERTOIRE est affichée.
+
+Remarque :
+
+La séquence PR03 STOP VEILLE reçue quand le terminal n'est pas en veille provoque l'affichage
+
+de l'écran télématique.
+
+4 | Le verrouillage |
+41 Commande de verrouillage
+
+Le Minitel 2 est verrouillable dans tous les états dès que l'usager a saisi un mot de passe (Voir chapi-
+
+tre 2, paragraphe 42, page 15).
+
+7
+===== page scan 016 =====
+La commande de verrouillage est : “TS Veille”.
+Le verrouillage entraîne :
+— un blocage du clavier au sens flux de données :
+— total sur Ci, Cv':, Bvi à Bv6,
+— partiel sur Cv; et Bv8, seul l'appui de touche “Esc” est filtré. Ceci permet à l'usager de saisir
+un mot de passe destiné à un périphérique de type LECAM.
+
+— un passage immédiat en veille et tous les effets induits décrits précédemment.
+
+Remarque :
+
+Lorsque le terminal est en veille, la commande de verrouillage :
+
+— sur Cvi, Cv, Bvi à Bv6 : verrouile et génère les mêmes effets qu'un passage en veille
+
+— à partir de Cv; et Bv8 : verrouille.
+
+Le verrouillage comprend 2 niveaux de protection selon le contenu du champ “protection” de l'écran
+
+PROGRAMMER :
+
+Sur “minitel, sauf répertoire”, le verrouillage est partiel.
+
+Sur “minitel”, le verrouillage est total.
+
+Vu de la prise, le verrouillage du terminal reste transparent ; toute numérotation ou demande de
+
+connexion est permise.
+
+411 Effets du verrouillage partiel
+
+Dans cet état, aucune connexion à partir du clavier n'est autorisée. Les appuis de touche “PLSD"
+
+et “Connexion/Fin” provoquent le passage à la page de saisie du mot de passe du terminal, là prise
+
+de ligne (suivie de la demande de connexion dans le cas de la touche “Connexion/Fin”) sera effec-
+tive immédiatement après saisie et validation du mot de passe correct.
+
+En phase de connexion, suite à une demande de numérotation par le répertoire :
+
+— la touche “PLSD” annule la connexion et provoque un retour en état phonie (toute numérotation
+étant interdite),
+
+— la touche “Connexion/Fin” déconnecte le terminal.
+
+L'accès à la page RÉPERTOIRE du dialogue local est autorisé. La modification d'une fiche du réper-
+
+toire est protégée par la demande du mot de passe.
+
+L'exécution d'une entrée du répertoire est autorisée, elle provoque une prise de ligne suivie d'une
+
+numérotation et d'une demande de connexion.
+
+Les actions clavier autorisées quand le terminal est partiellement verrouillé, sont décrites dans le cha-
+
+pitre 2, paragraphe 41, page 15.
+
+Dans l'état connecté, le flux de données est actif.
+
+4.1.2 Effets du verrouillage total
+
+Dans cet état, les pages RÉPERTOIRE du dialogue local ne sont pas accessibles. La numérotation
+
+par le répertoire n'est pas autorisée.
+
+Dans cet état, aucune connexion à partir du clavier n'est autorisée. Les appuis de touche “PLSD"
+
+et “Connexion/Fin” provoquent le passage à la page de saisie du mot de passe du terminal, la prise
+
+de ligne (suivie de la demande de connexion dans le cas de la touche “Connexion/ Fin”) sera effec-
+tive immédiatement après saisie et validation du mot de passe correct.
+
+En phase de connexion, suite à Une demande de numérotation par le périphérique :
+
+— la touche “PLSD” annule la connexion et provoque un retour en état phonie (toute numérotation
+étant interdite) sur les modèles Télic ou provoque l'activation de l'écoute amplifiée sur les modèles
+Philips,
+
+— la touche “Connexion/Fin” déconnecte le terminal.
+
+Toute connexion ayant réussi depuis la prise provoque la visualisation de l'écran télématique.
+
+Dans l'état connecté, le lux de données est actif.
+
+Les actions clavier autorisées sont décrites dans le chapitre 2, paragraphe 4, page 15.
+
+8
+===== page scan 017 =====
+MT
+4.2 Commandes de déverrouillage
+Le déverrouillage s'effectue par la saisie du mot de passe suivie d'une validation par appui de touche
+“Envoi”.
+Le mot de passe peut être saisi de la façon suivante :
+Dans la page de saisie du mot de passe :
+Figure 1 : Page de saisie du mot de passe
+— sur appui de touche “PLSD”" ou “Connexion/Fin” dans l'état local,
+— si le verrouillage est total, lors d'un accès au dialogue local (commande Mem) ou lors d'une sortie
+de veille par appui de touche “Veille”,
+— si un mot de passe est programmé, lors de l'accès à la page PROGRAMMER
+Dans la page REPERTOIRE avec demande de saisie du mot de passe :
+REPERTOIRE
+o tél:3615
+code:#IR INTER
+L tél1:3614
+code:HGS
+2 té1:3615
+code: SNCF
+3 tél
+code
+4 tél:3616
+code:SCRIP
+Figure 2 : Page répertoire avec saisie du mot de passe
+— si le verrouillage est partiel, lors d'une modification d'une fiche.
+9
+===== page scan 018 =====
+===== page scan 019 =====
+|
+|
+Le dialogue local |
+|
+|
+|
+11
+\
+===== page scan 020 =====
+1 | Présentation
+Le dialogue local s'applique aux nouvelles fonctions offertes uniquement à l'usager :
+e le répertoire télématique qui permet l'accès automatique à des bases de données,
+e la programmation des caractéristiques suivantes du terminal :
+— la protection partielle ou totale du terminal,
+— le mot de passe,
+— le type de numérotation,
+— l'identification RAM 1,
+— l'indicatif de zone,
+— les préfixes d'accès.
+Ce chapitre présente :
++ les pages principales du dialogue local et les champs associés,
+e la sauvegarde dans l'EEPROM,
+e la réinitialisation du terminal.
+2 |Activation/désactivation du dialogue local
+2.1 Activation
+Le dialogue local est accessible à partir de l'écran télématique par la commande Mem
+(‘Fnct Sommaire” action en flip-flop). La première page du répertoire télématique est affichée.
+En sortie de veille, cette même page peut être affichée dans les conditions définies dans le chapi-
+tre 1.
+Si le terminal est totalement verrouillé, l'activation du dialogue local présentera la page de saisie du
+mot de passe.
+2.2 Désactivation
+La désactivation se fait à partir de toute page du dialogue local sur les événements suivants :
+— par la commande Mem,
+— par la mise en veille,
+— Sur connexion réussie.
+L'écran télématique est affiché.
+3 |Le répertoire télématique
+Le répertoire télématique comprend 10 fiches d'accès télématiques présentées sur deux pages
+REPERTOIRE:
+— la première page RÉPERTOIRE affiche les 5 premières fiches numérotées de O à 4,
+— la seconde page RÉPERTOIRE affiche les 5 dernières fiches numérotées de 5 à 9.
+12
+===== page scan 021 =====
+REPERTOIRE REPERTOIRE
+o tél:3615 5 tél
+code:BIR INTER code
+code:nSs code:Lf POSTE
+2 tél:3615 ? tél:
+code:SNCF code
+3 tél 8 tél: 2615
+code: code:ITI
+4 tél:3616 S tél:
+code:SCRIP code
+APPELER:N* APFELER:H*
+inscrire:1 H° 5 inscrire:1 N° =
+FEuite |
+programmer progranmer
+Figure 3 : Les deux pages du répertoire télématique
+Le passage d'une page à l'autre s'effectue de 2 façons :
+— Sur appui de touche “Suite” à partir de la première page,
+— sur appui de touche “Retour” (et de la touche “Suite” sur les modèles Télic) à partir de la seconde
+page.
+3.1 Sélection d’une fiche
+Chaque page possède un champ de saisie permettant de sélectionner :
+— soit la modification d'une fiche affichée par saisie de “l” suivi du numéro d'ordre de la fiche et vali-
+dation par appui sur la touche “Envoi”,
+— soit l'exécution d'une fiche (Voir chapitre 4, paragraphe 11.2, page 27).
+Les codes autorisés dans ce champ sont la lettre “l” et les chiffres de O à ©.
+Remarque :
+Si le terminal est partiellement protégé (choix “‘minitel sauf répertoire”), la modification d'une fiche
+est protégée par une demande de mot de passe.
+3.2 Saisie d’une fiche
+Chaque fiche se compose :
+— d'un champ “tél”,
+— d'un champ ‘code’
+3.2.1 Le champ “tél”
+Le champ “tél” d'une longueur de 29 caractères, permet la saisie du numéro de téléphone précédé
+(modèles Télic) ou suivi (modèles Philips) par une lettre spécifiant la configuration du terminal deman-
+dée (voir chapitre 4, paragraphe 11.21, page 27).
+Les codes autorisés dans le champ sont les lettres “A” “F" “V” ou “X" en première position, les chif-
+fres de O à 9, l'espace, les caractères “—" ‘*" et “#7”.
+Remarque :
+Un tiret “—" mémorise une pause de 2 secondes.
+3.2.2 Le champ “code”
+Le champ “code”, d'une longueur de 29 caractères, permet la saisie d'un code d'accès à des bases
+de données sur PAVI.
+13
+===== page scan 022 =====
+Les codes autorisés dans le champ sont :
+— les codes compris entre 2/0 et 7/F,
+— l'appui de touche qui est symbolisé par un signe “<” en vidéo inverse.
+Les minuscules ne sont pas autorisées sur les versions Cvt et Cv:.
+3.2.3 Les commandes autorisées
+Le passage du champ “tél” au champ “code” ou inversement s'effectue sur appui de touche “Suite”
+(respectivement “Retour”).
+L'appui detouche “Envoi” provoque une sortie de la fiche sélectionnée avec retour dans le champ
+de sélection.
+L'appui de touche “Suite” sur le champ “code” ou l'appui de touche “Retour” sur le champ “tél”
+est équivalent à une sortie de la fiche sélectionnée par appui de la touche “Envoi” sur les modèles Télic.
+Les caractères saisis dans le champ “tél” ou “code” sont exploitables uniquement en sortie du champ.
+Remarque :
+Les champs de saisie “tél” ou “code” ainsi que le champ de sélection sont modîïfiables par appui
+de touche “Correction” ou ‘Annulation’:
+4
+La page PROGRAMMER est accessible par l'usager à partir d'une des pages REPERTOIRE sur appui
+de touche “Sommaire”.
+Quand le mot de passe existe, l'accès à cette page est protégé par la demande de ce mot de passe.
+PROGRAMNMER
+protection:minitel sauf répertoire
+mot de passe:
+ligne: DC
+18:
+minitel sauf répertoire
+valider
+Figure 4 : Page de programmation du terminal
+La programmation du terminal se fait dans la page PROGRAMMER.
+Les différents champs proposés sont :
+— le champ ‘protection’,
+— le champ “mot de passe”,
+— le champ “ligne”,
+— le champ “ID”,
+— le champ “12”,
+— le champ “NAT”,
+— le champ “RES”
+14
+===== page scan 023 =====
+41 Le champ “protection”
+Le champ “protection” est un champ à choix multiples permettant de sélectionner le niveau de pro-
+tection du terminal. Cette sélection sera prise en compte uniquement lors du verrouillage du terminal
+(voir chapitre 1, paragraphe 41, page 7). Les choix sont :
+— “minitel” : le répertoire n'est plus accessible ni pour l'exécution d'une fiche, ni pour la consultation,
+— “minitel sauf répertoire” : le répertoire reste accessible pour l'exécution d'une fiche ou pour la
+consultation.
+La sélection se fait par appui sur la barre espace. Tout autre code est interdit dans le champ.
+4.2 Le champ “mot de passe”
+La longueur de ce champ est de 8 caractères.
+Les caractères autorisés dans ce champ sont :
+— les chiffres de 0 à 9,
+- les lettres de À à Z,
+— les caractères “*" 4" #7 #_" l'espace (et visualisé par ‘<"' en fond inverse sur les
+modèles Télic).
+Dès qu'un mot de passe est saisi, le terminal peut être verrouillé par appui de touche “TS Veille”.
+43 Le champ “ligne”
+Le champ “ligne” est un champ à choix multiples permettant de configurer le terminal avec le type
+de numérotation (voir chapitre 4, paragraphe 8, page 24) :
+— DC (DECimale),
+— FV (Fréquences Vocales).
+Cette sélection s'effectue par appui sur la barre espace.
+44 Le champ “ID”
+Ce champ, d'une longueur de 8 caractères, permet la saisie de l'identification RAM 1 du terminal
+(voir chapitre 9, paragraphe 3.2, page 63).
+Les codes autorisés dans le champ sont :
+— les codes compris entre 2/0 et 7/F exceptées les minuscules.
+A partir de la version Cv; et Bv8 les minuscules sont également autorisées.
+45 Le champ “IZ”
+Le champ “1Z”, d'une longueur de 6 caractères, permet la saisie de l'indicatif de Zone (voir chapitre
+4, paragraphe 1133, page 29). Les codes autorisés sont :
+— les chiffres de 0 à 9,
+— les caractères ‘-" ‘*" “42 et “" (sur les modèles Télic uniquement)
+4.6 Les champs “NAT” et “RES”
+Ces deux champs, d'une longueur de 6 caractères, permettent la saisie respective du préfixe d'accès
+à l'interzone et du préfixe d'accès au réseau (voir chapitre 4, paragraphe 1133, page 29). Les codes
+autorisés dans ces deux champs sont :
+— les chiffres de 0 à 9,
+— le caractères “—”’ (ainsi que “*” “#" et ‘‘.” sur les modèles Télic uniquement).
+4.7 Commandes autorisées
+L'appui de touche “Envoi” provoque une sortie de la page PROGRAMMER avec passage dans la
+page REPERTOIRE.
+Le passage au champ suivant se fait par appui de touche “Suite”.
+Le passage au champ précédent se fait par appui de touche “Retour”.
+15
+===== page scan 024 =====
+L'appui de touche “Retour” dans le champ “protection” est équivalent à une sortie de la page
+PROGRAMMER sur appui de touche “Envoi”!
+Remarque :
+Les champs de saisie “mot de passe’ “ID’; “IZ’ “NAT” et “RES” sont modifiables par appui de
+touches “Correction” et ‘Annulation’:
+
+5 | Sauvegarde du répertoire et de la programmation du terminal
+Le Minitel 2 possède une mémoire non volatile ne nécessitant pas de tension de maintien (FEEPROM).
+Les informations contenues dans les fiches des pages RÉPERTOIRE et dans la page PROGRAM-
+MER sont mémorisées dans l'EEPROM.
+La mémorisation se fait sur chaque sortie du dialogue local par Veille, Mem ou Verrouillage.
+Si, après modification, le terminal est mis hors tension sans sortie préalable du dialogue local, les modi-
+fications ne seront pas mémorisées.
+Le répertoire télématique est géré de façon dynamique dans une EEPROM de capacité 256 octets
+limitant le nombre de données mémorisées. Quand cette limite est atteinte, toute tentative de saisie
+dans une page du répertoire provoque l'émission d'un “bip”. En saisie dans un champ, les points
+affichés à droite du curseur matérialisent le contenu disponible de la mémoire dans la limite de la
+taille maximum du champ.
+Remarque :
+L'écriture dans l'ÉEPROM est d'environ 4 secondes. Elle varie suivant le volume d'informations à écrire
+et le type de composant équipant le terminal. Si, pendant l'écriture, survient une coupure de tension,
+la prochaine mise sous tension se comporte comme une première mise sous tension et le contenu
+de l'EEPROM est perdu.
+
+6 |Réinitialisation du terminal
+La commande clavier “FnctT + |” permet la réinitialisation du terminal équivalente à une première
+mise sous tension ; elle doit suivre immédiatement la mise sous tension (puis la sortie de veille, par
+appui sur la touche “Veille” pour les modèles Télic).
+Cette commande provoque immédiatement l'effacement du contenu du répertoire, du mot de passe
+et l'initialisation par défaut de la configuration du terminal. Lors de la première mise sous tension ou
+suite à la commande de réinitialisation “Fnct T + |”, tous les champs de saisie sont vides ; le terminal
+n'est pas verrouillé, les champs à choix multiples sont configurés de la façon suivante :
+— protection : minitel sauf répertoire (modèles Télic) ou minitel (modèles Philips),
+— ligne : DC (numérotation décimale).
+L'EEPROM est initialisée.
+Remarque :
+Sur Cv ou Cv :, à la première mise sous tension et lors de l'appui sur “Fnct T + l"} le terminal nentre
+pas en veille. Lors des mises sous tension, le terminal entre en veille pour des raisons de sécurité.
+A partir de Cv ; à la première mise sous tension ou suite à l'appui de touche “Fnct T + |} le passage
+en veille est systématique et la foncüon veille trois heures nest pas inhibée.
+
+16
+===== page scan 025 =====
+Le clavier
+17
+===== page scan 026 =====
+1 | Présentation
+Le clavier est l'ensemble physique et logique constituant le système de saisie manuel du Minitel. Il
+se compose d'un ensemble de 67 touches et du logiciel associé, celui-ci étant affecté à la scrutation
+des touches, au traitement des rebonds et au codage des touches enfoncées.
+Brk | 2 *
+SEE
+A Mem \ %-£ OE { oc" $ 0 &
+Ce)"
+Impr $ dd: ç } , ( )
+Cs]
+Min Maj î ]
+(Ga EIRE
+< > @ + = * "À
+CLIC)
+Tab
+ESA TSI ES (u]Ci)Co](r])
+BS LF
+QjGJCIF)GIGICICC]0M)
+Can
+KBIES CN]
+Sup. L RÉ L Sup. CDI ME C RE. Page
+(1
+Le Minitel 2 possède deux nouvelles touches :
+La touche ‘“PLSD”
+La touche “PLSD” permet la prise de ligne ou la libération de ligne du terminal dans les conditions
+précisées chapitre 4, paragraphe 4, page 22.
+|
+La touche “Veille”
+La touche “Veille” permet la mise en veille ou la sortie de veille du terminal dans les conditions préci-
+sées chapitre 1, paragraphe 2 et 3, page 4.
+2 |Accès aux fonctions locales
+L'existence d'un dialogue local et de nouvelles fonctions du terminal impliquent de nouvelles com-
+mandes locales qui sont présentées dans ce chapitre.
+La commande Mem
+La commande “Fnot Sommaire” sérigraphiée Mem permet l'accès et la sortie (action en flip-lop) du
+répertoire télématique du terminal décrit chapitre 2, paragraphe 21, page 12.
+18
+===== page scan 027 =====
+Le verrouillage =
+
+La commande “TS Veille” sérigraphiée permet le verrouillage du terminal décrit chapitre 1,
+
+paragraphe 4, page 7.
+
+La copie d'écran
+
+La commande “Fnct Guide” sérigraphiée Impr permet la copie de l'écran télématique ou celle du
+
+dialogue local décrite chapitre 8, page 54.
+
+Le réglage de l'écoute amplifiée
+
+Lorsque le terminal est en état phonie, l'usager peut régler le suivi de l'établissement de la communi-
+
+cation en réglant le volume de l'écoute amplifiée dans les conditions précisées chapitre 4, paragraphe
+
+10, page 26.
+
+Les commandes de réglage sont :
+
+“Fnct Correction” sérigraphiée «+ pour augmenter le niveau,
+
+“Fnct Annulation” sérigraphiée «{— pour diminuer le niveau.
+
+3 |Le mode minuscule/majuscule
+
+L'usager peut configurer le clavier en mode minuscule ou majuscule.
+
+Les commandes de configuration sont :
+
+"TS Fnot” sérigraphiée Min pour configurer en mode minuscule,
+
+“Ctrl Fnct” sérigraphiée Maj pour configurer en mode majuscule.
+
+4 | Fonctionnement dans les différents états
+
+Pendant l'état verrouillé
+
+Sont autorisés :
+
+— les commandes ou appuis de touche permettant l'activation des fonctions locales Mem, “Veille”
+et Impr
+
+— les commandes ou appuis de touche téléphoniques “Connexion/Fin” et “PLSD" qui seront actives
+après saisie du mot de passe,
+
+— les commandes de type Fnct X+Y permettant une configuration immédiate du terminal.
+
+Si le verrouillage est partiel, l'exécution d'une entrée du répertoire est autorisée et le clavier sera déblo-
+
+qué à la connexion (voir chapitre 1, paragraphe 411, page 8).
+
+À partir de Cv; et Bv8 tout appui de touche est autorisé à l'exception de “Esc”, “Fnot E+A
+
+“FnctE+M'et“FnctP+X" (avec X=1 ou 3 ou 4 ou 9 ou l).
+
+Pendant la Veille
+
+Sont autorisés :
+
+— les commandes où appuis de touche permettant l'activation de fonctions locales Mem, “Veille” et
+le verrouillage,
+
+— les appuis de touche téléphonique “Connexion/Fin” et “PLSD”!.
+
+Pendant l’état phonie
+
+Sont autorisés :
+
+— les commandes où appuis de touche permettant l'activation de fonctions locales Mem, Impr, “Veille”,
+et le verrouillage,
+
+— les commandes ou appuis de touche téléphonique “Connexion/Fin”, “PLSD”,. “HP+ * “HP="
+
+— les commandes de type Fnct X+Y permettant une configuration immédiate du terminal.
+
+19
+===== page scan 028 =====
+Pendant le dialogue local
+
+Les touches du clavier sont autorisées en fonction du champ courant.
+
+Sont autorisés :
+
+— les commandes ou appuis de touche permettant l'activation des fonctions locales Mem, Impr, “Veille”,
+et le verrouillage,
+
+— les appuis de touche ou commandes téléphoniques “Connexion/Fin”, “PLSD”, “HP+" et “HP—",
+
+— les commandes de type Fnct X+Y permettant une configuration immédiate du terminal.
+
+La répétition automatique est inactive quand la fonction Mem est active.
+
+Pendant la copie d'écran
+
+Sont autorisés :
+
+— les commandes ou appuis de touche permettant l'activation des fonctions locales Impr, “Veille” et
+le verrouillage,
+
+— les commandes ou appuis de touche téléphonique “Connexion/Fin”, “PLSD", “HP+ "et “HP-",
+
+5 | Commandes. et codes émis par le clavier
+
+Commandes usagers
+
+À partir du clavier, il est possible de commander les nouvelles actions de configuration suivantes :
+
+“Fnct T+*"” pour la sortie de l'état Paa-X3,
+
+“Fnct P +9" pour la configuration prise à 9600 bauds,
+
+“Fnct T+1” pour initialiser les champs programmés par l'usager (contenu de l'EEPROM).
+
+À partir des versions Cv; et Bv8
+
+“Fnct E+A” pour inhiber la veille vidéo trois heures,
+
+“Fnct E+M” pour autoriser la veille vidéo trois heures.
+
+Les autres commandes de type Fnct X+Y sont identiques à celles du Minitel 1 B.
+
+L'annexe 21 page 71 en présente une liste complète en fonction des modes de fonctionnement du
+
+terminal.
+
+Codes et séquences générés
+
+L'annexe 2.4 page 74 présente la liste complète des codes et séquences générés par le clavier en
+
+fonction des standards et mode de fonctionnement.
+
+Remarque :
+
+A partir des versions Cv ; et Bv4, la commande “TS Correction” est équivalente à “Correction” et
+
+“Ctrl Guide” génère le caractère “$".
+
+6 |Incidences des variations de PT, DP.et DCI
+
+Les variations de PT n'ont aucun effet sur le clavier.
+
+Les variations de DP (Détection de Porteuse) ont l'effet suivant :
+
+— lors d'une connexion où déconnexion, le mode majuscule/minuscule est initialisé selon le standard
+actif.
+
+Les variations de DCL (Détection de Courant de Ligne) n'ont aucun effet sur le clavier
+
+20
+===== page scan 029 =====
+Le module téléphonique
+21
+===== page scan 030 =====
+EE 7
+
+Le module téléphonique du Minitel 2 constitue l'interface physique et logique entre le terminal et la
+
+ligne téléphonique.
+
+Il intègre un répertoire télématique de dix numéros avec code de service, une zone tampon pour
+
+stocker un numéro téléchargé (en vue d'une utilisation de type LECAM par exemple) et un numéro-
+
+teur programmable en décimal ou en fréquences vocales.
+
+La programmation de ces fonctions est accessible à l'usager par l'intermédiaire des écrans “PRO-
+
+GRAMMER" et “RÉPERTOIRE” (voir chapitre 2, page 12).
+
+Ce chapitre développe la gestion physique, les exploitations fonctionnelles et le protocole relatifs au
+
+module téléphonique.
+
+Le module téléphonique du Minitel 2 respecte les normes AGH 1108, AGH 1227 et AGH 1435.
+
+L'annexe 7 page 106 résume les différentes temporisations relatives à la téléphonie.
+
+L'interface de ligne assure l'adaptation du Minitel à la ligne téléphonique en remplissant les fonctions
+
+suivantes :
+
+— commutation de la ligne téléphonique : un relais assure la commutation de la ligne téléphonique
+vers le modem du terminal ou vers le poste téléphonique associé,
+
+— protection contre les surtensions, conformément à la norme NFC 98010,
+
+— régulation du courant de ligne : en régime établi un système permet d'ajuster automatiquement
+le courant de ligne entre 25mA et 60mA. La durée de la phase transitoire, définie comme le temps
+qui s'écoule entre le basculement de la ligne vers le modem et l'instant où le courant devient supé-
+rieur à 25 mA, ne dépasse pas 5 milli-secondes. Le modem est cependant immédiatement utilisa-
+ble en émission et en réception après ce basculement,
+
+— adaptation d'impédance : l'impédance nominale est de 600 Ohms avec un coefficient de désa-
+daptation inférieur à 20 % dans la bande téléphonique,
+
+— détection d'appel : ce circuit fournit au microprocesseur un signal permettant la validation de l'appa-
+rition du signal d'appel qui se fait par une mesure de la période du signal d'appel.
+
+Le Minitel 2 gère logiquement l'apparition et la disparition du courant de ligne de la façon suivante :
+
++ Lors du passage du terminal en état phonie résultant d'une commande de prise de ligne, le bit
+DCL (Détection du Courant de Ligne) correspondant au bit b3 du status module téléphonique est
+positionné à 1 ; ce bit ne sera positionné à O qu'après retour en état local du terminal (ou connexion
+
+en cours).
+
+L'état du relais de prise de ligne est également géré logiquement. Toute commande de prise de ligne
+
+modifie la valeur du bit RPL (Relais de Prise de Ligne) correspondant au bit bO du status module
+
+téléphonique.
+4
+
+La prise de ligne relie le Minitel 2 au réseau téléphonique parfermeture du relais de prise de ligne.
+
+De ce fait, elle isole le poste téléphonique associé en parallèle de la ligne.
+
+Une temporisation de 1 seconde assure un délai minimum entre une prise de ligne et le début de
+
+la numérotation ou le début de la connexion en absence de numérotation.
+
+Une prise de ligne peut être effectuée :
+
+— par l'usager par appui sur les touches “PLSD”" ou “Connexion/Fin',
+
+— par le périphérique par séquences Protocole.
+
+22
+===== page scan 031 =====
+Lors d'une prise de ligne, l'état du terminal est modiflé de la façon suivante :
+— le terminal passe dans l'état phonie,
+— les aiguillages deviennent ceux de l'état phonie,
+— le bit bO (RPL) du status module téléphonique est positionné à 1,
+— le bit b3 (DCL) du status module téléphonique est positionné à 1,
+— la rangée 00 devient la rangée courante pour les prochaines informations,
+— la lettre “T” remplace la lettre “F” en rangée 00,
+— la réception amplifiée est activée et peut être modifiée par l'usager et non par la prise,
+— un acquittement SEP 5/B confirmant la prise de ligne est émis immédiatement vers la prise.
+Remarque :
+Lorsque le périphérique commande la prise de ligne et numérote, l'écoute amplifiée est activée et
+ne peut pas être inhibée, quelque soit le mode de numérotation (secrète ou non), que le terminal
+soit en veille ou non.
+La libération de ligne isole le Minitel 2 du réseau téléphonique par ouverture du relais de prise de
+ligne. De ce fait, elle rend la ligne au poste téléphonique associé en parallèle.
+Le logiciel garantit une durée minimum de 2 secondes entre la libération de ligne et la prochaine
+prise de ligne quelle que soit l'origine de la libération ou de la prise de ligne.
+Une libération de ligne peut être effectuée :
+— par l'usager par appui de la touche “PLSD”,
+— par le périphérique par séquences Protocole.
+Lors d’une libération de ligne, l'état du terminal est modifié de la façon suivante :
+— le terminal passe dans l'état local,
+— les aiguillages deviennent ceux de l'état local,
+— le bit bO (RPL) du status module téléphonique est positionné à 0,
+— le bit b3 (DCL) du status module téléphonique est positionné à 0,
+— la rangée 00 n'est plus la rangée courante,
+— la lettre “F” remplace la lettre “T” en rangée 00,
+— la réception amplifiée est désactivée,
+— un acquittement SEP 5/B confirmant la libération de la ligne est émis vers la prise.
+Dans l’état connexion en cours
+Dans cet état, le bit RPL vaut 1 par défaut. Sa valeur peut être modifiée par les séquences Protocole
+PRO1 LL et PRO1 PLSD.
+Une déconnexion par appui de touche “Connexion/Fin”, provoque un retour en état local, quelle que
+soit la valeur du bit RPL.
+Une déconnexion par PRO1 DECONNEXION dépend de l'état du bit RPL :
+— si le bit RPL vaut 1, le terminal passe en état phonie sans libérer la ligne,
+— si le bit RPL vaut 0, le terminal passe en état local.
+Dans l'état connecté
+Dans cet état, le bit RPL vaut O par défaut. Sa valeur peut être modifiée par appui sur la touche “PLSD"
+ou par les séquences Protocole PRO1 LL et PRO1 PLSD).
+Une déconnexion par double appui de touche “Connexion/Fin”, par PRO1 DECONNEXION ou perte
+de porteuse supérieure à 440 ms dépend de l'état du bit RPL comme décrit ci-dessus.
+23
+===== page scan 032 =====
+7
+e La touche “PLSD”"
+
+— en état local, provoque une prise de ligne,
+
+— en état phonie, provoque une libération de ligne,
+
+— en état phase de connexion, elle active le suivi auditif de l'acheminement de la numérotation.
+(La phase de connexion ne peut reprendre que par appui sur la touche “Connexion/Fin” sur
+les modèles Télic),
+
+— en état connecté, provoque la mise à 1 du bit RPL s’il vaut O et une mise à O s'il vaut 1.
+
+e La séquence PR0O1 PLSD
+
+— en état local, fait une prise de ligne,
+
+—’en état phonie, est sans effet,
+
+— en état phase de connexion, provoque la mise à 1 du bit RPL,
+
+— en état connecté, provoque la mise à 1 du bit RPL.
+
+e La séquence PRO LL
+
+— en état local, est sans effet,
+
+— en état phonie provoque une libération de ligne,
+
+— en état phase de connexion provoque la mise à O du bit RPL,
+
+— en état connecté provoque la mise à O du bit RPL.
+
+e La touche “Connexion/Fin” |
+
+— en état local, provoque une prise de ligne suivi d'un passage en phase de connexion, 1 seconde
+plus tard (pour assurer un fonctionnement identique à M1 B lorsque la numérotation est effectuée
+sur un poste téléphonique associé au Minitel 2),
+
+— en état phonie, provoque un passage en phase de connexion, '
+
+— en état phase de connexion, provoque une déconnexion comme décrit paragraphe 6, page 23,
+
+— en état connecté, provoque une déconnexion comme décrit paragraphe 6, page 23 (le premier
+appui dépendant du serveur).
+
++ La séquence PRO1 CONNEXION
+
+— en état local, provoque une prise de ligne, suivie d'un passage dans l'état phase de connexion
+1 seconde plus tard,
+
+— en état phonie, provoque un passage en état phase de connexion,
+
+— en état phase de connexion, est sans effet,
+
+— en état connecté, est sans effet.
+
++ La séquence PRO1 DECONNEXION
+
+— en état local, est sans effet,
+
+— en état phonie, est sans effet,
+
+— en état phase de connexion, provoque une déconnexion comme décrit paragraphe 6, page 23,
+
+— en état connecté, provoque une déconnexion comme décrit paragraphe 6, page 23.
+
+Remarque :
+Les appuis de touche “PLSD” et “Connexion/Fin sortent le terminal de veille. Les séquences Proto-
+cole correspondant à PLSD et Connexion-Fin sont actives en veille mais ne sortent pas le terminal
+de veille.
+8
+Les caractéristiques de la numérotation sont conformes à la norme AGH 1108.
+Le cadencement de numérotation permet d'envoyer les numéros de façon calibrée. Le cadencement
+dépend du type de numérotation active (décimale ou à fréquences vocales).
+8.1 Numérotation décimale
+La numérotation décimale consiste à produire des impulsions de courant par ouverture et fermeture
+successives de la ligne.
+24
+===== page scan 033 =====
+Les chiffres de 1 à 9 génèrent de 1 à 9 impulsions, le chiffre O génère 10 impulsions.
+Nbre d'impuisons| 1 [21 83[4f[s5[6l7[8[el%x]
+Figure 1 : Caractéristiques de numérotation décimale
+Chaque impulsion se caractérise par :
+— 70 ms d'ouverture et 35 ms de fermeture,
+— la durée minimum qui sépare chaque chiffre est de 900 ms.
+8.2 Numérotation à fréquences vocales
+La numérotation à fréquences vocales (FV) consiste à émettre en ligne pendant une durée de 75 ms
+un couple de fréquences définies par l'avis Q23 du CCITT et présentée dans le tableau ci-après :
+Groupe des Fréquences Hautes (Hz)
+1209 1336 1477
+tes “= ee  e.
+des Fréquences
+.
+Figure 2 : Caractéristiques de numérotation à fréquences vocales
+La durée minimum qui sépare deux chiffres est de 75 ms.
+Les niveaux d'émission en ligne sont compris entre —4 dbm et —8 dbm pour le groupe de fréquen-
+ces hautes et entre —6 dbm et —10 dbm pour le groupe de fréquences basses.
+Remarque :
+Par défaut à la première mise sous tension, la numérotation est décimale.
+9.1 La pause
+Une pause suspend la numérotation pendant deux secondes. Cette numérotation reprend à échéance
+de temporisation.
+Une ou plusieurs pauses peuvent être insérées dans les champs de numérotation téléphonique du
+répertoire ou dans les préfixes d'accès par la saisie d'un tiret “—”’.
+La pause n'est pas visualisée en rangée 00.
+9.2 Les préfixes d'accès
+Les préfixes d'accès donnent accès au réseau public, ou à l'interzone (voir chapitre 2, page 15).
+Ils sont exclusivement utilisés pour la numérotation du numéro téléchargé (fonction EC).
+25
+===== page scan 034 =====
+9.3 Les commandes de numérotation
+Les caractères * et # (respectivement codés 2/A et 2/3) provoquent le passage immédiat en numéro-
+tation à fréquences vocales et ce jusqu'à la libération de la ligne. * et # sont numérotés en fréquences
+vocales.
+
+10 | La réception amplifiée |
+Re EL E
+La réception amplifiée est implicitement activée lorsque le terminal passe dans l'état phonie.
+Le volume de la réception amplifiée comporte 3 niveaux (modèles Télic) ou 5 niveaux (modèles Philips).
+Le passage d'un niveau à l'autre se fait par appui de touche :
+— “Fnct + Correction” : augmentation du volume (fonction “HP+").
+— “Fnct + Annulation” : diminution du volume (fonction “HP—").
+Le dernier niveau programmé est conservé par le terminal tant que celui-ci est sous tension ; il est
+restitué à la prochaine activation de la réception ampliflée. Lors d'une mise sous tension, le niveau
+moyen est sélectionné.
+La numérotation est réalisable :
+— chiffre à chiffre par l'usager ou par la prise,
+— à partir du répertoire, par l'usager (et par la prise sur les modèles Phillips),
+— par l'exploitation du numéro téléchargé.
+
+11.1 La numérotation chiffre à chiffre
+11.11 L'exploitation par l'usager
+Lorsque le Minitel 2 est dans l'état phonie, la numérotation s'effectue manuellement à l'aide des tou-
+ches 0 à 9, * et-#. Les codes sont transmis au numéroteur “au fil de l'eau”. Tous les autres caractères
+sont ignorés.
+L'usager peut anticiper la numérotation. Dès le passage en phonie, (sur la saisie du premier chiffre
+à numéroter pour les modèles Télic), la rangée 00 est effacée, la flèche ‘‘ ->"" est affichée colonne
+1, rangée 00.
+Les informations suivantes s'affichent en rangée 00 :
+—> <numéro de téléphone >
+<numéro de téléphone > est le numéro de téléphone frappé au clavier (seuls les 16 derniers chiffres
+sont affichés pour les modèles Télic).
+Après retour en local, -> <numéro de téléphone> reste affiché. Il n'y a pas de différence d'affi-
+chage en fonction du format de l'écran (40 ou 80 colonnes). L'affichage est géré à la fois sur la ran-
+gée 00 de l'écran télématique et sur la rangée 00 de l'écran Mem. Il est effacé à la prochaine numéro-
+tation, en sortie de veille ou lorsque le serveur ou le périphérique utilise la rangée 00.
+111.2 L'exploitation par la prise
+Pour numéroter chiffre à chiffre par la prise, le périphérique doit :
+— prendre la ligne par la séquence PRO1 PLSD,
+— positionner l'aiguillage du module prise vers le module téléphonique (voir chapitre 9, paragraphe
+2.2, page 61),
+— envoyer les chiffres à numéroter.
+Les chiffres de 0 à 9, les caractères “*"’ et "sont autorisés. La connexion n'est pas automatique :
+le périphérique doit émettre la séquence Protocole PR0O1 CONNEXION.
+111.24 La numérotation secrète
+L'affichage en rangée 00 de numéros confidentiels, peut être supprimé.
+26
+===== page scan 035 =====
+La numérotation est rendue secrète dans l'état phonie en coupant l'aiguillage module téléphonique
+vers écran.
+
+L'aiguillage standard est automatiquement rétabli lors du prochain passage en phonie.
+
+11.2 L'exploitation du répertoire
+
+La numérotation par le répertoire est accessible par le clavier ; le module prise ne peut l'exploiter que
+sur les modèles Philips.
+
+La numérotation par le répertoire est possible à partir de la page “RÉPERTOIRE TELEMATIQUE",
+l'usager entre un chiffre entre O et 9 correspondant à l'entrée du répertoire qu'il veut exécuter, suivi
+de “Envoi”.
+
+11.21 Syntaxe des numéros mémorisés dans le répertoire
+
+Les caractères autorisés sont les chiffres de O à 9, les caractères * et 4, la pause (représentée par
+un ‘“—") et l'espace. |
+
+Le premier (modèles Télic) ou le dernier (modèles Philips) caractère du numéro téléphonique peut
+être une lettre. Cette lettre désigne le standard dans lequel le terminal sera configuré dès la connexion.
+Les lettres utilisables sont :
+
+— À pour le standard Téléinformatique jeu Américain,
+
+— F pour le standard Téléinformatique jeu Français,
+
+— V pour le standard Télétel mode Vidéotex (pour les modèles Télic uniquement),
+
+— X pour le standard Télétel mode Pad-X3.
+
+Si le premier (modèles Télic) ou le dernier (modèles Philips) caractère du champ téléphonique est
+un chiffre, le terminal sera configuré par défaut en standard Télétel mode Vidéotex.
+
+11.2.2 Exploitation d’un numéro du répertoire
+
+Affichage en rangée 00
+
+Si le numéro téléphonique et le code de service sont non vides, ils s'affichent en rangée 00 de la
+façon suivante :
+
+—> <numéro de téléphone> C <code de service>
+
+">" est affiché en colonne 1,
+
+<numéro de téléphone> est le numéro de téléphone associé à l'entrée X sélectionnée,
+
+C représente la demande de connexion implicite suivant la numérotation,
+
+<code de service> est le code du service télématique contenu dans l'entrée X sélectionnée,
+Remarque :
+
+Le code de service nest pas affiché en rangée 00 pour les modèles Philips.
+
+Si le numéro téléphonique existe, mais le code de service est vide, on affichera en rangée 00:
+—>  <numéro de téléphone> C
+
+Exécution de la numérotation
+
+Si le numéro téléphonique associé est non vide, l'appel d'un numéro du répertoire est valide suivant
+l'état du terminal:
+
+— dans l'état local, la commande de numérotation par le répertoire provoque une prise de ligne suivie
+
+de la numérotation et d'une demande de connexion implicite.
+
+Si le numéro téléphonique est vide, que le code de service soit vide ou non, la rangée 00 sera effa-
+cée, un bip sonore sera émis :
+
+— dans l'état phonie, la numérotation par le répertoire est impossible,
+- — dans l'état connexion en cours, la numérotation par le répertoire est ignorée et un bip est émis,
+— dans l'état connecté, l'appel d'une entrée du répertoire est ignoré et un bip est émis.
+
+27
+===== page scan 036 =====
+11.23 Envoi du code de service mémorisé dans le répertoire
+
+L'envoi du code de service débute à partir de la connexion réussie suite à l'exécution du numéro
+
+de téléphone.
+
+En standard téléinformatique et en standard Télétel PAD-X3, le code 0/D correspondant à la touche
+
+“CR” doit être saisi en fin du code de service pour être envoyé.
+
+En standard Télétel non PAD-X3, en fin d'envoi du code de service, la séquence 1/3 4/1 correspon-
+
+dant à la touche “Envoi” est générée de façon implicite.
+
+113 Les numéros téléchargés et la numérotation EC
+
+La fonction de téléchargement d'un numéro de téléphone permet par exemple à l'utilisateur :
+
+— de télécharger un numéro contenu sur une carte à mémoire à l'aide d'un LECAM,
+
+— d'exécuter un numéro en tenant compte de l'environnement téléphonique programmé dans la page
+“PROGRAMMER".
+
+Quand le terminal est connecté sur l'Annuaire Electronique ou sur un annuaire privé derrière PABX,
+
+le téléchargement des numéros est actif. Seul le dernier numéro téléchargé est mémorisé.
+
+11.31 Syntaxe du numéro téléchargé
+
+Les Minitel 10 et 12 reconnaissent une séquence complète utilisée pour le téléchargement de page
+
+de l'annuaire électronique :
+
+SOH <rang> EOT <nom> STX <numéro> ETX
+
+Pour le Minitel 2, la syntaxe est simplifiée par rapport à la norme du fait que le Minitel 2 mémorise
+
+un seul numéro.
+
+Remarque :
+
+Il est cependant conseillé aux périphériques d'envoyer la séquence complète pour etre compatible
+
+avec le Minitel 12. Sur Minitel 2, le début de séquence est filtré et ne géne pas le fonctionnement
+
+du Minitel 2.
+
+La désignation du numéro à télécharger s'effectue à l'aide de séparateurs STX et ETX de la façon
+
+suivante : STX < numéro de téléphone> ETX
+
+Tout code reçu avant STX est filtré. Les codes reçus entre STX et ETX représentent le numéro de télé-
+
+phone dont la longueur maximale est de 31 caractères (16 caractères pour les modèles Télic), tout
+
+caractère de numérotation suivant est perdu. ETX reçu en cours de téléchargement rend le tampon
+exploitable.
+
+La syntaxe utilisée ne tient pas compte des normes ISO 6429 et ISO 2022 ce qui signifie que les
+
+caractères n'appartenant pas à une séquence de téléchargement sont analysés. Par exemple, ESC
+
+3/0 8/2 provoquera la prise en compte de 3/0 3/2.
+
+Un contrôle de cohérence des données de < numéro de téléphone > est réalisé lors du télécharge-
+
+ment.
+
+Les codes autorisés sont :
+
+— les chiffres de O à 9,
+
+— le caractère “C” qui signifie une demande de connexion,
+
+— les caractères “(‘ et ”)'"” qui délimitent l'indicatif de zone. Ces parenthèses ne peuvent contenir que
+6 chiffres au maximum,
+
+— les numéros de province sont affectés d'un pseudo numéro de zone représenté par un tiret entre
+deux parenthèses : (—),
+
+— le caractère “-" placé devant le numéro qui signifie que < numéro de téléphone> est de type
+privé et que lors de la numération par PROS EC le préfixe d'accès au réseau public ne doit pas
+être numéroté.
+
+Remarque :
+
+Le préfixe "+" nest pas reconnu par le Minitel 2 qui ne traite pas les numéros internationaux.
+
+28
+===== page scan 037 =====
+Ce]
+Le tampon du numéro téléchargé est effacé dès :
+— une mise hors tension,
+— initialisation du téléchargement d'un numéro par STX,
+— la réception de la séquence STX ETX, ce qui assure une confidentialité.
+11.3.2 Téléchargement d’un numéro
+Pour télécharger un numéro de téléphone, l'aiguillage du module initiateur de la demande vers le
+module téléphonique doit être préalablement positionné.
+11.33 Le contrôle de cohérence
+Lors de l'appel d'un numéro téléchargé par séquence Protocole PROS EC, le terminal effectue un
+contrôle de cohérence syntaxique du numéro téléchargé.
+Les critères d'incohérence sont les suivants :
+e caractère ‘‘(”’ ne figurant pas comme premier caractère après STX,
+e caractère ‘“‘(’ comme premier caractère après STX et:
+— caractère “C” suivant le caractère ‘(",
+— chaîne de caractères “((",
+— chaîne de caractères ‘()",
+— plus de 6 chiffres suivants “(",
+— caractère ‘“—" ne suivant pas immédiatement le caractère “(",
+e chaîne de caractères ‘(—" et:
+— tout caractère autre que ")”.
+En cas d'erreur, la commande EC ne sera pas effectuée.
+Gestion des préfixes pour l’exécution de la numérotation
+Les préfixes d'accès au réseau public et d'accès à l'interzone sont ceux fournis par l'utilisateur lors
+de la programmation de l'écran “PROGRAMMER"! Le numéro peut également se terminer par la let-
+tre “C” pour signaler un serveur télématique, ce qui entraînera une connexion automatique lors de
+la numérotation.
+
+La gestion des préfixes est faite lors de la numérotation par PROS EC. Elle s'effectue de la façon suivante :
+e Sile début de < numéro téléchargé > est un caractère à numéroter de type 0 à 9, “C', ‘*"' et "+4",
+le préfixe d'accès au réseau public est numéroté quel que soit le contenu de l'indicatif de zone.
+
+e Si le premier caractère de < numéro téléchargé> est “—"!,
+— aucun préfixe d'accès au réseau public n'est ajouté,
+e Si le début de <numéro téléchargé> est de type “(X..Y)",
+— avec X..Y : au plus 6 codes entre O et 9, * ou #.
+X..Y sont comparés au contenu du champ Indicatif de Zone (12) :
+— en cas d'inégalité, le préfixe d'accès à l'interzone (champ NAT) sera ajouté s'il existe,
+— en cas d'égalité, le préfixe d'accès au réseau public sera rajouté.
+e Si le début de <numéro téléchargé > est de type “(—)" le contenu du champ Indicatif de Zone
+(IZ) est analysé :
+— sil contient les caractères O à 9, * et Æ, le préfixe d'accès à l'interzone est ajouté,
+— sil contient un “—"’ où s'il est vide, seul le préfixe d'accès au réseau public est ajouté.
+113.4 Exploitation du numéro téléchargé par le périphérique
+La commande d'appel du numéro téléchargé est : PRO3 EC 3/X 3/Y
+EC a pour valeur 5/2.
+8/X et 3/Y désignent le rang (dizaine pour X et unité pour Y) du numéro téléchargé. Etant donné
+que le Minitel 2 ne peut posséder qu'un numéro téléchargé, 3/X et 3/Y ne sont plus significatifs du
+rang et peuvent prendre n'importe quelle valeur entre 3/0 et 3/F
+29
+===== page scan 038 =====
+La fonction EC est autorisée dans les états local et phonie uniquement. Si le numéro existe et sa syntaxe
+est valide, la commande provoque :
+— une prise de ligne,
+— l'émission du numéro téléchargé précédée si nécessaire de ses préfixes d'accès. Il est affiché en
+rangée 00 sous la forme :
+—> <préfixe d'accès> <numéro téléchargé >,
+— une phase de connexion automatique si la commande a été mémorisée dans le numéro téléchargé.
+12.1 Présentation
+Le modem du Minitel 2 détecte l'apparition et la disparition d'une sonnerie d'appel. Cette détection
+est active quand le terminal est en local (en veille ou non) et inactive dans les autres états.
+Un appel se présente comme un train d'impulsions dont la fréquence est comprise entre 22,2 et 63 Hz.
+Remarque :
+La norme AGH 1108 recommande une détection à 50 Hz plus ou moins 10 %, mais pour des raisons
+de compatibilité avec certains centraux respectant une ancienne norme, la détection est élargie de
+22,2 Hz<-0, +04>HZz jusqu'à 63 Hz <-0, +04>Hz.
+12.2 Description de la détection d’appel
+L'apparition d'un train d'impulsion initialise le mécanisme de validation d'appel entrant : le terminal
+cherche à valider la présence de signal entrant dans une fenêtre de 265 ms.
+La première validation du signal d'appel entrant entraîne les effets suivants :
+— un acquittement SEP 6/C d'apparition d'appel entrant est émis vers la prise,
+— une temporisation de 6 secondes est initialisée ; elle correspond à la fenêtre d'observation de l'appel
+entrant.
+Sur toute prochaine validation du signal d'appel entrant, le terminal réarme la temporisation de 6 secondes.
+Si la présence du signal d'appel entrant n'est pas validée dans la fenêtre de 265 ms, la temporisation
+de 6 secondes n'est pas réarmée.
+L'échéance de temporisation de 6 secondes correspond à la disparition d'appel entrant et un acquit-
+tement SEP 6/C de disparition d'appel entrant est émis vers la prise.
+Sur passage en état phonie par l'usager où par le périphérique, (le Minitel 2 n'est pas un terminal
+à réponse automatique) la détection d'appel entrant est désactivée et SEP 5/B est émis vers la prise.
+| | | SEP 5/B
+| ul
+| |
+0 UN JIl
+AL Prise de ligne
+l\ > 265ms 2%65ms 4$ : :
+eu RARE 1 Armement fenêtre
+SEP 6/C 1: 1 … * des 6 secondes
+5 ! | | Armement fenêtre
+nt . | des 6 secondes
+. larmement fenêtre | Armement fenêtre
+; des 6 secondes 1 des 6 secondes
+larmement fenêtre
+des 6 secondes
+l Armement fenêtre
+des 6 secondes
+Figure 1 : Détection d'appel entrant avec prise de ligne
+30
+===== page scan 039 =====
+me 265mS 6 secondes SEP GC
+ML lArmement fenêtre
+TES des 6 secondes
+‘we larmement fenêtre
+FA des 6 secondes
+” l'Armement fenêtre
+des 6 secondes
+Figure 2 : Disparition d'appel entrant
+Il n'y a aucun status associé à la présence du signal d'appel.
+13.1 Le status Terminal
+L'octet de status terminal a pour configuration :
+b7 b6 b5 b4 b3 b2 bi b0
+MR D A DE M AA
+P : bit de parité
+MT : Module Téléphonique (vaut toujours 1 car le module téléphonique est toujours présent).
+13.2 Le status module téléphonique
+Le status module téléphonique a la configuration suivante :
+b7 b6 b5 b4 b3 b2 bi bO
+P : bit de parité
+RPL = état du Relais de Prise de Ligne (0 = ouvert),
+MF/DEC = numérotation Multi-Fréquences ou DECimale (0 = décimale),
+DCL = Détection et apparition/disparition d'un Courant de Ligne (0 = absence).
+Le bit b0 (RPL) correspond à un état logique du relais et sa valeur conditionne l'état du terminal à
+la déconnexion (voir paragraphes 4 et 5 pages 22 et 23).
+Sur le Minitel 2, le fait d'appuyer sur la touche “PLSD” n'agit plus directement sur un relais physique
+supplémentaire comme sur le Minitel 10. Le comportement du Minitel 10 est donc simulé.
+Le bit b2 (MF/DEC) est l'image du type de numérotation programmé sous Mem dans l'écran
+“PROGRAMMER". Le passage de la numérotation décimale vers la numérotation à fréquences voca-
+les par l'usage de * où # ne modifie pas la valeur de ce bit.
+Le bit b8 (DCL) correspond à un état logique du courant de ligne. Toute transition de ce bit provoque
+l'émission de SEP 5/B vers la prise. Dans l'état local, l'état du status est :
+— DCL = 0,
+— MF/DEC = 0 si décimale, = 1 si fréquences vocales,
+— RPL = O.
+31
+===== page scan 040 =====
+13.3 Les séquences Protocole utilisées
+Les séquences Protocole utilisées sont :
+PRO1 STATUS TELEPHONE ({/B 3/9 5/A) : demande de “status” téléphonique,
+PRO2 REP STATUS TELEPHONE <status> (1/B 3/A 5/B <status>) : réponse à la demande de
+“status” téléphonique,
+PRO3 ON < code récepteur module téléphonique> <code émetteur prise> (1/B 3/B 6/1 5/C 5/3):
+établissemement de l'aiguillage prise vers module téléphonique
+PROS OFF (1/B 3/B 6/0 5/8 5/4): coupure de l'aiguillage module téléphonique vers écran
+PRO1 CONNEXION (1/B 3/9 6/8) : demande de connexion modem
+PRO1 DECONNEXION (1/B 3/9 6/7) : demande de déconnexion modem
+PRO1 PLSD (1/B 3/9 5/3) : demande de prise de ligne
+PRO LL (1/B 3/9 5/7): demande de libération de ligne
+PROS REP X/Y (1/B 3/B 5/1 3/X 8/Y) : demande de numérotation d'une fiche du répertoire (unique-
+ment pour les modèles Phillips)
+PRO3 EC X/Y (1/B 3/B 5/2 3/X 8/Y) : demande de numérotation du numéro téléchargé
+
+134  Incidences des variations de PT, DP et DCL
+Quand la prise est dans l'état standard, les variations de PT de O vers 1, dans l'état local, annulent
+le téléchargement du numéro en cours.
+Les variations de DCL annulent un téléchargement du numéro en cours.
+Les variations de DP annulent un téléchargement du numéro en cours.
+
+32
+===== page scan 041 =====
+L’écran
+33
+===== page scan 042 =====
+1 [Fran
+L'écran assure la visualisation des informations et dispose de deux formats possibles : le format
+40 colonnes et le format 80 colonnes.
+Il constitue un ensemble physique et logique comprenant le tube (et son électronique associée), l'auto-
+mate de visualisation et le logiciel de décodage.
+L'automate de visualisation (VGP+) se compose de deux mémoires de page qui définissent deux
+écrans logiques : l'un est alloué à l'application télématique tandis que l'autre est alloué aux applica-
+tions internes du Minitel (fonction Mem). Cet automate inclut un générateur de symboles ou caractè-
+res alphanumériques et 128 formes semi-graphiques.
+Les deux écrans sont gérés de manière indépendante. Toute modification de l'affichage de l'un, loca-
+lement ou bien à distance (PAVI, serveur local) nengendre aucune modification dans l'affichage de l'autre.
+La rangée 00 n'est pas commune pour les deux écrans (excepté pour les chiffres à numéroter et les
+signes associés, et les indicateurs d'état du terminal). La rangée 00 est réservée aux renseignements
+provenant du PAVI et aux indicateurs d'état du terminal.
+Les différentes caractéristiques du décodage et de la gestion d'écran sont exprimées :
++ pour le décodage Vidéotex 40 colonnes : STUM1 B page 84, paragraphe 1,
++ pour le décodage en mode Mixte par rapport au standard Téléinformatique : STUM1 B page 105,
+paragraphe 2,
++ pour le décodage en standard Téléinformatique : STUM1 B page 161, paragraphe 4.
+En plus des caractéristiques du Minitel 1B, le Minitel 2 dispose de la possibilité d'enregistrer et d'affi-
+cher des caractères spéciaux appelés DRCS (Dynamically Redefinable Character Sets) téléchargés
+par le serveur où le périphérique en standard Télétel mode Vidéotex.
+En standard Télétel mode mixte ou en standard Téléinformatique, le Minitel 2 dispose en interne de
+caractères supplémentaires par rapport à M1 B.
+2 |Le standard Télétel mode Vidéotex
+2.1 Les jeux de caractère
+Le Minitel 2 possède 3 jeux standards en mode Vidéotex :
+- le jeu alphanumérique de base GO (Annexe 36 page 86),
+— le jeu semigraphique G1 (Annexes 37 et 38 pages 87 et 88),
+-— le jeu complémentaire G2 (Annexe 39 page 89).
+2.2 Invocation/Association des jeux
+2.2.1 Les invocations de jeux
+Le jeu GO est invoqué par défaut lors :
+— de la mise sous tension du terminal,
+— d'une transition de PT de O vers 1 en local,
+— d'une connexion/déconnexion,
+— d'un reset Vidéotex,
+— d'un accès en rangée 00,
+— de la réception des séparateurs d'article FF RS où US <position curseur >.
+Le jeu Gt est invoqué par le code SO (0/E).
+Le retour au jeu GO seffectue par le code SI (0/F).
+L'accès à un caractère de G2 s'effectue en faisant précéder le code caractère voulu par le code SS2
+(1/9).
+34
+===== page scan 043 =====
+2.2.2 Les associations de jeux pour la visualisation
+Les jeux visualisables sont toujours soit GO, soit Gt, soit G2. Il est possible de visualiser les jeux sup-
+plémentaires DRCS en les associant soit à GO, soit à G1.
+Les associations par défaut sont :
+— le jeu de base alpha-numérique pour GO,
+— le jeu de base semi-graphique pour Gï1.
+Ilest possible d'associer le jeu DRCS G'0 au jeu GO et le jeu DRCS G'1 au jeu Gi.
+Les séquences d'association de jeu sont :
+— ESC 2/8 4/0 : pour associer le jeu de base alphanumérique à GO,
+— ESC 2/8 2/0 4/2: pour associer le jeu DRCS G'0 à GO,
+— ESC 2/9 6/3 : pour associer le jeu de base semi-graphique à Gi,
+— ESC 2/9 2/0 4/3: pour associer le jeu DRCS G à G1 .
+Les jeux de base alpha-numériques et semi-graphiques sont associés à GO et G1 lors :
+— de la mise sous tension du terminal,
+— d'une transition de PT de O vers 1 en état local (sauf sur fin de copie),
+— d'une connexion/déconnexion,
+— d'un reset Vidéotex (y compris celui consécutif à l'entrée en veille dans certain cas),
+— d'un accès en rangée 00.
+Remarque :
+Toute modification d'association de jeu conserve les attributs actifs.
+2.3 Le téléchargement DRCS
+2.31 Définition
+Le téléchargement DRCS du Minitel 2 est un sous-ensemble de la norme CEPT T/TE.0601 partie 4.
+Le processeur de visualisation VGP+ permet de définir en mode Vidéotex 40 colonnes deux jeux
+supplémentaires de type DRCS :
+— un jeu de %6 caractères (dont 94 sont téléchargeables) appelé G'O, visualisables avec les mêmes
+attributs vidéotex que le jeu GO alpha-numérique,
+— un jeu de 96 caractères (dont 94 sont téléchargeables) appelé G'1, visualisables avec les mêmes
+attributs vidéotex que le jeu G1 semi-graphique.
+Ces caractères correspondent à des formes graphiques définies chacune dans une matrice Vidéotex
+de 8 pixels sur 10 lignes (un écran a une résolution de 320 pixels sur 250 lignes). Chaque matrice
+ainsi codée est téléchargée par le serveur et peut occuper certains emplacements définis des jeux
+G'0 et G1.
+Figure 1 : Affichage d’un écran en DRCS
+35
+===== page scan 044 =====
+2.3.2 Séquence d'en-tête
+La séquence d'en-tête définit la nature et les caractéristiques du jeu qui va être téléchargé ensuite.
+En résumé, elle est constituée des séquences suivantes :
+— pour le jeu G'0 : US 2/3 2/0 2/0 2/0 4/2 419
+— pour le jeu G'1: US 2/3 2/0 2/0 2/0 4/3 4/9
+Reconnaissance par le terminal
+Après une action au niveau applicatif réinitialisant l'état du décodage écran (mise sous tension, con-
+nexion, déconnexion, retour en mode Vidéotex et libération du bus en local), la commande d'en-tête
+du jeu G'0 est prise par défaut. Une commande d'en-tête de syntaxe incomplète ou erronée est igno-
+rée. La précédente commande d'en-tête reconnue, ou la commande d'en-tête par défaut reste valide
+tant qu'une nouvelle séquence d'en-tête correcte n'est pas reçue.
+Lors de la réception de la séquence d'en-tête, la resynchronisation sur les caractères du jeu CO reste
+active et fait sortir de l'état de décodage de la séquence d'en-tête à l'exception d'une séquence de
+passage en rangée 00 de type US 4/0 X/Y valide ou de type US 3/0 3/0.
+Le téléchargement des formes reste par conséquent toujours possible.
+23.3 Le protocole de téléchargement
+2.3.3.1 Séquences de transfert de formes
+La séquence de transfert de formes est de type : US 2/3 Y <données>
+Y indique le code caractère de la première forme téléchargée, il peut prendre une valeur comprise
+de 2/1 à 7/E. Les codes SP (2/0) et DEL (7/F) ne font pas partie du jeu DRCS.
+<données> contient le codage des formes téléchargées.
+Remarque :
+Quand le jeu DRCS est actif, les codes 2/0 et 7/F sont visualisés comme dans le jeu de base, respec-
+tivement par un espace et un pavé. On peut donc télécharger au plus 94 formes dans un jeu DRCS.
+2.3.3.2 Syntaxe des données
+Les données sont composées de deux types d'informations :
+— le codage des formes téléchargées,
+— le délimiteur de forme appelé Bi.
+Le codage des formes téléchargées
+Les pixels d'un caractère sont codés à partir des octets des colonnes 4 à 7 de la table de codage,
+{code de 4/0 à 7/F). Chaque pixel est codé sur un bit. Les rangées de pixels d'une forme sont cons-
+truites par groupe de 6 bits. Le remplissage d'une forme débute par le coin supérieur gauche avec
+les 6 bits de plus faible poids de la donnée reçue : voir figure 2.
+Les pixels ayant la valeur binaire 1 sont affichés dans la couleur de caractère ; ceux qui ont la valeur
+binaire O sont affichés dans la couleur du fond d'écran. Les bits excédant une rangée de pixels com-
+plète, sont utilisés sur la rangée suivante, mais ne pourront pas être reportés sur la forme suivante.
+Pour définir une forme complète de la matrice caractère 8x10, il est donc nécessaire de télécharger
+14 octets de données.
+Les quatre bits excédentaires de poids faible (bO à b3) de la 14 donnée ne sont pas exploités.
+En cours de définition d'une forme, la réception d’un code CO (sauf US et NUL) ou d'un code appar-
+tenant aux colonnes 2 ou 3 (sauf Bi), entraîne le remplissage des pixels correspondants par la cou-
+leur du fond d'écran. Il n'y a donc pas de resynchronisation lors de la réception d'un code CO (sauf
+US et NUL) en cours de téléchargement.
+Sur réception de US, voir paragraphe 2333, page 37.
+Sur réception de NUL, il ne se passe rien.
+36
+===== page scan 045 =====
+OCTET 2: bits 5 à 4 OCTET 1 : bits 5 à O
+RSS CCEETETEIT CETETUTISM er :
+[ETTTITT rez
+OCTET 2: bits 3 à O RRRRRREE RANGEE 3
+DLTT TT TT ) Rance 4
+CLP EELT TT] rc
+CR CTP TT ace 6
+[TITI TT race 7
+[TTTTT TT race s
+[TTTITTTT/ranæs
+[TI [I] ] [OT] ] RaNGE 10
++—— 8 pixels —+
+Figure 2 : Codage d'une forme DRCS
+Le délimiteur de forme
+Le délimiteur B1 (3/0) synchronise le début des données relatives à une forme. Elle précède toute
+forme téléchargée y compris la première forme.
+Si B1 est reçu avant la définition complète d'une forme les parties restantes sont définies comme étant
+remplies par des pixels dans la couleur du fond d'écran.
+Les octets excédentaires compris de 0/1 à 7/F, (c'est-à-dire un nombre d'octet supérieur à 14 pour
+une forme) à l'exception de US, reçus en attente de délimiteur Bt, sont filtrés.
+Si une forme téléchargée est associée à un code caractère supérieur à 7/E, cette forme est ignorée,
+qu'elle soit vide (3/0 3/0) ou non vide (3/0...X/Y..3/0).
+2.3.3.3 Sortie du téléchargement
+Conformément à la norme CEPT, la fin d'une commande de type US n'est déterminée que par une
+autre commande de type US X.
+En conséquence, la sortie de téléchargement se fait sur réception de US X à l'exception des US de
+positionnement en rangée 00 qui sont traités paragraphe 23.4.
+Une commande US X est traitée de la manière suivante :
+— la séquence de téléchargement est terminée,
+— X est interprété en fonction de sa valeur,
+— la forme en cours de téléchargement est complétée par des rangées de pixels dans la cou-
+leur du fond d'écran.
+Si cette séquence US est reçue en début de téléchargement d’une forme, c'est-à-dire immédiatement
+après un code B1 (3/0), cette forme sera définie comme une forme vide.
+La sortie de téléchargement est aussi provoquée lors :
+— de la mise sous tension du terminal,
+— d'une transition de PT de 0 vers 1 en état local (sauf sur fin de copie),
+— d'une connexion/déconnexion,
+— d'un reset Vidéotex (y compris celui consécutif à l'entrée en veille dans certain cas),
+— d'un accès en rangée 00.
+37
+===== page scan 046 =====
+2.3.4 Accès en rangée 00
+Les deux séquences (en-tête et téléchargement de formes) peuvent etre interrompues par un accès
+en rangée 00 effectif sur les séquences US 4/0 X/Y ou US 3/0 3/0, et reprendre sur le LF ayant
+provoqué une sortie de la rangée 00.
+La sortie de rangée 00 par FF ou RS provoque une sortie de téléchargement sans complément de
+la forme en cours par des pixels dans la couleur du fond d'écran.
+La sortie de rangée 00 par US 4/X X/Y ou US 3/0 3/X provoque une sortie de téléchargement en
+complétant la forme en cours par des pixels dans la couleur du fond d'écran.
+En rangée 00, le téléchargement reste possible et la sortie de téléchargement reste identique (voir 2333).
+2.3.5 Exemple
+Soit la forme suivante à transférer à l'emplacement 5/3 du jeu DRCS invoqué dans le jeu G'1 . Le
+codage de forme se réalisera de la manière suivante :
+b7 _b6 _b5 b4 b3 b2  b1  bO
+jof1[ololof1]o to] t#“octet- 44
+Dfifofolofofift)] 2-48
+GHpDnppEe}ofifrifofofo|ofo so -60
+jofifofijolofofo] oi -50
+sIstaté le M To Po Pr Po fo | 5° oct - 44
+spebbebel of Tofopololoft] so - ar
+seen ofijojofo oo )o]7ca-40
+nnnntmolififoli{ofofo] st - 68
+oohofolmpuploli|olt[oflofo fi] œoctet-51
+tof1/o/0o)of1]o]o |toœoctet - 44
+bsbshelshsfisfsafse]l 0 | 1 | o | 5 | o | o | o | o |iteoctet - 510
+_——fofilifolrfofolo 1 oct - 88
+rang de l'octet auquel Lai x x MM] j4siociet = diX
+appartiennent les bits. [ol [olx [x] ES ciel =
+Le codage de la forme sera : 4/4 4/3 6/0 5/0 4/4 4/1 4/0 6/8 5/1 4/4 5/0 6/8 4/4 4/X X nest
+pas décodé et peut donc prendre n'importe quelle valeur.
+La procédure de téléchargement et de visualisation de la forme sera la suivante :
+e Séquence d'en-tête G'1 : US 2/3 2/0 2/0 2/0 4/3 4/9
+* Transfert de la forme à l'emplacement défini : US 2/3 5/3 3/0 <4/4 4/3 6/0 5/0 4/4 4/1 4/0
+6/8 5/1 4/4 5/0 6/8 4/4 4/X> 310 <autre codage de forme> 3/0 etc...
+e Sortie du téléchargement (voir paragraphe 2.333, page 37)
+e Invocation du jeu G1 par SO,
+* Association du jeu DRCS G'1 au jeu G1 : ESC 2/9 2/0 4/3
+e Visualisation de la forme : 5/3.
+Remarque :
+Les formes qui suivent la forme présentée précédemment occupent les emplacements immédiate-
+ment supérieurs ; <autre codage de forme> sera implicitement transféré à l'emplacement 5/4 de
+la grile G'1.
+23.6 Les Attributs Vidéotex en DRCS
+Lors de l'association du jeu DRCS G'0 à GO ou lors de la réaffectation du jeu alpha-numérique de
+base à GO, les attributs vidéotex actifs sont conservés.
+38
+===== page scan 047 =====
+Ce)
+Lors de l'association du jeu DRCS G'1 à G1 ou lors de la réaffectation du jeu semi-graphique de base
+à Gt, les attributs actifs sont conservés. Quand le jeu G'1 est actif, l'attribut de lignage n'a pas d'effet visuel.
+La double hauteur d'un caractère de G'O possède la particularité des jeux alphabétiques à savoir :
+la première ligne du caractère est triplée, les autres sont doublées à l'exception de la dernière (la ligne
+de soulignement).
+2.3.7 Accès au jeu G2
+La réception du code SS2 X provoque l'affichage du caractère de G2 uniquement si le jeu courant
+est GO ou G'0.
+Si le jeu DROS G'0 est actif, la réception de SS2 <accent> X provoque l'affichage du caractère X
+de ce jeu DRCS.
+Si le jeu courant invoqué est G1 ou G1, le code SS2 est ignoré.
+. 24 Gestion de la restitution du contexte en Vidéotex
+Le contexte écran est sauvegardé implicitement lors d'un accès en rangée 00. Il est restituée exclusi-
+vement par LF. Ce contexte est identique à celui décrit paragraphe 4, page 41.
+Les événements suivants arrivant en rangée 00 :
+— reset Vidéotex,
+— transition de PT de 0 vers 1 en local,
+— connexion/déconnexion,
+n'affectent pas le contexte sauvegardé pour la version Cv ou Cv. A partir de la version Cv ; ces mêmes
+événements arrivant en rangée 00 modifient le contexte sauvegardé de la façon suivante :
+— les jeux de base sont associés aux jeux GO et Gi,
+— le jeu invoqué n'est pas modifié.
+2.5 Nouvelles séquences en standard Télétel mode Vidéotex
+Les nouvelles séquences en standard Télétel mode Vidéotex sont :
+— CSI 3/6 6/E : demande de position curseur
+— CSI Pr 3/B Pc 5/2 : réponse à la demande de position curseur ; Pc et Pr sont des paramètres
+désignant respectivement colonne et rangée.
+3.1 Les jeux de caractère
+En standard Télétel mode Mixte et en standard Téléinformatique, le Minitel 2 possède :
+° 2 jeux alpha-numériques de base :
+— le jeu alphanumérique Américain (STUM 1 B page 163),
+— le jeu alphanumérique Français (STUM 1 B page 164).
+Les caractères de ces jeux sont affichables en formats 40 et 80 colonnes, excepté en 40 colonnes
+pour les caractères suivants qui sont approximés comme suit : , __-
+en version Cvi ou Cv:. est approximé en et. est approximé en . en version Cv: . et. sont
+approximés en espaces
++ 2 jeux spéciaux :
+— le jeu complémentaire (annexe 312 page 92),
+— le jeu spécial graphique de type DEC# (annexe 313 page 93).
+39
+===== page scan 048 =====
+Les caractères de ces jeux spéciaux sont affichables en formats 40 et 80 colonnes, excepté en
+40 colonnes pour les caractères suivants qui sont approximés comme suit :
+en version Cvi ou Cv: ” est approximé en î et est approximé en
+en version Cv ; ” et‘ sont approximés en espaces
+AÉTOUÜN Fa? 41-11; L < > # X{ 4 [J]sontremplacésparunespace
+# : marque déposée
+3.2 Invocation/Association des jeux
+3.2.4 Les invocations de jeux
+En standard Téléinformatique (40 ou 80 colonnes) ou standard Télétel mode Mixte, dans le Minitel 2
+les jeux de caractères peuvent être placés dans GO ou dans Gï1.
+Le jeu GO est invoqué par le code SI.
+Le jeu G1 est invoqué par le code SO.
+3.2.2 Les associations de jeux
+Pour le jeu GO, les commandes d'associations s'effectuent par les séquences suivantes :
+— ESC 2/8 4/2 pour accéder au jeu Américain,
+— ESC 2/8 5/2 pour accéder au jeu Français,
+— ESC 2/8 3/0 pour accéder au jeu spécial graphique de type DEC*,
+— ESC 2/8 3/3 pour accéder au jeu complémentaire.
+Par défaut, le jeu de caractère Américain est associé à GO.
+Dans le jeu G1, les commandes d'associations s'effectuent par les séquences suivantes :
+— ESC 2/9 4/2 pour accéder au jeu Américain,
+— ESC 2/9 5/2 pour accéder au jeu Français,
+— ESC 2/9 3/0 pour accéder au jeu spécial graphique de type DEC»,
+— ESC 2/9 3/3 pour accéder au jeu complémentaire.
+Par défaut, le jeu de caractère Français est associé à Gi.
+# : marque déposée
+3.3 Les nouvelles séquences en standard Télétel mode Mixte
+Les nouvelles séquences en standard Télétel mode Mixte sont :
+— CSI 3/6 6/E : Demande de position curseur,
+— CSI Pr 8/B Pc 5/2 : Réponse à la demande de position curseur ; Pc et Pr sont des paramètres
+désignant respectivement colonne et rangée,
+— CSI 3/C 8/1 6/8 : Extinction du curseur,
+— CSI 3/C 8/1 6/C : Allumage du curseur.
+3.4 Les nouvelles séquences en standard Téléinformatique
+Les nouvelles séquences en standard Téléinformatique sont :
+— CSI 3/6 6/E : Demande de position curseur
+— CSI Pr 3/B Pc 5/2 : Réponse à la demande de position curseur ; Pc et Pr sont des paramètres
+désignant respectivement colonne et rangée
+— CSI 3/C 3/1 6/8 : Extinction du curseur,
+— CSI 3/C 3/1 6/C : Allumage du curseur
+— CSI 3/C 3/3 6/8 : Passage en 40 colonnes,
+— CSI 3/F 3/3 6/C : Passage en 80 colonnes,
+— CSI 3/C 3/4 6/8 : Passage en mode page,
+40
+===== page scan 049 =====
+— CSI 3/F 3/4 6/C : Passage en mode rouleau,
+— CSI 3/1 3/2 6/C : Mise en marche de l'écho local,
+— CSI 3/1 3/2 6/8 : Mise en arrêt de l'écho local.
+— 0/5 : demande d'identification. La réponse est envoyée sans 0/1 et 0/4.
+Une sauvegarde du contexte par la séquence ESC 3/7 provoque la mémorisation :
+— de l'état du curseur (ON/OFF),
+— de l'emplacement du curseur
+— des associations des jeux GO et G1,
+— des attributs Téléinformatique,
+— du jeu courant GO ou Gï1.
+La restitution du contexte seffectue sur ESC 3/8. Si ESC 3/8 n'est pas précédé par ESC 3/7 la séquence
+correspond à une configuration par défaut, c'est-à-dire provoque :
+— l'activation du curseur
+— le positionnement du curseur en rangée 1, colonne 1 (position “Home‘),
+— l'association du jeu Américain au jeu GO,
+— l'association du jeu Français au jeu Gt,
+— l'inactivation des attributs Téléinformatique,
+— l'activation du jeu GO.
+
+5 [Proton concert écran]
+
+5.1 Le status écran
+À partir de la version Cv ; la veille écran peut être commandée par le périphérique. || en résulte un
+status supplémentaire : le status écran.
+Le status écran a la configuration suivante :
+b7 b6 b5 b4 b3 b2 bi bO
+
+RSR EE e RENT PEC EET
+P : bit de parité,
+VEILLE = 0: terminal en veille
+La demande de status écran est : PRO2 STATUS ECRAN (1/B 3/A 7/2 5/8)
+La réponse à la demande de status écran est: PROS REP STATUS ECRAN (1/B 3/B 7/3 5/8
+<status>)
+
+6 [ineences es van PF DP eùDOL en standard Télé
+
+6.1 Les variations de PT
+Quand la prise est dans l'état standard :
+Dans l'état local, lorsque le signal PT passe de O vers 1
+e le jeu invoqué est GO,
+e les jeux de base sont associés aux jeux GO et Gi,
+4
+===== page scan 050 =====
++ la séquence d'en-tete du jeu G'O est reconnue par défaut,
+
+- le terminal revient en attributs Vidéotex par défaut.
+
+En rangée 00, lorsque le signal PT passe de O vers en local,
+
++ le contexte sauvegardé n'est pas affecté pour la version Cvi ou Cv: ; à partir de la version Cv;,
+cette transition de PT modifie le contexte sauvegardé de la façon suivante :
+— le jeu invoqué n'est pas modifié,
+— les jeux de base sont associés aux jeux GO et G1.
+
+Si le terminal est connecté, il conserve les attributs Vidéotex courants.
+
+Les transitions du signal PT ne réinitialisent jamais les attributs ISO 6429 en mode Mixte,
+
+6.2 Les variations de DP
+
+Toute variation de DP (Détection de Porteuse) provoque les effets suivants :
+
+ele jeu GO est invoqué,
+
+- les jeux de base sont associés aux jeux GO et Gi,
+
+ele terminal revient en attributs Vidéotex par défaut.
+
+Le masquage est validé uniquement à la connexion.
+
+Lors d'une variation de DP en rangée 00 :
+
+e le contexte sauvegardé n'est pas affecté pour la version Cv1 ou Cv:. A partir de la version Cv;
+le contexte sauvegardé est modifié de la façon suivante :
+— le jeu invoqué n'est pas modifié,
+— les jeux de base sont associés aux jeux GO et Gi.
+
+Les attributs ISO 6429 en mode Mixte restent inchangés.
+
+6.3 Les variations de DCL
+Les variations de DCL (Détection de Courant de Ligne) ne provoquent aucun effet sur l'écran.
+42
+===== page scan 051 =====
+===== page scan 052 =====
+1 | Présentation
+Le module modem regroupe l'ensemble des éléments physiques et logiques permettant d'établir une
+liaison pour transmission de données, entre le Minitel 2 et un équipement respectant la recommanda-
+tion V23 du CCITT.
+Ce chapitre rappelle les fonctions du modem existant sur Minitel 1 B :
+e bouclage en état local,
+e connexion en mode standard,
+° connexion en mode opposé,
+° déconnexion,
+e retournement,
+e procédure de correction d'erreur,
+e détection d'IAI,
++ émission du break.
+Pour ces fonctions, la valeur des temporisations modifiées seront précisées.
+Le modem du Minitel 2 gère une nouvelle fonction : la connexion avec signalisation d'appel automati-
+que.
+A cette signalisation d'appel automatique sont associés :
++ une séquence protocole d'activation,
+e une séquence protocole de désactivation,
+e un status image de l'état de la signalisation d'appel automatique,
+e une séquence protocole de demande de status associé.
+Cette fonction et son protocole associé sont détaillés dans ce chapitre.
+
+2 |Bouclage en état local
+Le bouclage de type 3 implanté sur le Minitel 1 B (bouclage physique permettant le test du modem)
+est remplacé par un bouclage de type 4 (bouclage logique garantissant un fonctionnement équiva-
+lent du flux de données en local).
+
+3 | Connexion en mode standard
+Le Minitel 2 mène de front deux procédures de connexion :
+— une procédure de connexion longue par défaut :
+sur présence continue de 1300 hz pendant 1,7 secondes (1,8 secondes à partir de la version Cv ;),
+le terminal se connecte.
+— une procédure rapide pour les équipements respectant la Recommandation V25 du CCITT.
+A l'exception de la fenetre de connexion qui est de 90 secondes pour le Minitel 2, ces deux procédu-
+res de connexion sont celles décrites dans les STUM 1 B pages 49 et 50.
+
+4 | Connexion en mode opposé
+Le processus de connexion dans le mode opposé est décrit dans les STU M 1 B page 50. La fenêtre
+de connexion est de 90 secondes pour le Minitel 2.
+
+44
+===== page scan 053 =====
+5 | Connexion avec signalisation d'appel automatique
+5.1 Présentation
+Cette signalisation d'appel automatique conforme à l'avis V25 du CCITT, a pour but de signaler à l'usager
+appelé que son correspondant est une machine automatique.
+La signalisation est fournie sous forme d'un signal 1300 hz haché. Elle est suivie d'une connexion
+en mode normal ou opposé.
+Elle doit être utilisée par des périphériques se conformant aux recommandations relatives à l'appel
+automatique de terminaux à réponse automatique où manuelle.
+5.2 Description de la procédure d'appel automatique
+Elle consiste en deux opérations simultanées pendant 36 secondes :
++ émission d'un train d'appel de 1300 hz haché selon le motif :
+— 625 ms de 1300 hz suivi de 1,875 seconde de silence.
++ pendant la phase de silence, recherche de porteuse :
+— soit validation de 2100 hz pendant 300 ms,
+— Soit validation de 1300 hz pendant 1,7 seconde (1,8 seconde à partir de la version Cv |
+Si dans la fenêtre des 36 secondes une porteuse est validée, alors le terminal arrête l'émission de
+1300 hz haché, annule la fenêtre des 36 secondes et passe en phase de connexion en mode stan-
+dard ou opposé selon l'état programmé par le périphérique ou l'usager
+À échéance de la fenêtre des 36 secondes, si aucune porteuse n'a été validée, le terminal active la
+procédure de connexion en mode standard où opposé selon l'état programmé par le périphérique
+ou l'usager.
+Dans ce cas, la connexion se poursuit pendant 90 secondes. La fenêtre de connexion totale et donc
+de 126 secondes.
+Ceci se justifie dans le cas d'une connexion engagée en mode opposé de chaque côté avec un décro-
+chage tardif de l'appelé.
+6 | Déconnexion
+Les événements communs au Minitel 1 B conduisant à une déconnexion sont décrits dans les STUM 1 B
+page 51.
+Sur le Minitel 2, une déconnexion peut être provoquée par un passage en veille induit par :
++ Appui sur la touche “Veille”,
++ Commande de verrouillage,
++ Entrée en veille 3 heures (à partir de la version Cv ; la veille 3 heures ne doit pas avoir été inhibée).
+La veille demandée par séquence Protocole sur Cv; ne déconnecte pas le terminal.
+7 | Retournement du modem
+Le modem du Minitel 2 peut être retourné et assurer une liaison à 1200 bauds dans le sens terminal
+vers réseau Vidéotex et à 75 bauds dans l'autre sens.
+Rappel : L'équipement maître est celui qui émet à 75 bauds, l'équipement esclave est celui qui émet
+à 1200 bauds.
+Le fonctionnement du Minitel en esclave (ou modem retourné) est décrit dans les STUM 1 B pages
+51 et 52.
+Le fonctionnement du Minitel en maître (ou modem standard) est décrit dans les STUM 1 B pages
+52 et 53.
+La mise en œuvre du retournement est décrite dans les STUM 1 B page 58.
+45
+===== page scan 054 =====
+8 | Procédure de correction d'erreur
+Le logiciel de procédure de correction d'erreur (PCE) implanté sur le Minitel 2 est identique à celui
+décrit dans les STUM 1 B.
+Recommandation : La PCE réception ne doit être activée que lorsque le Minitel 2 est connecté en
+mode standard (émission 75 bauds/réception 1200 baudbs).
+9 | Emission du break
+Dans l'état connecté, l'appui de touche “Ctrl Connexion/Fin” provoque l'émission d'un niveau “0” per-
+manent pendant 3,5 secondes sur le modem. Sur Minitel 2, cette signalisation est suivie de l'émission
+d'un niveau 1 permanent pendant la durée d'émission d'un caractère.
+10 |Prise en compte de l'indicateur d'appel en instance
+10.4 Caractéristiques du signal d'IAI généré par le réseau téléphonique
+Le signal d'IAI est caractérisé par 2 “bip” espacés de 10 secondes+1 seconde.
+Chacun des “bip” est constitué d'une fenêtre de 400 ms maximum, contenant un créneau de
+800 ms+50 ms occupé par un signal de 440 hz. Ce créneau peut occuper la totalité de la fenêtre,
+ou être précédé et/ou suivi d'un trou de porteuse à l'intérieur de la fenêtre.
+communication Fa créneau de 440 hz Le communication
+[ I I |
+| Ti | 300 ms+50 ms 1 T2 |
+2 —3ée —— 1
+| [ [ I
+| 400 ms !
+à
+0 (
+[ 1
+Figure 1 : Description d’un ‘“bip”’ d’IAI
+10.2 Détection du signal d’IAI
+Le fonctionnement de la détection du signal d'IAI est décrit dans les STUM 1 B page 65.
+11 | Protocole concernant le Modem
+11.14 Le status Modem
+L'octet de status modem a pour configuration :
+b7 b6 b5 b4 b3 b2 bi bO
+SRE ES CR RE EIRE
+P : bit de parité
+AA : prochaine connexion avec signalisation d'Appel Automatique (1=actif)
+46
+===== page scan 055 =====
+La demande de status du module modem est :
+
+PRO2 STATUS MODEM (1/B 3/A 7/2 5/A)
+
+La demande est acquittée vers le demandeur par :
+
+PROS REP STATUS MODEM (1/B 3/B 7/3 5/A <status>)
+
+11.2 Les séquences d'’activation/désactivation de l'appel automatique
+
+Deux séquences permettent d'activer et de désactiver l'appel automatique. Elles ne sont interprêtées
+
+que dans l'état local ou dans l'état phonie.
+
+La séquence d'activation de la signalisation d'appel automatique est :
+
+PRO3 START AUTO (1/B 3/B 6/9 5/A 4/2)
+
+Le bit AA du status modem est positionné à 1.
+
+La séquence de désactivation de la signalisation d'appel automatique est :
+
+PRO3 STOP AUTO (1/B 3/B 6/A 5/A 4/2)
+
+Le bit AA du status modem est positionné à O.
+
+L'acquittement à chacune des séquences citées ci-dessus est PRO3 REP STATUS MODEM (1/B 3/B
+
+713 SIA <status>).
+
+L'état du bit AA sera interprété lors de la prochaine demande de connexion en provenance du péri-
+
+phérique ou de la touche “Connexion/Fin”. Si la demande de connexion résulte de l'exécution d'une
+
+fiche du répertoire, le bit M est positionné à 0 et la connexion s'effectue en mode standard (voir para-
+
+graphe 3, page 44).
+
+113 incidences des variations de PT, DP et DCL
+
+Les variations de PT
+
+Quand la prise est dans l'état standard, les transitions de PT n'ont pas d'effet sur le module modem.
+
+Les variations de DP
+
+La connexion réussie ou la déconnexion, provoque la réinitialisation du bit AA du status modem.
+
+La déconnexion provoque :
+
+— la désactivation de la PCE, si celle-ci est active, par positionnement à O du bit PC du status mode
+de fonctionnement,
+
+— la désactivation de l'état opposé du terminal à la connexion, si celui-ci est actif, par positionnement
+à O du bit EC du status terminal,
+
+— la réinitialisation de la vitesse modem à 1200 bauds (dans le sens réseau Vidéotex vers terminal)
+par positionnement à 1 du bit VM du status terminal.
+
+Les variations de DCL
+
+Les variations de DCL (Détection de Courant de Ligne) n'ont pas d'effet sur le module modem.
+
+47
+===== page scan 056 =====
+===== page scan 057 =====
+La prise péri-informatique
+49
+===== page scan 058 =====
+1 [Présentation |
+Le module prise péri-informatique constitue l'interface qui permet le raccordement et l'utilisation par
+le Minitel 2, de différents périphériques, tels que imprimante, lecteurs de carte à mémoire, micro-
+ordinateur.
+Par rapport au fonctionnement de la prise péri-informatique décrit dans les STUM 1 B, les seuls adal-
+tifs sont :
+— la vitesse prise à 9600 bauds,
+— le silence après le break.
+
+2 [Programmation de la vitesse |
+Le module prise assure des échanges bi-directionnels symétriques en asynchrone à une vitesse stan-
+dard de 1200 bauds. Les autres vitesses possibles sont : 300, 4800 et 9600 bauds.
+A la mise sous tension du terminal, la vitesse des échanges entre Minitel 2 et périphérique est de
+1200 baudés (vitesse par défaut).
+
+2.4 Programmation par l’usager
+Quel que soit le standard de fonctionnement du terminal, l'usager peut modifier la vitesse prise à l'aide
+de la combinaison de touches Fnct P suivie d'un chiffre correspondant au 1e chiffre de la vitesse
+choisie. Ces commandes sont :
+e “Fnct P+8" pour (300 - 300),
+e “Fnct P+1" pour (1200 -1200),
+e “Fnct P+4" pour (4800 - 4800),
+e “Fnct P+9" pour (9600 - 9600).
+2.2 Programmation par le périphérique
+
+En standard Télétel, le périphérique peut modifier la vitesse prise. La séquence Protocole de change-
+ment de vitesse est PRO2 PROG avec PROG=6/B <mode>. <mode > désigne la nouvelle vitesse
+et a pour valeurs :
++ 5/2 pour une vitesse de 300 bauds,
+° 6/4 pour une vitesse de 1200 bauds,
+° 716 pour une vitesse de 4800 bauds,
+°7/F pour une vitesse de 9600 bauds.
+
+3 [Emission du break |
+Sur la prise, l'appui de touche “Ctrl Connexion/Fin” en états local et phase de connexion, provoque
+l'émission d'un niveau “0” permanent pendant 35 secondes. Sur Minitel 2, cette signalisation est sui-
+vie de l'émission d'un niveau “1” permanent pendant 50 ms, avant toute émission de caractère, pour
+permettre au périphérique de se resynchroniser correctement en réception.
+
+50
+===== page scan 059 =====
+à [Prteoie concement a pris péimmatique |
+41 Le status vitesse prise
+L'octet de status vitesse prise a pour configuration :
+b7 b6 b5 b4 b3 b2 bi b0
+RS RER RS RES
+P : bit de parité
+E2, El, E0 : Vitesse d'émission
+R2, R1, RO : Vitesse de réception
+En version de base, le Minitel 2 ne dispose que des vitesses symétriques en émission et réception.
+Les configurations possibles des 6 bits de l'octet status vitesse sont :
++ 010010 pour 300/300 bauds,
++ 100100 pour 1200/1200 baudés,
++ 110110 pour 4800/4800 bauds,
+°111111 pour 9600/9600 bauds. A la mise sous tension, le status vitesse prise vaut : 6/4.
+4.2  Incidences des variations de PT, DP et DCL
+Les variations de PT
+Quand la prise est dans l'état standard (définition paragraphe 2 page 50) :
+e la transition de PT de O vers 1 provoque la réinitialisation de la vitesse prise à 1 200 Bauds.
+Les variations de DP et DCL
+Les variations de DP (Détection de Porteuse) et de DCL (Détection de Courant de Ligne) n'ont aucune
+incidence sur le module prise.
+51
+===== page scan 060 =====
+===== page scan 061 =====
+La copie d’écran
+53
+===== page scan 062 =====
+1. [Présentation |
+Ce chapitre est un additif au chapitre 7 page 71, au chapitre 5 page 129 et au chapitre 5 page 185
+des STUM 1 B.
+L'écran présenté à l'utilisateur (Dialogue local ou Télématique) peut être copié sur une imprimante,
+quel que soit l'état du terminal. Le contenu de l'écran à copier n'est pas sauvegardé. La copie peut
+être ainsi modifiée à la suite d'un changement de page dû au serveur.
+La copie d'écran au clavier recopie l'écran visualisé ; une copie d'écran par séquence Protocole où
+ISO 6429 recopie uniquement l'écran télématique.
+La copie d'écran se fait en jeu Américain ou Français, le jeu pouvant être précisé explicitement dans
+la commande ou sil ne l'est pas, ce jeu sera le dernier sélectionné par l'usager
+A la mise sous tension le jeu sera le jeu Américain.
+11 Mise en œuvre de la copie
+La mise en œuvre de la copie d'écran peut être faite :
+° par l'usager à l'aide des commandes suivantes :
+— “Fnot l+A" pour une copie en jeu Américain,
+— “Fnot l+F"” pour une copie en jeu Français,
+— “Fnct Guide” (commande Impr) pour une copie dans le dernier jeu sélectionné par l'usager.
+e par le serveur ou le périphérique à l'aide des séquences suivantes :
+— en standard Télétel, la séquence Protocole PRO2 COPIE, (1/B 3/A 7/C 6/A en jeu Américain
+et 1/B 3/A 7/C 6/B en jeu Français),
+— en standard Téléinformatique, la séquence CSI 6/9 reçue sur le modem. La copie se fait dans
+le dernier jeu sélectionné par l'usager
+Pendant toute la durée de la copie d'écran, la lettre “R" est affichée en rangée 00.
+1.2 Arrêt de la copie
+L'arrêt de la copie d'écran peut être faite par l'usager à l'aide de la commande “Fnct Guide’!
+2 [Description du processus de copie d'écran |
+2.1 Description générale
+Le processus de copie d'écran est celui décrit dans les STUM 1 B.
+Seule la séquence de demande de connexion vers imprimante en bout de chaîne est modifiée par
+rapport à M1 B.
+— sur Minitel 1 B, elle est: ESC 2/1 2/D 3/8
+— Sur Minitel 2, elle est : ESC 2/D 2/1 2/C 2/6 3/8
+2.2 Copie d’un écran du dialogue local
+Le processus de copie d'écran du dialogue local est commun à celui de l'écran télématique.
+En standard Télétel mode Mixte (80 colonnes), pour indiquer à l'imprimante que la page à imprimer
+(page du dialogue local) est en 40 colonnes, le Minitel 2 émet les séquences suivantes :
+— SEP 7/1 en début de copie avant le caractère O/C (SEP 7/1 est l'acquittement envoyé sur pas-
+sage du standard Télétel mode Mixte en standard Télétel mode Vidéotex).
+— SEP 7/0 en fin de copie avant la séquence SEP 5/C (SEP 7/0 est l'acquittement envoyé sur pas-
+sage du standard Télétel mode Vidéotex en standard Télétel mode Mixte).
+54
+===== page scan 063 =====
+° HR
+
+3.1 Le clavier
+Seules les touches “Veille”, “Verrouillage”, “PLSD”, “Connexion/Fin”, “HP+ ”, “HP—" et Impr sont vali-
+des pendant une copie de l'écran télématique où d'un écran du dialogue local.
+
+3.2 La prise
+Le traitement des informations reçues est le même que celui fait sur Minitel 1 B.
+
+3.3 Le modem
+Le traitement des informations reçues est le même que celui fait sur Minitel 1 B.
+
+34 Le Changement de mode du terminal
+Tout changement de mode est pris en compte immédiatement avec acquittement vers le modem ;
+l'acquittement vers la prise sera émis en fin de copie.
+Tout changement de standard provoque en plus une annulation de la copie en cours.
+
+4 [Tanscodage des caractères visualisés |
+Les caractères visualisés qui n'existent pas dans l'un des deux jeux choisis pour la copie (Français
+ou Américain) sont approximés. La liste exhaustive des transcodages est présentée en annexe 4 page
+94.
+Les caractères appartenant aux jeux DRCS sont remplacés par des espaces.
+Certaines approximations de copie d'écran diffèrent selon la version logicielle Cv1, Cv, Bvi à Bv6
+ou bien à partir de Cv; et Bv8. Ces différences sont présentées en annexe 4.2 page 96.
+55
+===== page scan 064 =====
+===== page scan 065 =====
+|
+Le protocole Vidéotex
+
+|
+
+|
+
+|
+
+|
+
+|
+
+|
+
+|
+
+5
+===== page scan 066 =====
+1. [Présentation |
+Ce chapitre constitue un additif par rapport au chapitre 6 page 133 des STUM 1 B.
+En standard Télétel, l'ensemble des modules (écran, clavier modem, prise, module téléphonique) du
+| Minitel 2 est géré et contrôlé par le Protocole.
+| Le Protocole assure l'aiguillage des données entre modules ainsi que la mise en œuvre de fonction-
+nements particuliers du terminal à l'aide des séquences constituant le langage Protocole.
+L'activation du dialogue local n'influence pas le Protocole ; les séquences sont normalement interpré-
+tées et acquittées.
+Par rapport au Minitel 1 B, le Minitel 2 intègre un module téléphonique, ce qui induit :
+* un état supplémentaire du terminal : l'état phonie,
+| + la gestion de nouveaux aiguilages nécessaires pour la numérotation et le téléchargement d'un numéro
+| de téléphone,
+| * la création d'un status de ce module.
+| Les fonctions nouvelles concernant particulièrement les modules sont décrites dans les chapitres rela-
+tifs à ces modules.
+24 Les aiguillages standards du terminal
+| Rappels :
+| Le bit DP (Détection de Porteuse) du status terminal vaut 1 lorsque le terminal est connecté.
+Le bit DCL (Détection de Courant de Ligne) du status téléphonique vaut 1 lorsque le courant de ligne
+| est présent.
+| Les aiguillages standards du terminal dépendent :
+| + de la valeur de DP et DCL qui définissent trois états stables.
+| — état local : DP=0 et DCL=0
+| — état phonie : DP=0 et DCL=1
+| — état connecté : DP=1 et DCL=0
+L'état connexion en cours est assimilé à l'état local.
++ du standard actif : Télétel ou Téléinformatique
+| Dans chacun de ces standards, les aiguillages sont initialisés en fonction de l'état du terminal.
+| * de l'application locale en cours
+| — copie d'écran,
+| — dialogue local.
+53
+===== page scan 067 =====
+2.1 Les aiguillages du standard Télétel
+Terminal en état local
+Les aiguillages actifs sont :
+Figure 2 : Aiguillages de l’état local
+
+— clavier vers modem,
+— clavier vers prise,
+— modem vers écran,
+— prise vers écran.
+Terminal en état phonie
+Les aiguillages actifs sont :
+
+MODULE
+
+LEPHONIQ
+
+Figure 3 : Aiguillages de l’état phonie
+— clavier vers module téléphonique,
+— module téléphonique vers écran.
+Terminal en état phase de connexion
+Les aiguillages pendant la phase connexion en cours sont les mêmes que ceux de l'état local. Le
+modem étant indisponible, les caractères saisis au clavier ne sont pas affichés à l'écran.
+59
+===== page scan 068 =====
+Terminal en état connecté
+Les aiguillages actifs sont :
+| MODEM |
+Figure 4 : Aiguillages de l’état connecté en Télétel
+— clavier vers modem,
+— modem vers écran,
+— modem vers prise,
+— modem vers module téléphonique (Pour les modèles Télic, non actif en mode Mixte),
+— prise vers modem.
+2.1.2 Les aiguillages du standard Téléinformatique
+Lors du passage en standard Téléinformatique, les aiguillages sont positionnés en fonction de l'état
+du terminal.
+Terminal en état local
+En état local, les aiguillages du standard Téléinformatique sont les mêmes que ceux du standard Télé-
+tel et sont figés.
+Terminal en état phonie
+En état phonie, les aiguillages du standard Téléinformatique sont les mêmes que ceux du standard
+Télétel et sont figés.
+Terminal en état phase de connexion
+En état phase connexion en cours, les aiguillages sont ceux du standard Télétel et sont figés. Le modem
+étant indisponible, les caractères saisis au clavier ne sont pas affichés à l'écran.
+60
+===== page scan 069 =====
+Terminal en état connecté
+Lors du passage en état connecté, les aiguillages suivants sont positionnés et sont figés :
+Figure 5 : Aiguillages de l’état connecté en téléinformatique
+
+— clavier vers modem,
+
+— modem vers écran,
+
+— modem vers prise.
+2.13 Les aiguillages lorsque le dialogue local est actif
+
+Vu du périphérique où du serveur, les aiguillages restent inchangés. Par contre, tous les caractères
+
+en provenance du clavier sont envoyés vers le module gérant la fonction Mem, sans affecter les autres
+
+modules du terminal.
+2.1.4 Les aiguillages pendant la copie d'écran
+
+Pendant la copie d'écran, la gestion de la modification des aiguillages est identique à celle du Minitel 1 B.
+2.2 Modifications des aiguillages
+
+Pour assurer la mise en relation des modules, chacun d'eux dispose d'un code émission et d'un code
+
+réception. Ces codes, interviennent dans les séquences Protocole.
+
+CODE EMETTEUR | CODE RECEPTEUR
+CLAVIER
+MODULE TELEPHONIQUE
+Figure 6 : Codes des modules
+61
+===== page scan 070 =====
+Les interventions exécutables sur les aiguillages au sens flux de données sont résumées dans le tableau
+suivant :
+RECEPTEUR MODULE EMETTEUR
+MODULE
+TELEPHONIQUE
+CLAVIER
+Figure 7 : Aiguillages modifiables
+* : aiguillages exécutables
+© : disponibilité du module (actif ou bloqué) ressource que constitue le module lui-même
+Exclusivement en état phonie, l'aiguillage module téléphonique vers écran peut être désactivé, pour
+offrir une confidentialité à la numérotation par la prise.
+En état phonie, la modification d'aiguillage module téléphonique vers prise est acquittée, mais les sta-
+tus module téléphonique (émetteur) et prise (récepteur) ne sont pas affectés. Cette modification d'aiguil-
+lage n'est pas autorisée.
+2.3 Blocage-déblocage des modules
+
+Le blocage permet d'empêcher temporairement tous les échanges d'information des autres modules
+avec le module désigné :
+e clavier : le clavier est bloqué sauf pour les commandes de configuration utilisant la touche “Fnct”
+
+et les actions suivantes :
+
+— commande Mem,
+
+— touche “Veille”,
+
+— touche “PLSD”,
+
+— commande de verrouillage,
+
+— commande “HP+",
+
+— commande “HP-",
+
+— touche “Connexion/Fin”,
+
+— commande Break,
+
+— commande Impr
+
+— exécution d'une entrée du répertoire.
+Le blocage clavier n'affecte pas le flux de données vers Mem.
++ module téléphonique : aucune numérotation n'est possible à l'exception de la commande PROS EC.
+
+Aucun numéro ne peut être téléchargé.
+En cas de déblocage, le module concerné est de nouveau disponible et les échanges de données
+sont de nouveau autorisés.
+
+24 Le status aiguillage
+L'octet de status aiguillage a pour format :
+b7 b6 b5 b4 b3 b2 bi b0
+por [1 [ o | vr | pas | moon ECRAN
+62
+===== page scan 071 =====
+b7 : Parité 5
+b4 : Module Téléphonique nn. FA
+b3 : PRISE 1=liaison établie
+b2 : MODEM Lu A
+b1 : CLAVIER O=liaison coupée
+b0 : ECRAN
+
+3 [Les identiications |
+
+3.1 L'identification ROM
+La réponse à ENQ ROM n'est plus prioritaire sur le flux comme elle l'était sur Minitel 1 B.
+Les codes d'identification ROM de tous les Minitel jusqu'au Minitel 2 sont rappelés en annexe 66
+page 108.
+3.2 Demande d'identification RAM 1
+
+L'identification RAM1 peut être saisie par l'usager dans le champ “ID” de l'écran PROGRAMMER.
+La réponse à la demande d'identification RAM 1 est acquittée dans le format suivant :
+SOH <contenu du champ ID> EOT
+Si le champ ID est vide, la réponse à la demande sera SOH EOT.
+La demande d'identification RAM 1 se fait sur ENQ.
+
+4 | Conséquences des transitions du signal PT |
+Quand la prise est dans l'état standard (définition page 50), la transition de PT de O à 1 provoque :
+— le positionnement des aiguillages standards,
+— le maintien des modes de fonctionnement des modules,
+— l'annulation des états transparence prise et modem,
+— l'annulation de l'état non-retour d'acquittement prise,
+— l'envoi de SEP 5/4 vers les modules récepteurs prise ou modem.
+En mode Vidéotex et dans l'état local, le terminal revient en non diffusion et les attributs Vidéotex sont
+réinitialisés ; s'il est connecté, la diffusion et les attributs Vidéotex sont conservés.
+La transition de PT de 1 à O provoque :
+— le maintien des aiguillages,
+— le maintien des modes de fonctionnement des modules,
+— le maintien de la diffusion et du retour d'acquittement,
+— le maintien de la transparence modem,
+— l'annulation de la transparence prise,
+— le maintien des états modules (bloqué ou non),
+— l'envoi de SEP 5/4 vers les modules récepteurs prise ou modem.
+Remarque :
+Les modifications des aiguillages, suite aux actions de l'utilisateur pour programmer l'écho local, ne
+sont pas réinitialisées par les transitions de PT.
+
+63
+===== page scan 072 =====
+5 [Conséquences des transitions du signal DP |
+Les variations de DP (Détection de Porteuse) provoquent :
+— l'initialisation des aiguillages standards, y compris ceux concernant l'écho local,
+— l'initialisation des modes de fonctionnement standards des modules selon le mode actif (ceux-ci
+sont détaillés en fin de chaque chapitre concernant le module),
+— l'initialisation des états transparence prise et modem,
+— l'initialisation des états retour d'acquittement et non-diffusion prise et modem,
+— l'envoi de SEP 5/9 SEP 5/3 vers la prise et le modem.
+6. [Conséquences des transitions du signal DCL |
+La transition de DCL (Détection de Courant de Ligne) de O vers 1 provoque :
+— le positionnement des aiguillages de l'état phonie,
+— l'envoi de SEP 5/B vers la prise.
+La transition de DCL de 1 vers O0 provoque :
+— le positionnement des aiguillages de l'état local,
+— l'envoi de SEP 5/B vers la prise.
+Toute variation de DCL provoque l'initialisation des modes de fonctionnement standards des modules
+selon le mode actif (ceux-ci sont détaillés en fin de chaque chapitre concernant le module).
+Retour Retour
+F Transpa- | Transpa- 3 à :. | Mode de
+Jeu de | Attribi Tbi uson | d'acquit | d'acquit: lv
+ROSE
+_Comain | e|e[ele1e)e]e)e]e1e1 7
+Demmle [el j[ejeie lee ee) |
+Prise de Ligne] | | | | jet tj 1" | | 7 à
+Libération
+de Ligne
+Transition
+de PT de 0
+à 1 en local*
+Transition
+de PT de 0
+à 1 en
+connecté*
+Transition
+de PTà1
+à O*
+@ : Retour dans l'état standard
+#2 : Modèles Philips uniquement
+* : Uniquement si la prise est dans l'état standard
+64
+===== page scan 073 =====
+Annexe
+65
+===== page scan 074 =====
+Sommaire
+Page
+1 Glossaire des mots et codes ll) (67
+1.1 Glossaire des mois usuels 7 67
+12 Glossaire des codes "70
+2 Le clavier RE
+2.1 Actions usager par la touche “Fnct” 2
+2.2 Action usager sur l'ensemble du terminal par les touches “TS” et “Cid” _______ 72
+2.3 Codes du jeu CO générés par le clavier en Télétel et Téléinformatique ______ 73
+2.4 Codes générés par le clavier 2" 74
+2.5 Séquences émises par les touches de fonction en mode Vidéotex ou mixte ;
+compatibilité PAD-X3 "77
+2.6 Séquences de 2 où 3 codes "7
+2.7 Séquences générées par les touches de gestion et d'édition du curseur ________ 78
+2.8 Séquences générées par la touche de fonction associée aux touches numériques
+{mode Mixte et standard Téléinformatique) "78
+8 L'écran "79
+3.1 Les commandes de type C0 11111. 7,
+3.2 Les commandes décodées par le module écran 81
+3.3 Table d'accès aux différents jeux en standard Télétel mode Vidéotex _________ 84
+3.4 Table d'accès aux différents jeux en standard Télétel mode mixte ou standard
+Téléinformatique "64
+3.5 Jeu CO et attributs de visualisation du jeu C1 2 85
+8.6 Jeu CO et jeu Vidéotex alphanumérique GO 2 &6
+8.7 Jeu Vidéotex semi-graphique jointif G1 22" "867
+3.8 Jeu Vidéotex semni-graphique disjoint G1 2". 88
+3.9 Jeu Vidéotex G2 _""""" ___  &
+3.10 Jeu C0 et jeu Américain 2" 90
+8.11 Jeu CO et jeu Français 9
+8.12 Jeu CO et jeu complémentaire 2" 92
+3.13 Jeu CO et jeu DEC" 98
+4 Caractères approximes en copie d'écran 94
+4.1  Approximations des versions Cvi, Cv:, Bvi à BV6 7 94
+4.2  Approximations spécifiques aux versions Cv; et BV8 6
+5 Le Modem" 97
+5.1 _ Les temporisations 2 97
+5.2 Les séquences associées aux retournements 2 97
+5.3 Les séquences associées à la connexion/ déconnexion. 97
+6 Le protocole Vidéotex "9%
+6.1 Les status 98
+6.2 Le status supplémentaire à partir des versions Cv; et Bv8 98
+63 Les aiguillages modifiables nn 9
+64 Les codes des modules 9
+65 Les séquences Protocole 2" "100
+6.5.1 Les séquences Protocole des versions Cvi, Cv:, Bvi à Bv6 100
+6.5.2 Les séquences Protocole supplémentaires à partir des versions Cv; et Bv8 ___ 103
+6.6 Codes d'identification Rom "103
+6.7 Les acquittements Pise 2" 104
+6.8 Les influences des variations de PT, DCL et DP sur l'état du terminal _____ 105
+7 Le module téléphonique "106
+7.4 Les temporisations 2 106
+: marque déposée.
+66
+===== page scan 075 =====
+1 | GLOSSAIRES DES MOTS ET CODES
+11 Glossaire des mots usuels
+ACQUITTEMENT :
+Suite positive où négative donnée par le réseau ou pour un module en réponse à une demande.
+AFFICHAGE :
+Action de stocker dans la mémoire de page les caractères envoyés à l'écran ; si l'écran est en veille,
+les caractères sont affichés mais ne sont pas visualisés.
+ASCII :
+American Standard Code for Information Interchange. Codage normalisé par pays pour la transmis-
+sion d'information.
+BAUD :
+Rapidité de modulation. En transmission asynchrone, avec une modulation de type saut de fréquence
+de part et d'autre d'une porteuse, un baud correspond au nombre de bits transmis par seconde.
+Co :
+Jeu CO de 32 caractères de commande appartenant aux colonnes 0 et 1 des grilles d'écran. ll existe
+également un jeu supplémentaire C1 qui définit les attributs caractères.
+CCETT : .
+Centre Commun d'Etudes de Télédiffusion et de Télécommunications.
+CCITT :
+Comité Consultatif International pour le Télégraphe et le Téléphone.
+CEPT :
+Conférence Européenne des Postes et Télécommunications.
+CRC :
+Code de Redondance Cyclique. Dans une procédure de correction d'erreur, octet contenant le reste
+d'une division polynomiale d'un bloc de données.
+CSI (Control Sequence Introducer) :
+Introduction des Séquences de Contrôle. Séquence introduisant la majorité des commandes définies
+dans la norme ISO 6429.
+DEC :
+Digital Equipment Corporation (marque déposée).
+DRCS (Dynamically Redefinable Character Sets) :
+Jeux de caractères redéfinissables dynamiquement.
+ÉCRAN :
+Partie physique du terminal (face avant du tube cathodique) conçue pour la visualisation des caractè-
+res visualisables. L'écran désigne également la visualisation télématique ou locale.
+EEPROM (Electrical Erasable Programmable Read Only Memory) :
+Mémoire programmable effaçable électriquement.
+IAI :
+Indicateur d'Appel en Instance. Signal émis par es centraux publics avertissant l'utilisateur en commu-
+nication avec un autre abonné ou avec le réseau Télétel qu'un correspondant l'appelle.
+67
+===== page scan 076 =====
+ISO :
+International Standard Organisation.
+LECAM :
+LECteur de CArtes à Mémoire.
+MODEM OPPOSÉ :
+Modem émettant à 1 200 bauds et recevant à 75 bauds.
+PAD-X3 :
+X3 norme internationale d'échanges de données entre les concentrateurs Téléinformatiques (PAD) et
+les terminaux asynchrones.
+PAGE :
+Contenu d'un écran du dialogue local ou distant.
+PARITÉ PAIRE :
+Indique que le dernier bit d'un octet (qui est celui de poids le plus fort) est à 1 ou à O pour que le
+nombre de bits à 1 de cet octet soit pair
+PAVI :
+Point d'Accès Vidéotex.
+PLSD :
+Prise de Ligne Sans Décrocher.
+PCE (Procédure de Correction d'Erreur) :
+Elle a pour but de garantir une bonne transmission de données en détectant et, le cas échéant, en
+corrigeant les erreurs dues aux perturbations sur le réseau téléphonique en réception 1200 baudés.
+PRISE HORS RÉSEAU MINITEL :
+Mode de fonctionnement équivalent à la coupure physique du fil PT de la prise péri-informatique. La
+vitesse programmée par l'usager doit être différente de 1 200 bauds.
+PRISE INHIBÉE :
+Etat de la prise péri-informatique dans lequel les seuls échanges de données concernent la copie
+d'écran.
+PRISE ÉTAT STANDARD :
+Tous les fils de la prise sont gérés ; les séquences Protocole sont interprétées. La vitesse programmée
+par l'usager est de 1 200 bauds (elle a pu être modifiée ultérieurement par séquence Protocole).
+PRISE PÉRI-INFORMATIQUE :
+Connecteur de type DIN à 5 broches situé à l'arrière du Minitel sur lequel se branchent un ou plu-
+sieurs équipements appelés périphériques.
+PRO, PRO2, PRO3 :
+Annonce une séquence Protocole. Le chiffre définit le nombre d'octets significatifs que contient la
+séquence. Elles valent respectivement : 1/B 3/9, 1/B 3/A et 1/B 3/B.
+PROTECTION :
+Concerne le choix possible de protection du terminal dans le champ “protection” de l'écran PRO-
+GRAMMER du dialogue local.
+PROTOCOLE :
+Ensemble des commandes ou acquittements interprétés par le Minitel en standard Télétel pour modi-
+fier son état et les chemins internes de données.
+68
+===== page scan 077 =====
+PT :
+Broche 4 (Présence Trafic) de la prise péri-informatique.
+Un niveau “1” indique que ie réseau Minitel est disponible.
+Un niveau “0” indique qu'une transmission est en cours sur le réseau Minitel.
+RAM (Random Access Memory) :
+Mémoire à accès aléatoire.
+RÉSEAU MINITEL : .
+Ensemble de plusieurs périphériques reliés en chaîne et respectant les spécifications du “Système
+d'Échanges” décrit dans les STURM.
+RESET :
+Réinitialisation du terminal.
+RX :
+Broche 1 (Réception des données) de la prise péri-informatique.
+STATUS :
+Terme utilisé pour désigner l'état d'un ou de plusieurs modules logiciels du terminal.
+STURM :
+Spécifications Techniques d'Utilisation du Réseau Minitel.
+TPV:
+Terminal de Point de Vente.
+TRAIT :
+Jeu complémentaire de formes graphiques uïilisées en standard Téléinformatique ou en standard Télétel
+mode mixte pour l'affichage par le serveur de traits (de même que des lettres minuscules accentuées)
+pour permettre la construction de tableaux.
+TX : :
+Broche 3 (Emission des données) de la prise péri-informatique.
+VERROUILLAGE :
+Action d'activer la protection du terminal par la commande usager de verrouillage.
+VISUALISATION :
+Action de rendre visible le contenu affiché de l'écran.
+VGP+ (Video Graphic Processor+) :
+Processeur de visualisation graphique vidéotex.
+69
+===== page scan 078 =====
+1.2 Glossaire des codes REP (REPétition) :
+Répétition.
+ACK (ACKnowledgmeni) : pere
+Accusé de réception positif.
+RS (Record Separator) :
+BEL (Bel): Séparateur d'enregistrement.
+Génère un bip.
+BS (BackSpace) : SEP (SEParator) :
+Retour d'un emplacement en arrière. Séparateur.
+CAN (Cancel) :
+Annulation. SI (Shift In) :
+En code.
+Coff (Cursor off) :
+Désactivation du curseur
+SO (Shift Oui) :
+Con (Cursor on) : Hors code.
+Activation du curseur.
+CR (Carriage Return) : SOH (Start Of Header) :
+Retour chariot. Début d'en-tête.
+DEL (Delete) : .
+Oblitération. ge (Space) :
+space.
+DLE (Data Link Escape) :
+Echappement transmission.
+
+PP SS2 (Single Shift 2):
+ENQ (ENQuire) : Simple accès à la grille G2.
+Demande.
+
+On) : SS3 (Single Shift 3) :
+
+EOT {End Of Transmission) : " Fo, .
+Fin de transmission. Simple accès à la grille GS.
+ESC (Escape) : SUB (Substi .
+2 ubstitute) :
+Echappement Caractère de substitution.
+ETB (End Of Transmission Bloc) :
+Fin de transmission de bloc. SYN (Synchronisation) :
+ETX (End Of Tex) : Synchronisation.
+Fin de texte.
+
+US (Unit Separator) :
+FF (Form Feed) : Séparateur de sous-article.
+Page suivante.
+HT (Horizontal Tab) : VT (Vertical Tab) :
+Tabulation horizontale. Tabulation verticale.
+LF (Line Feed) :
+Inierligne. XOFF :
+
+Arrêt de la transmission du flux de données.
+NACK (No-ACKnowledgment) :
+Accusé de réception négatif.
+
+XON :
+NUL (Nul) : Rétablissement de la transmission du flux
+Caractère de bourrage. de données.
+
+70
+===== page scan 079 =====
+2 |Le clavier
+2.4 Actions usager par la touche ‘“Fnct”
+L_ Commandes | a [u[0[0 [0
+CLAVIER
+|
+|
+|
+COPIE D'ECRAN
+(1) Standard Télétel mode Vidéotex.
+(2) Standard Télétel mode mixte.
+(3) Standard Téléinformatique.
+(4) Indicateur rangée 00 associé à la commande.
+@ indique que la commande est valide dans le mode ou standard courant.
+EH Commande n'existant pas sur M1B.
+71
+===== page scan 080 =====
+L_Commanses [Ai  [w[e[5]0
+TERMINAL
+2.2 Action usager sur l’ensemble du terminal par les touches “TS” et “Ctrl”
+RCE
+(1) Standard Télétel mode Vidéotex.
+(2) Standard Télétel mode mixte.
+(3) Standard Téléinformatique.
+(4) Indicateur rangée 00 associé à la commande.
+@ indique que la commande est valide dans le mode ou standard courant.
+H Commande n'existant pas sur M1B.
+72
+===== page scan 081 =====
+2.3 Codes du jeu CO générés par le clavier en Télétel et Téléinformatique
+Code émis Touche ou combinaison
+(en hexadécimal) de touches
+Ces codes ne peuvent être obtenus qu'en mode étendu. Les codes générés par le pad curseur sont
+décrits page 78.
+73
+===== page scan 082 =====
+24 Codes générés par le clavier
+Code émis Touche ou combinaison de touches
+(en hexadécimal) Mixte/Téléinformatique
+74
+===== page scan 083 =====
+Code émis Touche ou combinaison de touches
+(en hexadécimal) Mixte/Téléinformatique
+(e) À partir de Cv: et Bv4 le code 5/D est généré par CTRL GUIDE.
+75
+===== page scan 084 =====
+Code émis Touche ou combinaison de touches
+(en hexadécimal) Mixte/Téléinformatique
+76
+===== page scan 085 =====
+2.5 Séquences émises par les touches de fonction en mode Vidéotex ou mixte :
+
+compatibilité PAD-X3
+
+Modes Vidéotex Standard
+| le
+
+(+) A partir de Cv; et Bv4 TS CORRECTION génère les mêmes séquences.
+2.6 Séquences de 2 ou 3 codes
+
+(e) À partir de Cv: ct Bv4 CTRL GUIDE génère la séquence 1/9 2/7.
+
+7
+===== page scan 086 =====
+2.7 Séquences générées par les touches de gestion et d'édition du curseur
+2.8 Séquences générées par la touche de fonction associée aux touches
+numériques (mode Mixte et Standard Téléinformatique)
+78
+===== page scan 087 =====
+3 |L'’écran
+3.1 Les commandes de type CO
+* Dans ces modes ENQ est décodé au niveau Protocole (voir chapitre 9, paragraphe 3.2).
+79
+===== page scan 088 =====
+|
+SOH, EOT, DLE, NACK et SYN sont des caractères reconnus par le Minitel 2 mais n'ont pas d'action au niveau
+du module écran à l'exception de la resynchronisation.
+(1) Standard Télétel mode Vidéotex.
+(2) Standard Télétel mode mixte.
+(3) Standard Téléinformatique.
+© indique que la commande est valide dans le mode ou standard courant.
+M Commande n'existant pas sur M1B.
+80
+===== page scan 089 =====
+3.2 Les commandes décodées par le module écran
+__ Séquence |" interprétations ]Jm[e le
+Rs ER
+|
+|
+|
+|
+|
+|
+|
+RER NE PE
+|
+|
+|
+|
+|
+|
+* Cf. annexe 35.
+8
+===== page scan 090 =====
+; EDITION
+COPIE D'ECRAN
+STANDARD DE FONCTIONNEMENT
++ Modèle Philips uniquement.
+82
+===== page scan 091 =====
+ATTRIBUT
+(1) Standard Télétel mode Vidéotex.
+(2) Standard Télétel mode Mixte.
+(3) Standard Téléinformatique.
+@ indique que la commande est valide dans le mode ou standard courant.
+H Commande n'existant pas sur M1B.
+83
+===== page scan 092 =====
+3.3 Table d'accès aux différents jeux en standard Télétel mode Vidéotex
+34 Table d'accès aux différents jeux en standard Télétel mode mixte
+ou standard Téléinformatique
+|
+(#) Marque déposée.
+84
+===== page scan 093 =====
+3.5 Jeu C0 et attributs de visualisation du jeu C1
+EF CN EN CO AR RE EE
+ÉOEoLTn j Cope | 06 _|1|11
+Sole AN 0] à) Dm Go | 1 | 0) 1
+sms los 4 5 61/7
+FREE
+QE
+DATA :
+F'ÉRAEE
+QUES
+DATE
+ehirl 6
+QUOTE
+“pjool 8
+ÉRES nn
+DD
+DA
+“AÉÈE
+HER)
+DOUCE
+STANDARD TELETEL MODE VIDEOTEX
+85
+===== page scan 094 =====
+3.6 Jeu CO et jeu Vidéotex alphanumérique G0
+C2 CO CCS CHR COR ES EE ES LEE
+bj 001111010111:
+CS AE A BE 1 ME NE]
+esse |0/1/2/5/4)5/ 617
+ou |
+jojo {ma so# | con
+>
+OOIES RE
+ofolman Er | cor
+eh) s poux
+EME sn
+ONIUESESEE
+I0EUEI EC]
+1
+Eoajaman] à [sus
+IOQNEIRIE]
+Er |
+III
+IOREIE
+sil
+JEU C0
+STANDARD TELETEL MODE VIDEOTEX
+86
+===== page scan 095 =====
+3.7 Jeu Vidéotex semi-graphique jointif G1
+bo [o Fo Jo [1 [1 [1 [1 7
+be] oo i1TiTo ol: 1:11]
+[of 17 0f 1] of 1 of 7]
+een |olt/2[8/4/5/6/7
+| |
+ON |
+RE |
+D | |
+D |
+| |
+Ehpplel
+GONE
+1
+D |
+| |
+DONC ER
+D | |
+D | |
+EE | |
+| |
+D | | pl
+STANDARD TELETEL MODE VIDEOTEX
+87
+===== page scan 096 =====
+3.8 Jeu Vidéotex semi-graphique disjoint G1
+
+lo Fo To Jo Ti [1 Tr Ni |
+bofolfif Tool:
+bs[_of 1f 0] fo! 1[ of
+
+Een |0ol1/2/8)4)5 617
+
+|| 3
+
+D |
+
+D | |
+
+Do | |
+
+D |
+
+D | |
+
+Do | |
+
+EE PAl 1
+
+RER
+
+DORE:
+
+DRE | | JE
+
+-l're[E) |" ESS ZE
+
+TITIFCT Se
+STANDARD TELETEL MODE VIDEOTEX
+
+88
+===== page scan 097 =====
+3.9 Jeu Vidéotex alphanumérique complémentaire G2
+TO O0 A FO RE
+be) EVRSTANSRERRE
+bo RC RE A EE EU
+PApa2 1 MESSE
+STANDARD TELETEL MODE VIDEOTEX
+89
+===== page scan 098 =====
+3.10 Jeu C0 et jeu Américain
+C2 CS CS CCS COR ES EE EE EEE
+bolofif1 ololrt1:]
+CS AE RO A 1 A) RE |
+esse |0/1/2/5/4)5 617
+eofolaone nes |
+0
+G0I0EIR EE
+GONE ES
+3
+QICERENTS
+D
+QUTNERES EE
+Fjofojahe | s |ou
+oo ent |
+JONOEN TE]
+Do v 15e
+nn 5 |
+DR |
+SITE
+STANDARD TELE MÈRE DE ET STANDARD
+90
+===== page scan 099 =====
+3.11 Jeu CO et jeu Français
+
+b70 Jo Jo Lo [1 [1
+
+by o|o0/1|/1[0[01111]
+
+ps] of 1] of 1] 0] 1] 0] il
+mn _|0/1/218/415/617
+QUUONITCSES Li
+QOCOSNRET 1
+C0
+OOCOESEE
+eee]
+Dr | Es
+cteec|e|
+CODE 1
+
+STANDARD TELETEL MODE MIXTE ET STANDARD
+TELEINFORMATIQUE
+ot
+===== page scan 100 =====
+3.12 Jeu CO et jeu complémentaire
+C2 CHE CS CHR COR EE ES EE EEE
+bJofol1|1|/o0lol1111
+ps) of 1] 0] 1] 0] 1] of 1]
+ss |0/1/2,5 4151617
+ojofoleltonnu ve] s |
+GECISIRE
+| 3
+oops bor
+3
+ehph]s fnoned
+DR (sn)
+one |
+Eoolamen] :s | |
+D ||
+JONOEN TRE
+Honhet v sc
+1 °°
+IOEULIEIEE
+|: CE
+STANDARD pe te ET STANDARD
+92
+===== page scan 101 =====
+3.13 Jeu CO et jeu DEC*
+CE COS CERN COR CE ET ET
+bofolf1f1l/olol11:]
+lbs of 1] 0! 1] 0] 1] oÙ 1]
+esp |0/1/2/5/4/5 6/7
+bebe] o juloe| + RES
+eee] RER
+QE JE
+bohhs| or
+COR
+O00NEREDEE.
+O00O EME | ||
+OUIDER
+Hepe ts pe
+DCCDENETEE
+D00OENEEE
+IIIEIME
+||
+0CICE |
+0
+E
+*: marque déposée. |
+STANDARD TES POERTE ET STANDARD
+93
+===== page scan 102 =====
+4 | Caractères approximes en copie d'écran
+41  Approximations des versions Cvi, Cv:, Bvi à Bv6
+Visualisation En Caractère < Caractère
+Code émis imprimé Code émis imprimé
+94
+===== page scan 103 =====
+RE
+Visualisation ÊTS Caractère FE Caractère
+Code émis imprimé Code émis imprimé
+
+95
+===== page scan 104 =====
+PR NT
+Visualisation è è
+4.2  Approximations spécifiques aux versions Cv; et Bv8
+Visualisation
+96
+===== page scan 105 =====
+5.4 Les temporisations
+Temporisation de la connexion standard |
+Temporisation de la connexion appel automatique
+Temporisation de la connexion opposé
+Temporisation de la détection de tonalité
+5.2 Les séquences associées aux retournements
+5.3 Les séquences associées à la connexion/déconnexion
+97
+===== page scan 106 =====
+6 |Le procole vidéotex
+6.1 Les status
+b7 b6 b5 b4 b3 b2 bi bO
+De: )olr) PRISE MonEu| cu | ECRAN Status aiguillage
+CL4Y : clavier (1=liaison établie) PRISE : prise péri-informatique
+ECRAN : écran (i=liaison établie) (t=liaison établie)
+MODEM : modem (i=liaison établie) TEL : module téléphonique (1=liaison établie)
+[rlilolmlel]«/]nl]n| Status protpcale
+A1 : non retour acquittements modem (-1) Di : acquittements diffusés vers modem {=0)
+A2 : non retour acquittements prise (=1) D2 : acquittements diffusés vers prise (=0)
+PAD : activité PAD-X3 (codage=1)
+Status module
+[re li]olofo[u) om) téléphonique
+DCL : détection d'un courant de ligne (=1)  RPL : relais de prise de ligne (1=fermé)
+NUM : numérotation MF (=1) ou décimale (=0)
+DP : détection porteuse (i=connecté) PT : état du fil PT (0=réseau minitel disponible)
+EC : état de connexion (1=opposé) VM : vitesse modem en réception
+MT : module téléphonique (toujours à car (1=1 200 bauds, 0=75 bauds)
+le module téléphonique est présent)
+AA : appel automatique ({=demande)
+rfilelsle]re/n|r| Status viesse prise
+E2, Ei, EO : vitesse prise émission R2, R1, RO : vitesse prise réception
+CO : codage du clavier (1=en jeu CO, O=en jeu CSI)  ETEN : clavier étendu (1=étendu)
+Staius mode
+F: format d'écran {1-80 colonnes, PC : procédure de correction d'erreur
+0=40 colonnes) en réception (i=PCE)
+
+ME : écrite min/maj {i=minuscule) RL : mode rouleau (1=rouleau, 0=page)
+
+6.2 Le status supplémentaire à partir des versions Cv; et Bv8
+
+VEILLE : mise en/hors veille écran (0=veille active)
+98
+===== page scan 107 =====
+6.3 Les aiguillages modifiables
+Module émetteur
+Module Mod
+récepteur oaule
+X Aiguillage exécutable.
+@ Module actif ou bloqué.
+64 Les codes des modules
+99
+===== page scan 108 =====
+6.5 Les séquences Protocole
+6.5.1 Les séquences Protocole des versions CV1, Cv:, Bvi à Bv6
+[_ mnémonque | Séqume | Eummn |
+AIGUILLAGE
+PROTOCOLE
+MODE DE FONCTIONNEMENT
+2 IDENTIFICATION
+COPIE D'ECRAN
+<hRec> Récepteur
+<Em> Emetteur
+100
+===== page scan 109 =====
+LL monque | Siguee [éme
+101
+===== page scan 110 =====
+[remorque] Séuems [| Een
+MODULE TELEPHONIQUE
+STATUS
+|
+102
+===== page scan 111 =====
+6.5.2 Les séquences Protocole supplémentaires à partir des versions Cv; et Bv8
+_nmémonique ]  Séqueme |]  Eummn |
+|
+
+LES CODES PROTOCOLES
+6.6 Codes d'identification Rom : types de Minitel
+Paramètre | Slandard | Ar |. S0rie
+Nom CRE Identifiant type de | Télétel et masi alimentation | Vitesses RAM
+commercial en ROM Minitel | Téléinfor- modem |. S' prise | prises d'identification
+STURTEL | matique périphérique
+TELIC Cb0 à Cb5 6/2 NON NON NON 1 RAM 1 téléch (16 octets)
+TELIC Cc5 6/3 NON NON NON Î RAM 2 téléch (16 octets)
+MINITEL 1 TELIC Cr0 712 NON OUI NON Î
+MATRA C0 712 NON OUI NON Î
+TRT Bc0 6/3 NON NON NON Î
+TRT Br à Br4 712 NON OUI NON Î
+Hop _joofulel [o
+ECS CS CIC CICIEN CE
+TELIC Cdi Cd2 6/4 NON | NON NON 1
+MINITEL 10 | TELIC Cd3 Cas Cdë 6/4 NON NON NON Î idem Minitel À
+TELIC C0 à C2 6/6 NON OUI NON Î
+TELIC Cu? à Cud 715 OUI OUI NON 2
+MINITEL + MATRA Cud 715 OUI OUI NON 2
+BISTANDARD TELIC Cu5 Cu; Cu: Cu < 715 OUI OUI OUI v) NEANT
+MATRA Cu5 Cu, Cu: Cu < 715 OUI OUI OUI 2
+RTIC Bu et suivants 715 OUI OUI OUI 2
+MINITEL 10 RAM 1 téléch (16 octets)
+MINITEL 2 TELIC Cvi Cv: Cv: 716 OUI ()| OUI OUI 3 RAM 1 Usager (8 octets) |
+PHILIPS | Bvi à Bv4 Bv6 à B9 716 OU (| OUI OUI 4
+MINITEL +2 TELIC C2 à C4 TIA OUI OUI OUI 2 RAM 1 Usager (16 octets)
+PHILIPS | Bzi et suivants TIA OUI ()| OÙ OUI 3 RAM 2 téléch (16 octets)
+(*) Caractères DRCS en standard Télétel mode Vidéotex.
+1: 800, 1 200 programmable par le périphérique.
+2 : 300, 1 200, 4 800 programmable par le périphérique.
+8 : 300, 1 200, 4 800, 9 600 programmable par le périphérique.
+103
+===== page scan 112 =====
+6.7 Les acquittements Prise
+104
+===== page scan 113 =====
+68 Les influences des variations de PT, DCL et DP sur l’état du terminal
+Jeu Retour | Retour | Mode
+de |Attributs| Mas- he a ue d'acquit- |d'acquit- | de | Vitesse
+carac- |Vidéotex | quage Se ue a tement | tement |fonction-| Prise
+tères g Prise | Modem | nement
+|Comein|e]e]e/e|/ee]e)e)e]e], |
+Décomain| e |e|/ le1e/e1e)e)e)e1 1 1
+Prise
+de ligne
+Libération
+de ligne
+Transition
+de PT
+dæoà1
+en local*
+Transition
+de PT
+dæoà1
+en connecté*
+Transition
+de PT
+de 1 à 0*
+© : Retour dans l'état standard.
+#5 : Modèles Philips uniquement.
+*_: Uniquement si la prise est dans l'état standard.
+105
+===== page scan 114 =====
+7 |Le module téléphonique
+71 Les temporisations
+TEMPORISATION DE L’APPEL ENTRANT
+TEMPORISATION DE L’APPEL SORTANT
+106
+===== page scan 115 =====
+|
+\
+|
+|
+Î
+|
+© Télétel Février 1991
+Conception : FRANCE TELECOM, DACT, Service Télétel et Services d'Information
+Réalisation : Agence de Créations et d'Editions de la DAII
+Rédaction : Jean Bernard Daïan, Alcatet Business Systems
+Photocomposition et exécution : GRAPHEIN
+Photo couverture : 2H Photos, Patrice Heim
+impression : SICOP
+===== page scan 116 =====
+===== page scan 117 =====
+===== page scan 118 =====
