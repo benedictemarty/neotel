@@ -59,7 +59,7 @@ make ref               # régénère tests/ref/page.ppm après un changement vis
 ```
 
 Sur le Neo6502 : copier `build/neotel.neo` sur la carte SD/clé USB et
-`load "neotel.neo"` / `run` depuis NeoBASIC (ou le lanceur du firmware).
+`run "neotel.neo"` depuis NeoBASIC (comme AsteroNeo).
 Avec un vrai PicoWiFiModemUSB sur le PC : `NEO_CDC_TTY=/dev/ttyACM0 make run`.
 
 ## Utilisation en bref

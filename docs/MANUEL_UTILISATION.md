@@ -12,7 +12,7 @@
     avec le firmware amont (l'écran « Liaison série » le dit).
 
 Le programme est `build/neotel.neo` (chargé et lancé à `$0800`) : depuis
-NeoBASIC, `load "neotel.neo"` puis `run`, ou par le lanceur du firmware.
+NeoBASIC, `run "neotel.neo"` (comme AsteroNeo, non vérifié sur carte pour NeoTel).
 En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
 
 ## Écrans
