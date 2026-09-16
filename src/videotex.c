@@ -667,6 +667,11 @@ static unsigned char drcs_header(vtx_context_t* ctx, unsigned char byte)
         ctx->state = VTX_STATE_NORMAL;          /* erronee : ignoree */
         return (byte < 0x20) ? 0 : 1;
     }
+    if (byte == 0x1F) {                         /* US : rangee 00 ? (US_COL) */
+        ctx->drcs_suspended = 2;
+        ctx->state = VTX_STATE_US_ROW;
+        return 1;
+    }
     if (byte < 0x20) {                          /* C0 : resynchronisation */
         ctx->state = VTX_STATE_NORMAL;
         return 0;
@@ -692,8 +697,11 @@ static unsigned char drcs_header(vtx_context_t* ctx, unsigned char byte)
 /* Octet en cours de transfert. Retourne 1 si consomme. */
 static unsigned char drcs_xfer(vtx_context_t* ctx, unsigned char byte)
 {
-    if (byte == 0x1F) {                         /* US : sortie, US X normal */
-        drcs_form_store(ctx);
+    if (byte == 0x1F) {
+        /* US : sortie du telechargement, sauf si le US est un acces en
+         * rangee 00 (decide en US_COL) : le transfert est alors suspendu et
+         * reprend sur le LF qui quitte la rangee 00 (par. 2.3.4). */
+        ctx->drcs_suspended = 1;
         ctx->state = VTX_STATE_US_ROW;
         return 1;
     }
@@ -1082,6 +1090,13 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
         if (ctx->us_row == 0) {
             ctx->drcs_g0 = 0;
             ctx->drcs_g1 = 0;
+            /* Telechargement DRCS interrompu par la rangee 00 : il reste
+             * suspendu (reprise sur LF, abandon sur FF/RS, par. 2.3.4) */
+        } else if (ctx->drcs_suspended) {
+            /* US vers une autre rangee : sortie du telechargement en
+             * completant la forme en cours (par. 2.3.3.3) */
+            if (ctx->drcs_suspended == 1) drcs_form_store(ctx);
+            ctx->drcs_suspended = 0;
         }
         ctx->state = VTX_STATE_NORMAL;
         return;
@@ -1225,12 +1240,27 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                 cursor_right(ctx);
                 break;
             case 0x0A:  /* LF - curseur bas */
+                if (ctx->drcs_suspended && ctx->cur_y == 0) {
+                    /* Sortie de la rangee 00 par LF : le telechargement DRCS
+                     * reprend ou il en etait (STUM 2 par. 2.3.4) */
+                    cursor_down(ctx);
+                    ctx->state = (ctx->drcs_suspended == 1)
+                                 ? VTX_STATE_DRCS_XFER : VTX_STATE_DRCS_HDR;
+                    ctx->drcs_suspended = 0;
+                    break;
+                }
                 cursor_down(ctx);
                 break;
             case 0x0B:  /* VT - curseur haut */
                 cursor_up(ctx);
                 break;
             case 0x0C:  /* FF - effacer ecran + home */
+                if (ctx->drcs_suspended) {
+                    /* Sortie de la rangee 00 par FF : sortie du telechargement
+                     * SANS completer la forme en cours (par. 2.3.4) */
+                    ctx->drcs_started = 0;
+                    ctx->drcs_suspended = 0;
+                }
                 vtx_clear_page(ctx);
                 break;
             case 0x0D:  /* CR - retour chariot */
@@ -1278,6 +1308,10 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                 ctx->state = VTX_STATE_ESC;
                 break;
             case 0x1E:  /* RS - home (curseur en 1,0) */
+                if (ctx->drcs_suspended) {          /* idem FF */
+                    ctx->drcs_started = 0;
+                    ctx->drcs_suspended = 0;
+                }
                 ctx->cur_x = 0;
                 ctx->cur_y = 1;
                 break;

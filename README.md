@@ -54,7 +54,7 @@ make run               # émulateur neo + faux modem (ATDT hôte:port = vraie co
 make run-phos          # idem sous Phosphoneo (SDL)
 make run MODEM=--serve # page de test locale, sans réseau
 make test              # tests hôte (gcc) + tests cible (Phosphoneo headless)
-make test-host         # 412 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
+make test-host         # 419 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
 make test-emu          # menus → session, page cible == oracle hôte, DRCS Minitel 2, ESC ESC, NO CARRIER, sortie, neo
 make ref               # régénère tests/ref/page.ppm après un changement visuel voulu
 ```

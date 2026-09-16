@@ -3,6 +3,27 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [0.2.1] — 2026-09-17
+
+### Ajouté
+- DRCS : interruption d'un téléchargement (en-tête ou transfert) par un
+  accès en rangée 00 et reprise sur le `LF` qui la quitte ; sortie par `FF`
+  ou `RS` sans compléter la forme ; sortie par `US` vers une autre rangée en
+  la complétant (STUM 2 §2.3.4). 7 assertions de plus dans `test_drcs`.
+- `docs/ref/STUM1B-NOTES.md`, `docs/ref/STUM1B.html` / `.txt` : STUM
+  Minitel 1B (transcription jbellue). Constat : le mode Mixte 80 colonnes
+  existe déjà sur le 1B (partie 2, p. 106) ; le scan archive.org n'a pas pu
+  être téléchargé (404).
+- `test_drcs` vérifie la disposition de `vtx_context_t` (offset pair de
+  `drcs_acc`, offset de `screen` = somme des champs) : garde-fou contre le
+  bourrage gcc qui casserait les dumps RAM des tests cible.
+
+### Décidé
+- Double hauteur d'une forme G'0 (STUM 2 §2.3.6 : 1ʳᵉ ligne triplée, les
+  autres doublées sauf la 10ᵉ) : en 8 × 9 (18 lignes pour 20), la règle se
+  ramène à « rangées 1-9 doublées, 10ᵉ fusionnée à la 9ᵉ », c'est-à-dire la
+  règle générale de NeoTel ; pas de code spécifique, écart documenté.
+
 ## [0.2.0] — 2026-09-17
 
 Minitel 2 : jeux de caractères téléchargeables (DRCS), conformes à la STUM 2.
