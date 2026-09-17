@@ -43,8 +43,11 @@ test_teleinfo: test_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font8
 render_page: render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(STUB) $(HDRS)
 	$(CC) $(CFLAGS) -o $@ render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(STUB)
 
+fuzz_teleinfo: fuzz_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB) $(HDRS)
+	clang -g -O1 -fsanitize=fuzzer,address -I ../../src -I . -DTEST_HOST -o $@ fuzz_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB)
+
 fuzz_videotex: fuzz_videotex.c $(SRC)/videotex.c $(SRC)/fonts.c $(SRC)/terminal.c
 	clang -g -O1 -fsanitize=fuzzer,address -I ../../src -DTEST_HOST -o $@ fuzz_videotex.c $(SRC)/videotex.c $(SRC)/fonts.c $(SRC)/terminal.c
 
 clean:
-	rm -f $(TESTS) $(TOOLS) fuzz_videotex
+	rm -f $(TESTS) $(TOOLS) fuzz_videotex fuzz_teleinfo

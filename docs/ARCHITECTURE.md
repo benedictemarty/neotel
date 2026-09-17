@@ -45,9 +45,13 @@ logique de session sont ceux d'OricTel.
 ```
 $0000-$00FF  page zero (cc65 + 17 octets de display_asm.s)
 $0100-$01FF  pile 65C02
-$0800-       STARTUP, CODE (~22 Ko), RODATA (polices, tables), DATA
-             BSS : contexte Videotex (8 Ko dont 1 880 o de DRCS), tampon de ligne (2 880 o),
-                   cache G1 (1 152 o), page Wi-Fi, etc.  Fin ~ $9E00
+$0800-       STARTUP, CODE (~41 Ko en v0.4.2), RODATA (polices 8x9 et 8x14,
+             tables : ~4,7 Ko), DATA
+             BSS (~13,4 Ko) : contexte Videotex (8 Ko dont 1 880 o de DRCS ;
+                   l'ecran 80 colonnes de 4 Ko y est loge), tampon de ligne
+                   (2 880 o), cache G1 (1 152 o), page Wi-Fi, reglages.
+                   Fin ~ $F450 : ~940 octets sous la pile C (a surveiller,
+                   `grep BSS build/neotel.map`)
 $F800-$FBFF  pile C cc65 (1 Ko)
 $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
 ```

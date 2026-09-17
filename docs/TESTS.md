@@ -26,7 +26,10 @@ mémoire, présence CDC), VRAM 320 × 240, palette, compteurs de blits.
 avec le chemin C de `display.c` et écrit deux PPM (phases de clignotement).
 
 `make -C tests/host fuzz_videotex` construit le fuzzer libFuzzer d'OricTel
-(clang) : ~780 000 exécutions / 10 s sans plantage sur la v0.1.0.
+(clang) : ~780 000 exécutions / 10 s sans plantage sur la v0.1.0, 1 M / 20 s
+en v0.4.2 (DRCS compris). `fuzz_teleinfo` (v0.4.2) fuzze le décodeur 80
+colonnes puis compose les 25 rangées : 118 000 exécutions / 30 s sans
+plantage ni débordement (ASan).
 
 ## Tests cible (`make test-emu`, `tests/run.sh`)
 
