@@ -32,7 +32,7 @@ LBL     = $(BUILD)/neotel.lbl
 
 CSRC    = src/main.c src/videotex.c src/fonts.c src/display.c src/keyboard.c \
           src/serial.c src/at_modem.c src/ui.c src/neo_time.c src/neo_gfx.c \
-          src/terminal.c src/settings.c src/teleinfo.c src/display80.c src/font80.c src/record.c
+          src/terminal.c src/settings.c src/teleinfo.c src/display80.c src/font80.c src/record.c src/help.c
 ASRC    = src/asm/crt0.s src/asm/display_asm.s src/asm/neo_delay.s src/asm/display80_asm.s
 
 OBJ     = $(patsubst src/%.c,$(BUILD)/%.o,$(CSRC)) \

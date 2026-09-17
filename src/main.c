@@ -29,10 +29,11 @@
 #include "teleinfo.h"
 #include "display80.h"
 #include "record.h"
+#include "help.h"
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.7.3"
+#define NEOTEL_VERSION "v0.8.0"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -83,6 +84,7 @@ unsigned char g_dbg_hangups;    /* sessions quittees par ESC (persistant) */
 #define ST_MIXTE      13   /* session en mode Mixte (80 colonnes) */
 #define ST_REPLAY     14   /* relecture d'un fichier .vdt */
 #define ST_REPLAY_END 15   /* relecture terminee, attente d'une touche */
+#define ST_HELP       16   /* ecran d'aide (menu H) */
 
 /* Routage serie choisi (SERIAL_ROUTE_*) */
 static unsigned char s_route = SERIAL_ROUTE_AUTO;
@@ -106,7 +108,7 @@ static void splash_screen(vtx_context_t* ctx)
             c = 17 + i;
             ctx->screen[5][c].ch = title[i];
             ctx->screen[5][c].fg = VTX_CYAN;
-            ctx->screen[5][c].size = SIZE_DOUBLE_HEIGHT;
+            ctx->screen[5][c].flags = SIZE_DOUBLE_HEIGHT << SIZE_SHIFT;
         }
         ctx->dirty[4] = 1;
         ctx->dirty[5] = 1;
@@ -122,9 +124,8 @@ static void splash_screen(vtx_context_t* ctx)
     }
     ctx->dirty[10] = 1;
 
-    ui_print(ctx, 12, 10, "par Benedicte Marty", VTX_WHITE);
-    ui_print(ctx, 14, 12, "bmarty@mailo.com", VTX_CYAN);
-    ui_print(ctx, 16, 12, "Licence EUPL 1.2", VTX_YELLOW);
+    ui_print(ctx, 13, 10, "par Benedicte Marty", VTX_WHITE);
+    ui_print(ctx, 15, 12, "Licence EUPL 1.2", VTX_YELLOW);
     ui_print(ctx, 18, 6, "d'apres OricTel (Oric 1/Atmos)", VTX_GREEN);
 
     for (c = 5; c < 35; ++c) {
@@ -236,6 +237,7 @@ static unsigned char select_mode(vtx_context_t* ctx)
             ui_menu_item(ctx, 19, item);
         }
         ui_menu_item(ctx, 21, g_settings.sound ? "7 - Son: ON" : "7 - Son: OFF");
+        ui_print(ctx, 22, 10, "H - Aide / Help", VTX_GREEN);
         ui_print(ctx, 23, 10, "ESC Quitter (NeoBASIC)", VTX_WHITE);
         display_render_all(ctx);
 
@@ -272,6 +274,7 @@ static unsigned char select_mode(vtx_context_t* ctx)
                 if (g_settings.sound) display_beep();   /* confirmation audible */
                 break;
             }
+            if (key == 'H' || key == 'h') { help_show(ctx); break; }
         }
     }
 }

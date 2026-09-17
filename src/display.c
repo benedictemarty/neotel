@@ -255,7 +255,7 @@ static void render_cell_into_row(const vtx_cell_t* cell, unsigned char col,
     blit_fg = fg;
     blit_bg = bg;
     blit_col = col;
-    if (cell->size == SIZE_DOUBLE_WIDTH || cell->size == SIZE_DOUBLE_SIZE) {
+    if (cell_size(cell) == SIZE_DOUBLE_WIDTH || cell_size(cell) == SIZE_DOUBLE_SIZE) {
         for (l = 0; l < CELL_H; ++l) {
             s_right[l] = dw_expand[s_pat[l] & 0x0F];
             s_tmp[l]   = dw_expand[s_pat[l] >> 4];
@@ -279,7 +279,7 @@ static unsigned char blit_run(void)
 {
     const vtx_cell_t* c = (const vtx_cell_t*)run_cells;
     unsigned char n = 0;
-    while (n < run_count && c->size == SIZE_NORMAL) {
+    while (n < run_count && cell_size(c) == SIZE_NORMAL) {
         render_cell_into_row(c, (unsigned char)(run_col + n), VPART_FULL);
         ++c;
         ++n;
@@ -291,7 +291,7 @@ static unsigned char scan_dblh(void)
     const vtx_cell_t* c = (const vtx_cell_t*)run_cells;
     unsigned char n;
     for (n = 0; n < run_count; ++n, ++c)
-        if (c->size & SIZE_DOUBLE_HEIGHT) return n;
+        if (cell_size(c) & SIZE_DOUBLE_HEIGHT) return n;
     return 0xFF;
 }
 #endif
@@ -306,8 +306,8 @@ static unsigned char cur_drawn_x;
 static unsigned char cur_drawn_y;
 static unsigned char s_want_cursor;
 
-#define is_dbl_w(c) ((c)->size == SIZE_DOUBLE_WIDTH || (c)->size == SIZE_DOUBLE_SIZE)
-#define is_dbl_h(c) ((c)->size == SIZE_DOUBLE_HEIGHT || (c)->size == SIZE_DOUBLE_SIZE)
+#define is_dbl_w(c) (cell_size(c) == SIZE_DOUBLE_WIDTH || cell_size(c) == SIZE_DOUBLE_SIZE)
+#define is_dbl_h(c) (cell_size(c) == SIZE_DOUBLE_HEIGHT || cell_size(c) == SIZE_DOUBLE_SIZE)
 
 static void render_row_span(vtx_context_t* ctx, unsigned char row,
                             unsigned char c0, unsigned char c1)
@@ -358,7 +358,7 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
             if (n == 0xFF) break;
             c += n; below += n;
             render_cell_into_row(below, c, VPART_UPPER);
-            if (below->size & SIZE_DOUBLE_WIDTH) {
+            if (cell_size(below) & SIZE_DOUBLE_WIDTH) {
                 if (c == c1 && c1 < SCREEN_COLS - 1) ++c1;
                 ++c; ++below;
             }
@@ -503,7 +503,6 @@ void display_status_clear(void)
         status_cells[c].fg = VTX_WHITE;
         status_cells[c].bg = VTX_BLACK;
         status_cells[c].flags = 0;
-        status_cells[c].size = SIZE_NORMAL;
     }
 }
 
@@ -516,7 +515,6 @@ void display_status_text(unsigned char col, const char* s,
         status_cells[col].fg = inverse ? VTX_BLACK : ink;
         status_cells[col].bg = inverse ? ink : VTX_BLACK;
         status_cells[col].flags = 0;
-        status_cells[col].size = SIZE_NORMAL;
     }
 }
 
@@ -534,7 +532,6 @@ void display_status(const char* msg)
         status_cells[c].bg = VTX_BLACK;
         status_cells[c].charset = CHARSET_G0;
         status_cells[c].flags = 0;
-        status_cells[c].size = SIZE_NORMAL;
     }
     display_status_text(0, msg, VTX_YELLOW, 0);
     status_render();

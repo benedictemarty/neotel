@@ -44,12 +44,17 @@ void keyboard_init(void)
  *  Acces a la file clavier du firmware
  * =================================================================== */
 
+/* API 2,2 : P0 = $FF si une touche ATTEND dans la file, 0 sinon
+ * (dispatch_code.h du firmware : KBDIsKeyAvailable() ? 0xFF : 0). Le sens
+ * etait inverse jusqu'en v0.8.0 : la premiere touche reelle restait dans la
+ * file et le clavier semblait mort (les tests injectaient via
+ * keyboard_inject, qui ne passe pas par la file). */
 static unsigned char queue_empty(void)
 {
     neo_wait();
     NEO_P[0] = 0;
     neo_call(NEO_G_CONSOLE, NEO_F_CON_STATUS);
-    return NEO_P[0] == 0xFF;
+    return NEO_P[0] != 0xFF;
 }
 
 static unsigned char queue_read(void)

@@ -58,7 +58,7 @@ extern unsigned char* neo_host_ptr; /* adresse hote derriere P1-2 (fichiers) */
 
 /* Console */
 #define NEO_F_READ_CHAR    1    /* P0 = touche ASCII (0 = rien) */
-#define NEO_F_CON_STATUS   2    /* P0 = $FF si file vide */
+#define NEO_F_CON_STATUS   2    /* -> P0 = $FF si une touche attend, 0 si file vide */
 #define NEO_F_DEF_HOTKEY   4    /* P0 = 1..10, P2-3 = chaine prefixee */
 #define NEO_F_CLEAR_SCREEN 12
 #define NEO_F_CURSOR_SHOW  19   /* P0 = visible */

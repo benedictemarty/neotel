@@ -1,9 +1,43 @@
 # CHANGELOG — NeoTel
 
 Toutes les modifications notables sont consignées ici (format Keep a
-Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
+Changelog, versions SemVer). Auteur : bmarty.
 
-## [0.7.3] — 2026-09-17
+## [0.8.0] — 2026-09-17
+
+### Ajouté
+- **Écran d'aide bilingue** (`src/help.c`, inspiré de Neo6502Poker) : au menu,
+  la touche `H` ouvre une aide de deux pages (menu et serveurs ; touches de
+  session et enregistrements). `Espace`/`Suite` page suivante, `P` précédente,
+  `L` bascule **français / anglais** (mémorisé dans `neotel.cfg`, version 4),
+  `ESC`/`Sommaire` revient au menu. Scénarios cible **help** et **help-lang**,
+  test `test_settings` (langue) ; capture FR et EN vérifiées.
+
+### Corrigé
+- **Clavier muet sur carte réelle** (depuis la v0.1.0) : `keyboard.c` lisait
+  l'API 2,2 à l'envers (`$FF` = **une touche attend**, pas « file vide »,
+  cf. `dispatch_code.h` du firmware). La première frappe réelle restait
+  dans la file et toutes les suivantes étaient ignorées : l'écran « Liaison
+  série » (et tout écran après le splash, qui expire seul au bout de 5 s)
+  ne répondait plus. Invisible dans les tests, qui injectent les touches par
+  `keyboard_inject` sans passer par la file ; le stub hôte reproduisait la
+  même inversion. Nouveau scénario cible **realkeys** (`--type-keys` de
+  Phosphoneo, vraie file du firmware) et stub hôte corrigé.
+
+### Modifié
+- **Cellule Vidéotex ramenée de 6 à 5 octets** : la taille (double
+  hauteur/largeur, 2 bits) est logée dans les bits 5-6 de `flags` (les
+  attributs n'occupent que les bits 0-4). ~1,1 Ko de BSS regagné (25×40
+  cellules) — la place de l'aide et de la marge. Rendu identique (capture ==
+  oracle sur les 4 pages, `blit_run`/`scan_dblh` adaptés, tables d'offsets
+  `row/col_byte_offset` régénérées au pas de 5). Pile C ramenée à 96 puis
+  **64 octets** (usage réel mesuré 33, session/relecture/aide) ; `PASS stack`
+  ajusté (`$FBC0-$FBCF` vierge).
+- **Adresse e-mail de l'auteur retirée** des fichiers du dépôt (splash,
+  README, CHANGELOG, docs, `fake_modem.py`, `CLAUDE.md`). L'auteur reste
+  « bmarty » / « Bénédicte Marty ».
+
+
 
 ### Modifié
 - **Traits de balayage du jeu spécial DEC** (STUM 2 annexe 3.13, codes

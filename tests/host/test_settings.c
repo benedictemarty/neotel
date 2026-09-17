@@ -21,17 +21,17 @@ int main(void)
     CHECK(settings_load() == 0 && g_settings.model == TERM_MINITEL_1B &&
           g_settings.look == DISPLAY_LOOK_COLOR && g_settings.ident == 0 &&
           g_settings.server_idx == 0 && g_settings.magic0 == 'N' && g_settings.version == SETTINGS_VERSION &&
-          g_settings.rec_index == 0 && g_settings.sound == 1,
+          g_settings.rec_index == 0 && g_settings.sound == 1 && g_settings.lang == 0,
           "sans fichier : defauts");
 
     g_settings.model = TERM_MINITEL_2; g_settings.look = DISPLAY_LOOK_GREY; g_settings.ident = 1;
     g_settings.server_idx = 255; strcpy(g_settings.server, "mon.serveur.fr:1234");
-    g_settings.rec_index = 17; g_settings.sound = 0;
+    g_settings.rec_index = 17; g_settings.sound = 0; g_settings.lang = 1;
     CHECK(settings_save() == 1 && host_file_len == (int)sizeof(settings_t), "sauvegarde : taille de la structure");
     memset(&g_settings, 0xEE, sizeof g_settings);
     CHECK(settings_load() == 1 && g_settings.model == TERM_MINITEL_2 && g_settings.look == DISPLAY_LOOK_GREY &&
           g_settings.ident == 1 && g_settings.server_idx == 255 && strcmp(g_settings.server, "mon.serveur.fr:1234") == 0 &&
-          g_settings.rec_index == 17 && g_settings.sound == 0,
+          g_settings.rec_index == 17 && g_settings.sound == 0 && g_settings.lang == 1,
           "aller-retour");
 
     host_file[0] = 'X';

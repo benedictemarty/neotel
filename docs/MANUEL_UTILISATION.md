@@ -37,6 +37,8 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
      est rejouée comme si le serveur l'envoyait (mode Mixte compris), sans
      liaison ; la barre de statut affiche le nom ; `ESC ESC` revient au menu ;
    - `7` Son : ON (défaut) ↔ OFF (BEL des serveurs et bip du splash) ;
+   - `H` : **aide** en français ou en anglais (2 pages ; `Espace` page
+     suivante, `P` précédente, `L` change la langue, `ESC` revient au menu) ;
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
    (`go.minipavi.fr:516`), `3` 3617.fr en WebSocket (`wss://3617.fr/ws`),
