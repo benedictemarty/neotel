@@ -248,6 +248,26 @@ static void test_double_sizes(void)
     display_render_all(&ctx);
     CHECK(cell_count(39, 15, VTX_WHITE) > 0 && cell_count(0, 16, VTX_WHITE) == 0,
           "double largeur colonne 39 : moitie droite clippee");
+
+    /* double largeur en colonne 19 : chevauche les deux demi-rangees (v0.9.0).
+     * Les deux moities doivent etre a l'ecran, la colonne 0 intacte. */
+    put(17, 0, 'X', CHARSET_G0, VTX_YELLOW, VTX_BLACK, 0, SIZE_NORMAL);
+    put(17, 19, 'H', CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_DOUBLE_WIDTH);
+    display_render_all(&ctx);
+    CHECK(cell_count(19, 17, VTX_WHITE) > 0 && cell_count(20, 17, VTX_WHITE) > 0,
+          "double largeur colonne 19 : deux moities rendues");
+    CHECK(cell_count(0, 17, VTX_YELLOW) > 0 && cell_count(0, 17, VTX_WHITE) == 0,
+          "double largeur colonne 19 : colonne 0 intacte");
+    /* re-rendu de la seule colonne 19 : la moitie droite (colonne 20) suit */
+    put(17, 19, 'I', CHARSET_G0, VTX_GREEN, VTX_BLACK, 0, SIZE_DOUBLE_WIDTH);
+    display_render_all(&ctx);
+    CHECK(cell_count(20, 17, VTX_GREEN) > 0 && cell_count(20, 17, VTX_WHITE) == 0,
+          "double largeur colonne 19 : moitie droite mise a jour");
+    /* re-rendu de la seule colonne 20 (ex. curseur) : moitie gauche conservee */
+    vtx_touch(&ctx, 17, 20, 20);
+    display_render_all(&ctx);
+    CHECK(cell_count(19, 17, VTX_GREEN) > 0 && cell_count(20, 17, VTX_GREEN) > 0,
+          "re-rendu colonne 20 : les deux moities restent");
 }
 
 static void test_budget_and_spans(void)
@@ -265,11 +285,21 @@ static void test_budget_and_spans(void)
     display_render(&ctx);
     CHECK(display_dirty_pending(&ctx) == 0 && host_blits == 3, "3 appels : tout rendu");
 
-    /* full_refresh : 25 lignes */
+    /* full_refresh : 25 lignes, chacune en deux demi-rangees (v0.9.0) */
     host_blits = 0;
     ctx.full_refresh = 1;
     display_render_all(&ctx);
-    CHECK(host_blits == 25, "full_refresh : 25 blits");
+    CHECK(host_blits == 50, "full_refresh : 25 rangees = 50 blits (demi-rangees)");
+
+    /* Une plage limitee a une moitie ne blitte que cette moitie */
+    host_blits = 0;
+    vtx_touch(&ctx, 3, 2, 7);
+    display_render(&ctx);
+    CHECK(host_blits == 1, "plage 2-7 : un seul blit (moitie gauche)");
+    host_blits = 0;
+    vtx_touch(&ctx, 3, 18, 22);
+    display_render(&ctx);
+    CHECK(host_blits == 2, "plage 18-22 : deux blits (frontiere)");
 
     /* plage : seule la plage touchee est copiee, le reste de la VRAM intact */
     host_vram[2 * 9][100] = 0x55;             /* marqueur hors plage, ligne 2 */

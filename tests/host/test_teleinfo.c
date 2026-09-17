@@ -21,7 +21,7 @@
 
 unsigned char g_blink_phase;
 unsigned char g_global_mask = 1;
-unsigned char display_rowbuf[2880];
+unsigned char display_rowbuf[1440];
 
 static int run, pass;
 #define CHECK(c, name) do { ++run; if (c) ++pass; else printf("FAIL : %s (ligne %d)\n", name, __LINE__); } while (0)

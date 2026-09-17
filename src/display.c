@@ -21,8 +21,11 @@
 extern unsigned char g_blink_phase;
 extern unsigned char g_global_mask;
 
-/* Tampon de ligne : CELL_H lignes video de SCREEN_W pixels */
-unsigned char display_rowbuf[CELL_H * SCREEN_W];
+/* Tampon de demi-rangee : CELL_H lignes video de HALF_W pixels (display.h) */
+unsigned char display_rowbuf[CELL_H * HALF_W];
+
+/* Colonne de tampon d'une colonne ecran */
+#define BUFCOL(col) ((unsigned char)((col) >= HALF_COLS ? (col) - HALF_COLS : (col)))
 
 /* Aspect courant */
 static unsigned char s_look = DISPLAY_LOOK_COLOR;
@@ -46,9 +49,9 @@ extern const unsigned char* blit_pat;
 extern unsigned char        blit_col;
 extern unsigned char        blit_fg;
 extern unsigned char        blit_bg;
-extern unsigned char        rb_state[SCREEN_COLS];  /* etat du tampon par colonne (asm) */
-#define rb_invalidate(col)  (rb_state[col] = 0)
-#define rb_reset()          memset(rb_state, 0, SCREEN_COLS)
+extern unsigned char        rb_state[HALF_COLS];  /* etat du tampon par colonne de tampon (asm) */
+#define rb_invalidate(col)  (rb_state[BUFCOL(col)] = 0)
+#define rb_reset()          memset(rb_state, 0, HALF_COLS)
 void __fastcall__           blit_cell9(void);
 #else
 static const unsigned char* run_cells;
@@ -65,13 +68,13 @@ static unsigned char        blit_bg;
 static void blit_cell9(void)
 {
     unsigned char l, b, m;
-    unsigned char* d = display_rowbuf + blit_col * CELL_W;
+    unsigned char* d = display_rowbuf + BUFCOL(blit_col) * CELL_W;
     for (l = 0; l < CELL_H; ++l) {
         b = blit_pat[l];
         for (m = 0x80; m; m >>= 1) {
             *d++ = (b & m) ? blit_fg : blit_bg;
         }
-        d += SCREEN_W - CELL_W;
+        d += HALF_W - CELL_W;
     }
 }
 #endif
@@ -236,6 +239,10 @@ static const unsigned char dh_lower[CELL_H] = { 4, 5, 5, 6, 6, 7, 7, 8, 8 };
 static unsigned char s_pat[CELL_H];
 static unsigned char s_tmp[CELL_H];
 static unsigned char s_right[CELL_H];
+static unsigned char s_base;        /* premiere colonne de la demi-rangee en cours */
+
+/* La colonne col tombe-t-elle dans la demi-rangee en cours ? */
+#define in_half(col) ((unsigned char)((col) - s_base) < HALF_COLS)
 
 /* Dessine une cellule dans le tampon de ligne, a la colonne col. */
 static void render_cell_into_row(const vtx_cell_t* cell, unsigned char col,
@@ -260,14 +267,19 @@ static void render_cell_into_row(const vtx_cell_t* cell, unsigned char col,
             s_right[l] = dw_expand[s_pat[l] & 0x0F];
             s_tmp[l]   = dw_expand[s_pat[l] >> 4];
         }
-        blit_pat = s_tmp;
-        blit_cell9();
-        if (col + 1 < SCREEN_COLS) {
+        /* Chaque moitie n'est dessinee que si elle tombe dans la demi-rangee
+         * en cours : une double largeur en colonne 19 est rendue deux fois,
+         * moitie gauche par la premiere, moitie droite par la seconde. */
+        if (in_half(col)) {
+            blit_pat = s_tmp;
+            blit_cell9();
+        }
+        if (col + 1 < SCREEN_COLS && in_half(col + 1)) {
             blit_pat = s_right;
             blit_col = col + 1;
             blit_cell9();
         }
-    } else {
+    } else if (in_half(col)) {
         blit_pat = s_pat;
         blit_cell9();
     }
@@ -309,13 +321,22 @@ static unsigned char s_want_cursor;
 #define is_dbl_w(c) (cell_size(c) == SIZE_DOUBLE_WIDTH || cell_size(c) == SIZE_DOUBLE_SIZE)
 #define is_dbl_h(c) (cell_size(c) == SIZE_DOUBLE_HEIGHT || cell_size(c) == SIZE_DOUBLE_SIZE)
 
-static void render_row_span(vtx_context_t* ctx, unsigned char row,
-                            unsigned char c0, unsigned char c1)
+/* Rend et blitte les colonnes c0..c1 d'une rangee, toutes dans la MEME
+ * moitie d'ecran (tampon de demi-rangee). Une double largeur qui chevauche
+ * la frontiere (colonne 19) est visitee par les deux moities et
+ * render_cell_into_row ne dessine que la moitie de glyphe qui tombe dans la
+ * demi-rangee en cours (s_base). */
+static void render_half(vtx_context_t* ctx, unsigned char row,
+                        unsigned char c0, unsigned char c1)
 {
     const vtx_cell_t* rowp = &ctx->screen[row][0];   /* pointeur hisse */
     unsigned char c;
+    unsigned char base = (c0 >= HALF_COLS) ? HALF_COLS : 0;
+    unsigned char c1max = (unsigned char)(base + HALF_COLS - 1);
 
-    if (c1 >= SCREEN_COLS) c1 = SCREEN_COLS - 1;
+    s_base = base;
+
+    if (c1 > c1max) c1 = c1max;
     if (c0 > c1) c0 = c1;
 
     /* Une double largeur juste avant la plage couvre sa premiere colonne */
@@ -336,7 +357,7 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
         cell = &rowp[c];
         render_cell_into_row(cell, c, is_dbl_h(cell) ? VPART_LOWER : VPART_FULL);
         if (is_dbl_w(cell)) {
-            if (c == c1 && c1 < SCREEN_COLS - 1) ++c1;   /* moitie droite */
+            if (c == c1 && c1 < c1max) ++c1;   /* moitie droite */
             c += 2;
         } else {
             ++c;
@@ -359,7 +380,7 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
             c += n; below += n;
             render_cell_into_row(below, c, VPART_UPPER);
             if (cell_size(below) & SIZE_DOUBLE_WIDTH) {
-                if (c == c1 && c1 < SCREEN_COLS - 1) ++c1;
+                if (c == c1 && c1 < c1max) ++c1;
                 ++c; ++below;
             }
             ++c; ++below;
@@ -370,7 +391,7 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
     /* Curseur : barre encre sur la derniere ligne de la cellule */
     if (s_want_cursor && row == ctx->cur_y &&
         ctx->cur_x >= c0 && ctx->cur_x <= c1) {
-        memset(display_rowbuf + (CELL_H - 1) * SCREEN_W + ctx->cur_x * CELL_W,
+        memset(display_rowbuf + (CELL_H - 1) * HALF_W + BUFCOL(ctx->cur_x) * CELL_W,
                VTX_WHITE, CELL_W);
         rb_invalidate(ctx->cur_x);
         cur_drawn = 1;
@@ -378,9 +399,22 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
         cur_drawn_y = row;
     }
 
-    gfx_blit(display_rowbuf + c0 * CELL_W, (unsigned int)c0 * CELL_W,
-             (unsigned char)(row * CELL_H),
+    if (c0 < base) c0 = base;               /* la double largeur d'avant : autre moitie */
+    gfx_blit(display_rowbuf + (c0 - base) * CELL_W, HALF_W,
+             (unsigned int)c0 * CELL_W, (unsigned char)(row * CELL_H),
              (unsigned int)(c1 - c0 + 1) * CELL_W, CELL_H);
+}
+
+/* Rangee row, colonnes c0..c1 : une ou deux demi-rangees */
+static void render_row_span(vtx_context_t* ctx, unsigned char row,
+                            unsigned char c0, unsigned char c1)
+{
+    if (c1 >= SCREEN_COLS) c1 = SCREEN_COLS - 1;
+    if (c0 > c1) c0 = c1;
+    /* Double largeur en colonne 19 : sa moitie droite est en colonne 20 */
+    if (c1 == HALF_COLS - 1 && is_dbl_w(&ctx->screen[row][c1])) ++c1;
+    if (c0 < HALF_COLS) render_half(ctx, row, c0, c1);
+    if (c1 >= HALF_COLS) render_half(ctx, row, (c0 < HALF_COLS) ? HALF_COLS : c0, c1);
 }
 
 /* Rendu des lignes sales, au plus max_rows par appel (logique OricTel). */
@@ -415,14 +449,36 @@ static void render_dirty(vtx_context_t* ctx, unsigned char max_rows)
         vtx_touch(ctx, ctx->cur_y, ctx->cur_x, ctx->cur_x);
     }
 
+    /* Deux passes : toutes les moities gauches des rangees retenues, puis
+     * toutes les moities droites. Le cache de cellules vides du tampon
+     * (rb_state, asm) est par colonne de tampon : alterner les moities a
+     * chaque rangee le viderait sans cesse (page vide : 441 k -> 1,2 M
+     * cycles mesures). dirty = 2 marque une rangee retenue pour la passe 2. */
     rendered = 0;
     for (row = 0; row < SCREEN_ROWS && rendered < max_rows; ++row) {
+        unsigned char c0, c1;
         if (!ctx->dirty[row]) continue;
-        render_row_span(ctx, row, ctx->dirty_min[row], ctx->dirty_max[row]);
+        c0 = ctx->dirty_min[row];
+        c1 = ctx->dirty_max[row];
+        if (c1 >= SCREEN_COLS) c1 = SCREEN_COLS - 1;
+        if (c0 > c1) c0 = c1;
+        /* Double largeur en colonne 19 : sa moitie droite est en colonne 20 */
+        if (c1 == HALF_COLS - 1 && is_dbl_w(&ctx->screen[row][c1])) ++c1;
+        ctx->dirty_min[row] = c0;
+        ctx->dirty_max[row] = c1;
+        if (c0 < HALF_COLS) render_half(ctx, row, c0, c1);
+        ctx->dirty[row] = 2;
+        ++rendered;
+    }
+    for (row = 0; row < SCREEN_ROWS; ++row) {
+        unsigned char c0, c1;
+        if (ctx->dirty[row] != 2) continue;
+        c0 = ctx->dirty_min[row];
+        c1 = ctx->dirty_max[row];
+        if (c1 >= HALF_COLS) render_half(ctx, row, (c0 < HALF_COLS) ? HALF_COLS : c0, c1);
         ctx->dirty[row] = 0;
         ctx->dirty_min[row] = 0;
         ctx->dirty_max[row] = SCREEN_COLS - 1;
-        ++rendered;
     }
 }
 
@@ -487,11 +543,16 @@ static vtx_cell_t status_cells[STATUS_COLS];
 
 static void status_render(void)
 {
-    run_cells = (const unsigned char*)status_cells;
-    run_col = 0;
-    run_count = STATUS_COLS;
-    blit_run();
-    gfx_blit(display_rowbuf, 0, STATUS_Y, SCREEN_W, CELL_H);
+    unsigned char half;
+    for (half = 0; half < 2; ++half) {
+        run_cells = (const unsigned char*)&status_cells[half * HALF_COLS];
+        run_col = (unsigned char)(half * HALF_COLS);
+        s_base = run_col;
+        run_count = HALF_COLS;
+        blit_run();
+        gfx_blit(display_rowbuf, HALF_W, (unsigned int)run_col * CELL_W,
+                 STATUS_Y, HALF_W, CELL_H);
+    }
 }
 
 void display_status_clear(void)

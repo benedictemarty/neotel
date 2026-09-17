@@ -94,7 +94,33 @@ Rétrospective : le profil par trace a montré que la moitié du temps de la
 page vide était dans deux boucles C (indexation ×6 des cellules) et dans le
 chargement du glyphe de l'espace, pas dans le dessin lui-même.
 
-## Sprint 7 — v0.7 (à planifier)
-- Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-13).
+## Sprint 7 — v0.7.0-0.7.3 (2026-09-17) — TERMINÉ
+| User story | État |
+|---|---|
+| US-22 Je vois la liste de mes enregistrements et j'en rejoue / supprime un | fait (menu 6, API 3,17-3,19, `Suppr` + lettre) |
+| US-23 Le mode 80 colonnes respecte le passage à la ligne différé et les traits DEC | fait (v0.7.2, v0.7.3) |
+
+## Sprint 8 — v0.8.0-0.8.2 (2026-09-17/18) — TERMINÉ
+| User story | État |
+|---|---|
+| US-13 NeoTel tourne sur la carte réelle avec le clavier USB | fait : premier essai sur carte → clavier muet, API 2,2 lue à l'envers depuis la v0.1 ; scénario `realkeys` (vraie file du firmware) |
+| US-24 Une aide bilingue est disponible depuis le menu | fait (`H`, FR/EN mémorisé, `neotel.cfg` v4) |
+| US-25 Les raccourcis suivent l'usage Minitel (Suppr Annulation, ←/→ Retour/Suite, CTRL+R Répétition) | fait (v0.8.1) |
+| US-26 Les pages réelles s'affichent comme sur un Minitel (POKER 3617) | fait : semi-graphiques délimiteurs de fond, zone d'accueil (v0.8.2, scénario `poker`) |
+
+Rétrospective : les tests injectaient les touches en court-circuitant la
+file du firmware ; un bug présent depuis la v0.1 n'a été vu qu'à la première
+frappe sur carte. Règle : toute couche « matérielle » a un scénario qui passe
+par le vrai chemin du firmware. La RAM est arrivée à 76 o de marge.
+
+## Sprint 9 — v0.9.x (2026-09-18) — EN COURS
+| User story | État |
+|---|---|
+| US-27 Dégager de la RAM sans perdre le rendu pixel-exact | fait (v0.9.0 : tampon de demi-rangée, −1 440 o, marge ~1,8 Ko ; banc +11 à +33 %) |
+| US-28 Les menus, le splash, la liaison série et l'aide ont une charte moderne (bandeaux, cadres, inverse, flèches) | à faire (v0.9.1) |
+
+## Sprint 10 — (à planifier)
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
   budget de rendu sous flux 115200 (US-14).
+- Validation du modem USB CDC sur carte réelle (`cdc.cpp` du fork jamais
+  exécuté sur une carte).

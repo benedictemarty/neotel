@@ -48,13 +48,13 @@ void gfx_set_palette(unsigned char idx, unsigned char r,
     host_palette[idx][2] = b;
 }
 
-void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
-              unsigned int w, unsigned char h)
+void gfx_blit(const unsigned char* src, unsigned int src_stride,
+              unsigned int x, unsigned char y, unsigned int w, unsigned char h)
 {
     unsigned char l;
     ++host_blits;
     for (l = 0; l < h; ++l) {
-        memcpy(&host_vram[y + l][x], src + l * 320, w);
+        memcpy(&host_vram[y + l][x], src + l * src_stride, w);
     }
 }
 
