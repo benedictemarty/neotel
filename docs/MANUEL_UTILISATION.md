@@ -33,6 +33,7 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
      enregistrement `neoNN.vdt`, ESC annule). La page est rejouée comme si
      le serveur l'envoyait (mode Mixte compris), sans liaison ; la barre de
      statut affiche le nom ; `ESC ESC` revient au menu ;
+   - `7` Son : ON (défaut) ↔ OFF (BEL des serveurs et bip du splash) ;
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
    (`go.minipavi.fr:516`), `3` 3617.fr en WebSocket (`wss://3617.fr/ws`),
@@ -43,7 +44,8 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
    (pas de commande AT WebSocket connue : le modem répondra sans doute
    `NO CARRIER`, écran « ÉCHEC DE CONNEXION »).
 
-Les réglages (profil, aspect, identification, dernier serveur) sont sauvés
+Les réglages (profil, aspect, identification, dernier serveur, son,
+compteur d'enregistrement) sont sauvés
 dans `neotel.cfg` sur la carte SD / clé USB à chaque changement et relus au
 démarrage. Sans carte ou sans fichier : valeurs par défaut, sans message.
 5. **Connexion** : `ATZ` (si pas de `OK` : `+++`/`ATH` pour raccrocher un

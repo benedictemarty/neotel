@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "display.h"
+#include "settings.h"
 #include "fonts.h"
 #include "neo_stub.h"
 
@@ -370,6 +371,19 @@ static void test_clear_and_g2(void)
           "display_clear : page effacee par un rectangle");
 }
 
+/* Bip (BEL, splash) soumis au reglage "son" du menu 7 (v0.6.2) */
+static void test_beep_setting(void)
+{
+    host_beeps = 0;
+    g_settings.sound = 1;
+    display_beep();
+    CHECK(host_beeps == 1, "son ON : bip emis (8,7)");
+    g_settings.sound = 0;
+    display_beep();
+    CHECK(host_beeps == 1, "son OFF : pas de bip");
+    g_settings.sound = 1;
+}
+
 int main(void)
 {
     test_geometry_g0();
@@ -381,6 +395,7 @@ int main(void)
     test_status();
     test_palette();
     test_clear_and_g2();
+    test_beep_setting();
     printf("test_display : %d/%d OK\n", pass, run);
     return pass == run ? 0 : 1;
 }

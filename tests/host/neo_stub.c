@@ -216,7 +216,7 @@ void neo_host_dispatch(void)
         /* les tests passent par neo_gfx.h, jamais par le bloc $FF00 */
         break;
     case NEO_G_SOUND:
-        if (f == NEO_F_SND_BEEP) ++host_beeps;
+        if (f == NEO_F_SND_BEEP || f == NEO_F_SND_QUEUE_EXT) ++host_beeps;
         break;
     case NEO_G_UEXT:
         switch (f) {

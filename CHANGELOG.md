@@ -3,7 +3,16 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.6.1] — 2026-09-17
+## [0.6.2] — 2026-09-17
+
+### Ajouté
+- Menu `7 - Son: ON/OFF` : coupe les bips (BEL Videotex et 80 colonnes,
+  bip du splash) ; réglage `sound` dans `neotel.cfg` (**version 3** ; les
+  fichiers v1 et v2 restent acceptés, son actif par défaut). Un bip de
+  confirmation à la remise en marche. +2 tests `test_display`, +2
+  `test_settings` ; le stub compte aussi les tonalités 8,7.
+
+
 
 ### Ajouté
 - `make bench` : banc de rendu sur cible (`tests/emu/t_bench.c`,

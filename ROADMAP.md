@@ -45,7 +45,8 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] Réglages persistants (profil, aspect, identification, dernier serveur)
       via l'API fichiers (3,3 / 3,2) sur la carte SD — v0.3.0.
 - [x] Bip Videotex (BEL) par 8,7 plutôt que le bip système — v0.4.3.
-- [ ] Jingle du splash (son du RP2040), option pour le couper.
+- [x] Option pour couper le son (menu 7) — v0.6.2. Pas de jingle : le bip
+      1 kHz du splash suffit (décision).
 
 ## v0.4.0 — Modes Mixte et Téléinformatique (80 colonnes) [TERMINÉ, 2026-09-17]
 - [x] STUM 1B récupérée (transcription jbellue, `docs/ref/STUM1B-NOTES.md`).
