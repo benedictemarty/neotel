@@ -35,7 +35,7 @@
 
 ROWBUF  = _display_rowbuf
 STRIDE  = 320
-CELLS   = 6                 ; sizeof(vtx_cell_t)
+CELLS   = 5                 ; sizeof(vtx_cell_t) : size loge dans flags (bits 5-6)
 
 ; --- attributs (videotex.h) ---
 ATTR_FLASH      = $01
@@ -202,12 +202,12 @@ _scan_dblh:
         lda  _run_cells+1
         sta  cellp+1
         ldx  #0
-        ldy  #5
+        ldy  #4
 @loop:  cpx  _run_count
         bcs  @none
-        lda  (cellp),y      ; size
-        lsr
-        bcs  @found
+        lda  (cellp),y      ; flags (bits 5-6 = taille)
+        and  #$20           ; bit 5 = double hauteur
+        bne  @found
         clc
         lda  cellp
         adc  #CELLS
@@ -237,8 +237,9 @@ _blit_run:
         lda  ccount
         cmp  _run_count
         bcs  @done0
-        ldy  #5
-        lda  (cellp),y      ; size
+        ldy  #4
+        lda  (cellp),y      ; flags (bits 5-6 = taille)
+        and  #$60
         beq  @cell
 @done0: jmp  @done          ; taille non normale : au C
 @cell:

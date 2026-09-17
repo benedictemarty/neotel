@@ -78,7 +78,7 @@ static void put(unsigned char row, unsigned char col, unsigned char ch,
 {
     vtx_cell_t* c = &ctx.screen[row][col];
     c->ch = ch; c->charset = cs; c->fg = fg; c->bg = bg;
-    c->flags = flags; c->size = size;
+    c->flags = (unsigned char)(flags | (size << SIZE_SHIFT));
     vtx_touch(&ctx, row, col, col);
     if (size == SIZE_DOUBLE_HEIGHT || size == SIZE_DOUBLE_SIZE) {
         if (row > 0) vtx_touch(&ctx, row - 1, col, col);

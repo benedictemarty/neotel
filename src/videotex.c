@@ -175,8 +175,7 @@ static void reset_cells(vtx_cell_t* cell, unsigned int count)
     cell->charset = CHARSET_G0;
     cell->fg = VTX_WHITE;
     cell->bg = VTX_BLACK;
-    cell->flags = 0;
-    cell->size = SIZE_NORMAL;
+    cell->flags = 0;        /* size (bits 5-6) = SIZE_NORMAL */
     for (done = 1; done < count; ) {
         unsigned int n = count - done;
         if (n > done) n = done;
@@ -236,19 +235,19 @@ static void scroll_up(vtx_context_t* ctx);
 /* ===================================================================
  *  Adressage rapide des cellules
  *
- *  &ctx->screen[row][col] fait calculer a cc65 row * 240 puis col * 6 :
+ *  &ctx->screen[row][col] fait calculer a cc65 row * 200 puis col * 5 :
  *  deux multiplications 16 bits par des constantes qui ne sont pas des
  *  puissances de deux, payees A CHAQUE CARACTERE recu (put_char etait
  *  mesure a ~3 950 cycles/caractere, cf. make bench-render). Deux tables
  *  d'offsets les remplacent par de simples lectures indexees.
  *
- *  39 * 6 = 234 : les offsets de colonne tiennent dans un octet.
+ *  39 * 5 = 195 : les offsets de colonne tiennent dans un octet.
  * =================================================================== */
 static const unsigned int row_byte_offset[VTX_ROWS] = {
-    0, 240, 480, 720, 960, 1200, 1440, 1680, 1920, 2160, 2400, 2640, 2880, 3120, 3360, 3600, 3840, 4080, 4320, 4560, 4800, 5040, 5280, 5520, 5760
+    0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000, 4200, 4400, 4600, 4800
 };
 static const unsigned char col_byte_offset[VTX_COLS] = {
-    0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120, 126, 132, 138, 144, 150, 156, 162, 168, 174, 180, 186, 192, 198, 204, 210, 216, 222, 228, 234
+    0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195
 };
 
 /* Cellule (row, col) sans multiplication. row < VTX_ROWS et col < VTX_COLS
@@ -299,8 +298,7 @@ static void put_char(unsigned char ch, unsigned char cs)
     cell->charset = cs;
     cell->fg = s_ctx->fg_color;
     cell->bg = s_ctx->bg_color;
-    cell->flags = s_ctx->attr_flags;
-    cell->size = s_ctx->attr_size;
+    cell->flags = (unsigned char)(s_ctx->attr_flags | (s_ctx->attr_size << SIZE_SHIFT));
 
     /* Appliquer les attributs en attente sur un delimiteur (espace G0) */
     if (ch == 0x20 && cs == CHARSET_G0 && s_ctx->has_pending) {

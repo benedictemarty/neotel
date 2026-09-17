@@ -6,7 +6,7 @@ toute modification.
 
 ## Règles du projet
 - Méthode agile : chaque modification = code + tests + CHANGELOG + docs à
-  jour (README / docs / ROADMAP), puis commit `bmarty <bmarty@mailo.com>`,
+  jour (README / docs / ROADMAP), puis commit sous l'identite `bmarty`,
   message en français, **jamais de Co-Authored-By ni de mention d'IA**.
 - `make test` (hôte + cible) doit passer avant tout commit. Un changement
   visuel voulu se valide par `make ref` après inspection de
@@ -40,6 +40,9 @@ toute modification.
 - Phosphoneo va plus vite que le temps réel : garde Hayes du faux modem
   réduite dans les tests (`--guard 0.02`).
 - `keyboard_flush` ne purge pas `keyboard_inject` (touche de test).
+- API 2,2 : P0 = `$FF` si une touche **attend** (0 si file vide). Les tests
+  injectent par `keyboard_inject` sans passer par la file : tout changement
+  de `keyboard.c` se valide aussi par le scénario `realkeys` (`--type-keys`).
 - `--poke-at` et `--dump-ram-when` de Phosphoneo lisent les valeurs en
   **hexadécimal** (« 15 » = 0x15) ; `--dump-ram-when` arrête l'émulation à
   la première occurrence (ne pas le combiner avec une action ultérieure).

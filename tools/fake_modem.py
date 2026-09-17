@@ -31,7 +31,7 @@ Options :
   --guard SECONDES     garde de silence Hayes autour de "+++" (1 s ; les tests
                        sous emulateur, plus rapide que le temps reel, la reduisent)
   --log FICHIER        journal horodate des echanges
-Ctrl-C pour quitter. Auteur : bmarty <bmarty@mailo.com>
+Ctrl-C pour quitter. Auteur : bmarty
 """
 import os
 import pty

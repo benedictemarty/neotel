@@ -60,10 +60,16 @@
 #define DRCS_BYTES  14      /* octets de 6 bits par forme */
 
 /* Attributs de taille */
+/* La taille (0-3) est logee dans les bits 5-6 de flags (les attributs
+ * ATTR_* n'occupent que les bits 0-4), pour economiser un octet par cellule
+ * (25 x 40 cellules) — v0.8.0. */
 #define SIZE_NORMAL         0
 #define SIZE_DOUBLE_HEIGHT  1
 #define SIZE_DOUBLE_WIDTH   2
 #define SIZE_DOUBLE_SIZE    3
+#define SIZE_SHIFT          5
+#define SIZE_MASK           0x60
+#define cell_size(c)        (unsigned char)(((c)->flags >> SIZE_SHIFT) & 3)
 
 /* Drapeaux d'attributs (bitfield) */
 #define ATTR_FLASH      0x01
@@ -91,8 +97,7 @@ typedef struct {
     unsigned char charset;      /* CHARSET_G0, G1, G2 */
     unsigned char fg;           /* Couleur encre (0-7) */
     unsigned char bg;           /* Couleur fond (0-7) */
-    unsigned char flags;        /* ATTR_FLASH | ATTR_CONCEALED | ... */
-    unsigned char size;         /* SIZE_NORMAL, DOUBLE_HEIGHT, etc. */
+    unsigned char flags;        /* bits 0-4 : ATTR_* ; bits 5-6 : taille (cell_size) */
 } vtx_cell_t;
 
 /* Contexte du decodeur Videotex */

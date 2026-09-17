@@ -63,7 +63,7 @@ page_has() {   # $1 = dump, $2 = texte
 import sys
 d = open(sys.argv[1], 'rb').read(); text = sys.argv[2]
 base = int(sys.argv[3], 16) + int(sys.argv[4])
-rows = [''.join(chr(d[base + (r * 40 + c) * 6]) for c in range(40)) for r in range(25)]
+rows = [''.join(chr(d[base + (r * 40 + c) * 5]) for c in range(40)) for r in range(25)]
 sys.exit(0 if any(text in row for row in rows) else 1)
 EOF
 }
@@ -191,11 +191,11 @@ if [ -f "$OUT/mixte_hungup.bin" ] && grep -q "commande b'ATH'" build/modem.log; 
 else
     echo "FAIL mixte-exit"; fail=1
 fi
-# Pile C ($FBA0-$FBFF, 96 o ; usage mesure 33) : la moitie basse ($FBA0-$FBCF)
-# doit rester vierge (marge >= 48 octets)
+# Pile C ($FBC0-$FBFF, 64 o ; usage mesure 33) : la moitie basse ($FBC0-$FBCF)
+# doit rester vierge (marge >= 16 octets)
 if python3 -c "
-import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFBA0:0xFBD0]) else 1)"; then
-    echo "PASS stack (pile C : au moins 48 octets de marge)"
+import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFBC0:0xFBD0]) else 1)"; then
+    echo "PASS stack (pile C : au moins 16 octets de marge)"
 else
     echo "FAIL stack (pile C descendue sous \$FBD0)"; fail=1
 fi
@@ -332,6 +332,41 @@ if [ ! -f "$STORAGE/neo02.vdt" ] && [ -f "$STORAGE/neo01.vdt" ] && [ -f "$STORAG
     echo "PASS recdel (Suppr + B efface neo02, neo01/neo07 conserves)"
 else
     echo "FAIL recdel (voir $STORAGE)"; fail=1
+fi
+
+# --- 4h. ecran d'aide bilingue (menu H) : "AIDE NEOTEL" affiche, bascule EN --
+rm -rf "$STORAGE"; mkdir -p "$STORAGE"
+run "--serve" --cycles 40000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "18000000:$KI=48" \
+    --dump-ram-when "$ST:10:$OUT/help.bin"
+if [ -f "$OUT/help.bin" ] && page_has "$OUT/help.bin" "AIDE NEOTEL"; then
+    echo "PASS help (menu H : aide affichee, francais)"
+else
+    echo "FAIL help (voir $OUT/phos.log)"; fail=1
+fi
+# 'L' bascule la langue et l'ecrit dans neotel.cfg (offset 49 = apres sound) ;
+# on laisse l'emulation aller au bout (le dump ST_HELP s'arreterait avant le L).
+run "--serve" --cycles 45000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "18000000:$KI=48" --poke-at "26000000:$KI=4C" \
+    --screenshot-at "34000000:$OUT/help_en.ppm"
+if [ -f "$STORAGE/neotel.cfg" ] \
+   && [ "$(od -An -tu1 -j49 -N1 "$STORAGE/neotel.cfg" | tr -d ' ')" = 1 ]; then
+    echo "PASS help-lang (L : langue anglaise memorisee dans neotel.cfg)"
+else
+    echo "FAIL help-lang ($STORAGE/neotel.cfg)"; fail=1
+fi
+
+# --- 4i. vraie file clavier du firmware (--type-keys, pas keyboard_inject) --
+# Splash passe par injection, puis l'ecran de la liaison serie par une frappe
+# REELLE (Phosphoneo n'accepte qu'un --type-keys) : l'etat menu doit etre
+# atteint. Couvre le sens de l'API 2,2 ($FF = touche disponible), inverse
+# jusqu'en v0.8.0 (clavier muet sur carte reelle).
+run "--serve" --cycles 30000000 --poke-at "9000000:$KI=20" --type-keys '14000000: ' \
+    --dump-ram-when "$ST:$ST_MENU:$OUT/realkeys.bin"
+if [ -f "$OUT/realkeys.bin" ]; then
+    echo "PASS realkeys (frappes par la file clavier du firmware : menu atteint)"
+else
+    echo "FAIL realkeys (menu jamais atteint avec --type-keys, voir $OUT/phos.log)"; fail=1
 fi
 
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------

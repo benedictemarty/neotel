@@ -228,7 +228,7 @@ void neo_host_dispatch(void)
         if (f == NEO_F_READ_CHAR) {
             NEO_P[0] = (kq_head != kq_tail) ? kq[kq_head++ & 0xFF] : 0;
         } else if (f == NEO_F_CON_STATUS) {
-            NEO_P[0] = (kq_head == kq_tail) ? 0xFF : 0x00;
+            NEO_P[0] = (kq_head != kq_tail) ? 0xFF : 0x00;   /* $FF = touche disponible (firmware) */
         }
         break;
     case 3:     /* fichiers : un seul fichier en memoire, neotel.cfg. Les

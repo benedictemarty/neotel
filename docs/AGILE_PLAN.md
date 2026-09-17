@@ -2,7 +2,7 @@
 
 Méthode Scrum allégée (héritée d'OricTel) : sprints courts, chaque
 incrément = code + tests + documentation + CHANGELOG, commit unique par
-incrément, auteur `bmarty <bmarty@mailo.com>`.
+incrément, auteur `bmarty`.
 
 ## Rôles
 - Product Owner : Bénédicte Marty.

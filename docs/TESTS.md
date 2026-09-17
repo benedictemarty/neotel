@@ -89,6 +89,13 @@ adresses lues dans `build/neotel.lbl`.
    (3,17/3,18/3,19), la lettre `B` rejoue le second (page DRCS, `G1 BASE`).
 6g. **recdel** : menu `6`, `Suppr` puis `B` efface `neo02.vdt` ; `neo01`
    et `neo07` restent sur le stockage.
+6h. **help** / **help-lang** : menu `H` → « AIDE NEOTEL » ; `L` bascule en
+   anglais et l'écrit dans `neotel.cfg` (offset 49).
+6i. **realkeys** : l'écran « Liaison série » est passé par une frappe
+   **réelle** (`--type-keys`, file clavier du firmware, pas
+   `keyboard_inject`) ; l'état menu doit être atteint. Garde le sens de
+   l'API 2,2 (`$FF` = touche disponible), inversé jusqu'en v0.8.0 : les
+   autres scénarios court-circuitent la file et ne l'auraient pas vu.
 7. **exit** : ESC au menu → NeoBASIC répond (`PRINT 6*7` → `42`).
 8. **neo** : fumée dans l'émulateur officiel `neo` (splash affiché).
 

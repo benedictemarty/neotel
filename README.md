@@ -90,6 +90,6 @@ Connexion/Fin, `F10`/`CTRL+D` aspect, `CTRL+L` effacer, `CTRL+F` reset série,
 
 ## Licence
 
-EUPL-1.2, © Bénédicte Marty (bmarty@mailo.com). Code repris d'OricTel
+EUPL-1.2, © Bénédicte Marty. Code repris d'OricTel
 (même licence, même auteur). Le format `.neo`, l'API et les emplacements
 mémoire viennent du firmware Neo6502 (Paul Robson et contributeurs, MIT).
