@@ -21,7 +21,12 @@ static const unsigned char* cell_glyph(const ti_cell_t* c)
     if (c->attr & TI_ATTR_ERROR) return &font80[FONT80_BLOCK * FONT80_H];
     if (ch < 0x20 || ch > 0x7F) ch = 0x20;
     idx = (unsigned char)(ch - 0x20);
-    if (c->attr & TI_ATTR_FRENCH) idx = font80_fr_index[idx];
+    switch (TI_ATTR_SET(c->attr)) {
+        case TI_SET_FR:   idx = font80_fr_index[idx]; break;
+        case TI_SET_COMP: idx = font80_comp_index[idx]; break;
+        case TI_SET_DEC:  idx = font80_dec_index[idx]; break;
+        default: break;
+    }
     return &font80[(unsigned int)idx * FONT80_H];
 }
 

@@ -3,6 +3,32 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [0.4.1] — 2026-09-17
+
+### Ajouté
+- Mode Mixte, Minitel 2 : jeux **complémentaire** (STUM 2 annexe 3.12,
+  accents, ¼ ½ ¾, flèches, Œ œ ß…) et **DEC** (annexe 3.13, filets
+  ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ ─ │, ≤ ≥ ≠) désignés par `ESC 2/8|2/9 3/3` et `3/0` ;
+  `ESC 2/8|2/9 4/2` (américain) et `5/2` (français) dans les deux profils.
+  Le jeu est porté par la cellule (bits 4 et 6 de l'attribut). 57 glyphes de
+  plus dans `font80.c` (tables relues sur les scans p. 92-93). Approximations
+  documentées : traits de balayage DEC 6/F-7/3 = trait médian, 6/1 = +.
+- `CSI < 1 h` / `CSI < 1 l` : extinction / allumage du curseur (STUM 2 §3.3,
+  Minitel 2 seulement).
+- `make test-servers` : fumée sur les vrais serveurs **PAVI 3617** et
+  **MiniPavi** par le faux modem (relais TCP) — réseau requis, hors
+  `make test` ; Phosphoneo va ~6 fois plus vite que le temps réel, d'où
+  1,5 G cycles par session. Les deux pages d'accueil s'affichent.
+- `test_teleinfo` : 87 assertions ; scénario `mixte` en profil Minitel 2 avec
+  une ligne DEC / complémentaire.
+
+### Corrigé
+- `display80_asm.s` : l'adresse du glyphe était calculée par une table de
+  mots indexée par `index * 2` sur 8 bits — faux au-delà du glyphe 127
+  (visible dès l'ajout des jeux). Calcul 16 bits `index * 14`.
+- `tests/run.sh` : l'oracle `render_page` est recompilé à chaque exécution
+  (un oracle périmé donnait un faux FAIL).
+
 ## [0.4.0] — 2026-09-17
 
 Mode Mixte / standard Téléinformatique : écran **80 colonnes ISO 6429**

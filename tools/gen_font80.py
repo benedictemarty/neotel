@@ -40,6 +40,24 @@ FR = [(0x23, '£', 'livre'), (0x40, 'à', 'a grave'), (0x5B, '°', 'degre'), (0x
 # Le trema seul n'est pas dans la police : deux points en haut de cellule.
 TREMA = bytes([0x00, 0x00, 0x6C, 0x6C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
 
+# Jeu complementaire (STUM 2 annexe 3.12 p. 92, relu sur le scan) : code -> caractere,
+# None = identique a l'ASCII. Approximations : 6/1 (croix) -> +, 7/4-7/8 (traits) -> box.
+COMP = {0x40: '@', 0x41: 'à', 0x42: 'â', 0x43: 'ä', 0x44: 'é', 0x45: 'è', 0x46: 'ê', 0x47: 'ë',
+        0x48: 'î', 0x49: 'ï', 0x4A: 'ô', 0x4B: 'ö', 0x4C: 'ù', 0x4D: 'û', 0x4E: 'ü', 0x4F: '¼',
+        0x50: '½', 0x51: '¾', 0x52: 'Ä', 0x53: 'É', 0x54: 'ì', 0x55: 'Ò', 0x56: 'Ü', 0x57: 'Ñ',
+        0x58: 'ñ', 0x59: 'µ', 0x5A: '¿', 0x5B: '[', 0x5C: '\\', 0x5D: ']', 0x5E: '^', 0x5F: '─',
+        0x60: '`', 0x61: '+', 0x62: '¤', 0x63: ' ', 0x64: '{', 0x65: '}', 0x66: '°', 0x67: '±',
+        0x68: '÷', 0x69: ' ', 0x6A: '↑', 0x6B: '→', 0x6C: '↓', 0x6D: '←', 0x6E: '+', 0x6F: ' ',
+        0x70: ' ', 0x71: ' ', 0x72: ' ', 0x73: ' ', 0x74: '│', 0x75: '│', 0x76: '─', 0x77: '─',
+        0x78: '│', 0x79: 'Œ', 0x7A: 'œ', 0x7B: 'ß', 0x7C: '~', 0x7D: '£', 0x7E: '·'}
+# Jeu DEC (STUM 2 annexe 3.13 p. 93 = jeu "special graphics" DEC) : les traits de
+# balayage 6/F-7/3 sont tous rendus par le trait horizontal median.
+DEC = {0x5F: ' ', 0x60: ' ', 0x61: ' ', 0x62: ' ', 0x63: ' ', 0x64: ' ', 0x65: ' ',
+       0x66: '°', 0x67: '±', 0x68: ' ', 0x69: ' ', 0x6A: '┘', 0x6B: '┐', 0x6C: '┌', 0x6D: '└',
+       0x6E: '┼', 0x6F: '─', 0x70: '─', 0x71: '─', 0x72: '─', 0x73: '─', 0x74: '├', 0x75: '┤',
+       0x76: '┴', 0x77: '┬', 0x78: '│', 0x79: '≤', 0x7A: '≥', 0x7B: ' ', 0x7C: '≠', 0x7D: '£',
+       0x7E: '·'}
+
 def glyph(cp):
     g = cp_to_glyph.get(cp)
     if g is None:
@@ -51,16 +69,30 @@ out.append("/* font80.c - police 8x14 du mode 80 colonnes (genere par tools/gen_
 out.append(" * depuis Lat15-VGA14.psf.gz, console-setup, domaine public). NE PAS EDITER. */")
 out.append('#include "font80.h"')
 out.append("")
-out.append("const unsigned char font80[FONT80_COUNT * FONT80_H] = {")
 rows = []
 for ch in range(0x20, 0x80):
     rows.append((glyph(ch), "$%02X %s" % (ch, chr(ch) if 0x20 < ch < 0x7F and ch not in (0x5C, 0x2A, 0x2F) else "")))
 for code, c, name in FR:
     rows.append((glyph(ord(c)) if c else TREMA, "FR $%02X %s" % (code, name)))
 rows.append((bytes([0xFF] * 14), "pave plein (erreur)"))
+# glyphes supplementaires des jeux complementaire et DEC (dedoublonnes)
+extra = {}
+def extra_index(c):
+    if c not in extra:
+        extra[c] = len(rows)
+        rows.append((glyph(ord(c)), "extra U+%04X" % ord(c)))
+    return extra[c]
+comp_idx = list(range(96)); dec_idx = list(range(96))
+for code, c in COMP.items():
+    comp_idx[code - 0x20] = 0 if c == ' ' else (code - 0x20 if c == chr(code) else extra_index(c))
+for code, c in DEC.items():
+    dec_idx[code - 0x20] = 0 if c == ' ' else (code - 0x20 if c == chr(code) else extra_index(c))
+out.append("const unsigned char font80[FONT80_COUNT * FONT80_H] = {")
 for g, com in rows:
     out.append("    " + ",".join("0x%02X" % b for b in g) + ", /* " + com + " */")
 out.append("};")
+out.append("")
+out.append("/* FONT80_COUNT attendu = %d (font80.h) */" % len(rows))
 out.append("")
 out.append("/* Code ASCII (0x20-0x7F) -> index dans font80, jeu francais : les 11")
 out.append(" * positions de NF Z 62-010 renvoient aux glyphes FR. */")
@@ -69,6 +101,16 @@ idx = list(range(96))
 for i, (code, c, name) in enumerate(FR):
     idx[code - 0x20] = 96 + i
 out.append("    " + ",".join(str(v) for v in idx))
+out.append("};")
+out.append("")
+out.append("/* Jeu complementaire (STUM 2 annexe 3.12) : code ASCII -> index dans font80 */")
+out.append("const unsigned char font80_comp_index[96] = {")
+out.append("    " + ",".join(str(v) for v in comp_idx))
+out.append("};")
+out.append("")
+out.append("/* Jeu DEC (STUM 2 annexe 3.13) : code ASCII -> index dans font80 */")
+out.append("const unsigned char font80_dec_index[96] = {")
+out.append("    " + ",".join(str(v) for v in dec_idx))
 out.append("};")
 out.append("")
 out.append("/* Offset (octets) de chaque glyphe dans font80, pour l'assembleur */")

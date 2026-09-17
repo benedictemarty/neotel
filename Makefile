@@ -8,6 +8,7 @@
 #   make test       tests host (gcc) + tests cible (Phosphoneo headless)
 #   make test-host  tests host seuls
 #   make test-emu   tests cible seuls
+#   make test-servers  fumee sur PAVI 3617 et MiniPavi (reseau, hors make test)
 #   make ref        regenere les captures de reference (tests/ref/*.ppm)
 #   make clean
 
@@ -37,7 +38,7 @@ ASRC    = src/asm/crt0.s src/asm/display_asm.s src/asm/neo_delay.s src/asm/displ
 OBJ     = $(patsubst src/%.c,$(BUILD)/%.o,$(CSRC)) \
           $(patsubst src/asm/%.s,$(BUILD)/%.o,$(ASRC))
 
-.PHONY: all run run-phos test test-host test-emu ref clean help
+.PHONY: all run run-phos test test-host test-emu test-servers ref clean help
 
 all: $(NEO)
 
@@ -77,6 +78,10 @@ test-host:
 
 test-emu: $(NEO)
 	tests/run.sh check
+
+# Fumee sur les vrais serveurs Minitel (reseau ; hors `make test`)
+test-servers: $(NEO)
+	tests/test_servers.sh
 
 ref: $(NEO)
 	tests/run.sh ref

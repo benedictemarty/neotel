@@ -190,7 +190,7 @@ try:
                 hangup(True)
             elif online:
                 os.write(master, chunk)
-                log("<< %d octets serveur" % len(chunk))
+                log("<< %d octets serveur %r" % (len(chunk), chunk[:60]))
 
         if served and nc_after is not None and not sent_nc and t_conn and now - t_conn > nc_after:
             sent_nc = True

@@ -20,7 +20,8 @@
 
         .export   _blit80_row
         .export   _b80_cells, _b80_row0, _b80_cursor, _b80_ncols
-        .import   _display_rowbuf, _font80, _font80_fr_index, _font80_offset
+        .import   _display_rowbuf, _font80, _font80_fr_index
+        .import   _font80_comp_index, _font80_dec_index
         .import   _g_blink_phase
 
 ROWBUF  = _display_rowbuf
@@ -30,8 +31,9 @@ TI_ATTR_BOLD      = $01
 TI_ATTR_UNDERLINE = $02
 TI_ATTR_BLINK     = $04
 TI_ATTR_INVERSE   = $08
-TI_ATTR_FRENCH    = $10
+TI_ATTR_SET0      = $10
 TI_ATTR_ERROR     = $20
+TI_ATTR_SET1      = $40
 FONT80_BLOCK      = 107
 
         .zeropage
@@ -46,6 +48,8 @@ col:    .res 1
 bidx:   .res 1              ; b = col + col/8
 cattr:  .res 1
 bold:   .res 1
+m2:     .res 2              ; temporaires du calcul d'adresse de glyphe
+m4:     .res 2
 
         .segment "BSS"
 _b80_cells:  .res 2
@@ -186,20 +190,61 @@ _blit80_row:
 @space: lda  #0
 @inrange:
         tax
+        ; jeu de la cellule : bit 4 (SET0) et bit 6 (SET1) de l'attribut
         lda  cattr
-        and  #TI_ATTR_FRENCH
-        beq  @haveidx
+        and  #TI_ATTR_SET0|TI_ATTR_SET1
+        beq  @haveidx               ; americain : index = code
+        cmp  #TI_ATTR_SET0
+        bne  :+
         lda  _font80_fr_index,x
         tax
-@haveidx:
-        txa
-        asl  a                      ; index * 2 (table de mots)
+        bra  @haveidx
+:       cmp  #TI_ATTR_SET1
+        bne  :+
+        lda  _font80_comp_index,x
         tax
-        lda  _font80_offset,x
+        bra  @haveidx
+:       lda  _font80_dec_index,x
+        tax
+@haveidx:
+        ; glyph = font80 + index * 14 = font80 + index*8 + index*4 + index*2
+        ; (index < 256 ; arithmetique 16 bits dans m2/m4/m8)
+        stz  m2+1
+        txa
+        asl  a
+        rol  m2+1
+        sta  m2                     ; index * 2
+        lda  m2+1
+        sta  m4+1
+        lda  m2
+        asl  a
+        rol  m4+1
+        sta  m4                     ; index * 4
+        lda  m4+1
+        sta  glyph+1
+        lda  m4
+        asl  a
+        rol  glyph+1
+        sta  glyph                  ; index * 8
         clc
+        lda  glyph
+        adc  m4
+        sta  glyph
+        lda  glyph+1
+        adc  m4+1
+        sta  glyph+1
+        clc
+        lda  glyph
+        adc  m2
+        sta  glyph
+        lda  glyph+1
+        adc  m2+1
+        sta  glyph+1
+        clc
+        lda  glyph
         adc  #<_font80
         sta  glyph
-        lda  _font80_offset+1,x
+        lda  glyph+1
         adc  #>_font80
         sta  glyph+1
 

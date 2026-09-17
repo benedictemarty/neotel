@@ -50,11 +50,11 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
       (`display80.c` + asm, capture == oracle), clavier étendu, PRO2 MIXTE
       1/2 avec acquittements SEP $70/$71, `CSI ? {`.
 - [x] STUM 2 : `CSI 6 n`, 40 / 80 colonnes, page / rouleau.
-- [ ] Écarts : 40 colonnes sans doublement des pixels ; `CSI 3/C 3/1 6/8|6/C`
-      (extinction / allumage du curseur, STUM 2) non implémenté (le 1B ne
-      permet pas d'éteindre le curseur) ; passage à la ligne après la 80ᵉ
-      colonne = hypothèse ; jeux DEC / complémentaire du Minitel 2 (annexes
-      3.12-3.13) non implémentés.
+- [x] Jeux DEC / complémentaire (annexes 3.12-3.13) et extinction du curseur
+      `CSI < 1 h|l` — v0.4.1.
+- [x] Fumée sur les vrais serveurs (`make test-servers`) — v0.4.1.
+- [ ] Écarts : 40 colonnes sans doublement des pixels ; passage à la ligne
+      après la 80ᵉ colonne = hypothèse ; traits de balayage DEC approximés.
 
 ## Idées
 - Enregistrement des pages reçues (.vdt) sur la carte SD, relecture.
