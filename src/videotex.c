@@ -894,10 +894,15 @@ static void dispatch_pro(vtx_context_t* ctx)
                 serial_send(0x13);
                 serial_send(0x71);
                 serial_tx_flush();
-            } else if (ctx->pro_buf[1] == 0x7D) { /* MODE MIXED */
-                /* OricTel ne supporte pas le mode MIXED (telé-informatique).
-                 * On ignore silencieusement, le serveur saura par l'absence
-                 * d'ACK que la bascule a echoue. */
+            } else if (ctx->pro_buf[1] == 0x7D) { /* MODE MIXTE */
+                /* PRO2 MIXTE 1 (STUM 1B partie 2 chap. 6 par. 12.2) : passage
+                 * au standard Teletel mode Mixte (80 colonnes, ISO 6429),
+                 * acquitte par SEP 0x70. main.c bascule l'ecran (teleinfo.c)
+                 * quand terminal_mode passe a TERM_MODE_MIXED. */
+                ctx->terminal_mode = TERM_MODE_MIXED;
+                serial_send(0x13);
+                serial_send(0x70);
+                serial_tx_flush();
             }
             return;
         }

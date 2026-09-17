@@ -15,3 +15,4 @@ docs/ref/STUM2.pdf
 tests/host/test_drcs
 storage/
 tests/host/test_settings
+tests/host/test_teleinfo

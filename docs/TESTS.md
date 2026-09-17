@@ -12,13 +12,14 @@ mémoire, présence CDC), VRAM 320 × 240, palette, compteurs de blits.
 
 | Test | Assertions | Couvre |
 |---|---|---|
-| `test_videotex` | 219 | décodeur Videotex (repris d'OricTel tel quel) |
+| `test_videotex` | 221 | décodeur Videotex (repris d'OricTel tel quel) |
 | `test_atmodem` | 28 | machine à états AT (repris d'OricTel) |
 | `test_ui` | 11 | helpers de menus, bornes de saisie (repris) |
-| `test_keyboard` | 50 | traduction firmware → Minitel, flèches vs CTRL, hotkeys F1-F10, injection, émission SEP/CSI, aiguillages |
+| `test_keyboard` | 61 | traduction firmware → Minitel, flèches vs CTRL, hotkeys F1-F10, injection, émission SEP/CSI, aiguillages |
 | `test_display` | 46 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear` |
 | `test_drcs` | 40 | DRCS Minitel 2 (STUM 2 §2.2-2.5) : en-têtes, transfert (vecteur = exemple §2.3.5), B1 anticipé, excédent, C0 = fond, sortie US, associations, mapping 2/0 et 7/F, rangée 00, SS2, profil 1B, `CSI 6n`, rendu 8 × 9, effacement par `vtx_init` |
 | `test_settings` | 7 | `neotel.cfg` : défauts, aller-retour, magie/version, bornes, écriture refusée |
+| `test_teleinfo` | 79 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
 | `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |
 
 `render_page` (même Makefile) est l'**oracle** : il rend une page `.vdt`
@@ -44,6 +45,10 @@ adresses lues dans `build/neotel.lbl`.
    `display_asm.s` et `display.c` font la même chose.
 4. **page-ref** : la capture est identique à `tests/ref/page.ppm`
    (`make ref` après un changement visuel voulu et inspecté).
+4c. **mixte** / **mixte-ref** / **mixte-exit** : `PRO2 MIXTE 1` dans la page,
+   capture 720 × 350 identique à `render_page --mixte` (asm == C) et à
+   `tests/ref/mixte.ppm` ; ESC ESC en 80 colonnes raccroche et revient au
+   mode vidéo 0.
 4b. **drcs** / **drcs-ref** : profil Minitel 2 choisi au menu (`3`), page
    `tests/page_drcs.vdt` (formes G'1 dont l'exemple de la STUM, formes G'0,
    souligné, retour au jeu de base) : capture == `render_page --m2`, et

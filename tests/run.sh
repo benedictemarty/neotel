@@ -121,6 +121,37 @@ if [ "$mode" = ref ]; then cp "$OUT/drcs.ppm" "$REF/drcs.ppm"; echo "REF  drcs"
 elif [ -f "$REF/drcs.ppm" ] && cmp -s "$OUT/drcs.ppm" "$REF/drcs.ppm"; then echo "PASS drcs-ref"
 elif [ -f "$REF/drcs.ppm" ]; then echo "FAIL drcs-ref (capture != tests/ref/drcs.ppm)"; fail=1; fi
 
+# --- 2c. mode Mixte 80 colonnes (STUM 1B partie 3) == oracle hote -----------
+# PRO2 MIXTE 1 dans le flux : passage en mode video 1 (720x350), ecran ISO
+# 6429 compose en assembleur ; comparaison bit a bit avec le rendu C de l'hote.
+tests/host/render_page --mixte tests/page_mixte.vdt "$OUT/mixte_gold0.ppm" "$OUT/mixte_gold1.ppm"
+run "--serve --page tests/page_mixte.vdt" --cycles 60000000 $KEYS \
+    --screenshot-at "59000000:$OUT/mixte.ppm"
+python3 - "$OUT/mixte.ppm" "$OUT/mixte_gold0.ppm" "$OUT/mixte_gold1.ppm" <<'EOF2'
+import sys
+def load(p):
+    d = open(p, 'rb').read().split(b'\n', 3)
+    return d[1], d[3]
+(sz, cap), (_, g0), (_, g1) = load(sys.argv[1]), load(sys.argv[2]), load(sys.argv[3])
+if sz != b'720 350': print("taille de capture", sz); sys.exit(1)
+sys.exit(0 if (cap == g0 or cap == g1) else 1)
+EOF2
+if [ $? -eq 0 ]; then echo "PASS mixte (80 colonnes : capture 720x350 == oracle hote, asm == C)"
+else echo "FAIL mixte (capture != oracle, voir $OUT/mixte.ppm et $OUT/mixte_gold0.ppm)"; fail=1; fi
+if [ "$mode" = ref ]; then cp "$OUT/mixte.ppm" "$REF/mixte.ppm"; echo "REF  mixte"
+elif [ -f "$REF/mixte.ppm" ] && cmp -s "$OUT/mixte.ppm" "$REF/mixte.ppm"; then echo "PASS mixte-ref"
+elif [ -f "$REF/mixte.ppm" ]; then echo "FAIL mixte-ref (capture != tests/ref/mixte.ppm)"; fail=1; fi
+
+# --- 2d. mode Mixte : ESC ESC quitte, retour au mode video 0 et au menu -----
+run "--serve --page tests/page_mixte.vdt --guard 0.02" --cycles 120000000 $KEYS \
+    --poke-at "45000000:$KI=1B" --poke-at "52000000:$KI=1B" \
+    --screenshot-at "119000000:$OUT/mixte_exit.ppm" --dump-ram-when "$HU:1:$OUT/mixte_hungup.bin"
+if [ -f "$OUT/mixte_hungup.bin" ] && grep -q "commande b'ATH'" build/modem.log; then
+    echo "PASS mixte-exit (ESC ESC en 80 colonnes : raccrochage, retour au menu)"
+else
+    echo "FAIL mixte-exit"; fail=1
+fi
+
 # --- 3. ESC ESC en session -> raccrochage, retour au menu ------------------
 # NB : Phosphoneo va plus vite que le temps reel ; la garde de silence Hayes
 # du faux modem est reduite (--guard 0.02) pour qu'il voie le "+++".

@@ -58,6 +58,28 @@ void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
     }
 }
 
+unsigned char host_mode;            /* mode video (5,9) ; 0xFF = 5,9 refuse (amont) */
+unsigned char host_mode_refuse;
+
+unsigned char gfx_set_mode(unsigned char mode)
+{
+    if (host_mode_refuse && mode != 0) return 0;
+    host_mode = mode;
+    return 1;
+}
+
+void gfx_blit_ex(const unsigned char* src, unsigned int src_stride,
+                 unsigned long dst_off, unsigned int dst_stride,
+                 unsigned int w, unsigned char h)
+{
+    unsigned char l;
+    unsigned char* vram = &host_vram[0][0];
+    ++host_blits;
+    for (l = 0; l < h; ++l) {
+        memcpy(vram + dst_off + (unsigned long)l * dst_stride, src + l * src_stride, w);
+    }
+}
+
 /* --- temps -------------------------------------------------------------- */
 unsigned long host_timer;       /* tics de 10 ms, pilote par le test */
 unsigned long host_delay_ms;    /* somme des delais demandes */

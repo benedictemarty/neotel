@@ -113,6 +113,26 @@ int main(void)
     keyboard_process(&ctx, 'C');
     CHECK(host_tx_len == 1 && echon == 2, "les deux aiguillages");
 
+    /* --- clavier etendu (mode Mixte / Teleinformatique) --- */
+    keyboard_set_extended(1);
+    CHECK(keyboard_extended() == 1, "mode etendu actif");
+    CHECK(keyboard_translate(0x0D, 0) == (KEY_FUNC_FLAG | 0x20 | 0x0D), "etendu : Entree = CR brut");
+    CHECK(keyboard_translate(0x03, 0) == (KEY_FUNC_FLAG | 0x20 | 0x03), "etendu : CTRL+C = ETX brut");
+    CHECK(keyboard_translate(0x1B, 0) == KEY_LOCAL_ESCAPE, "etendu : ESC reste local");
+    CHECK(keyboard_translate(0x1A, 0) == 0x08, "etendu : Suppr = BS");
+    CHECK(keyboard_translate(0x81, 0) == (KEY_FUNC_FLAG | KEY_SOMMAIRE), "etendu : F1 reste Sommaire (SEP)");
+    CHECK(keyboard_translate(0x01, HID_LEFT) == KEY_ARROW_LEFT, "etendu : fleche gauche");
+    ctx.aiguillages = AIG_KBD_TO_MDM; ctx.kbd_cursor = 0;
+    host_tx_reset();
+    keyboard_process(&ctx, keyboard_translate(0x0D, 0));
+    CHECK(host_tx_len == 1 && host_tx[0] == 0x0D, "etendu : CR emis tel quel");
+    keyboard_process(&ctx, KEY_ARROW_UP);
+    CHECK(host_tx_len == 4 && host_tx[1] == 0x1B && host_tx[2] == 0x5B && host_tx[3] == 0x41, "etendu : fleche = CSI A sans mode curseur");
+    keyboard_process(&ctx, KEY_FUNC_FLAG | KEY_ENVOI);
+    CHECK(host_tx_len == 6 && host_tx[4] == 0x13 && host_tx[5] == 0x41, "etendu : Envoi = SEP $41");
+    keyboard_set_extended(0);
+    CHECK(keyboard_translate(0x0D, 0) == (KEY_FUNC_FLAG | KEY_ENVOI), "retour au mode Videotex : Entree = Envoi");
+
     printf("test_keyboard : %d/%d OK\n", pass, run);
     return pass == run ? 0 : 1;
 }

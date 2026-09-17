@@ -7,6 +7,21 @@ et ce qui n'est pas émulé. Règle du projet : rien d'inventé. Depuis le
 projet (`docs/ref/STUM2-NOTES.md`, extraits relus sur les scans) : les points
 ci-dessous sont vérifiés contre elle, sauf mention contraire.
 
+## Mode Mixte / Téléinformatique (80 colonnes), depuis la v0.4.0
+
+Commun aux deux profils (STUM 1B partie 2 p. 106 et partie 3 chapitre 2 ;
+STUM 2 §3) : `PRO2 MIXTE 1` (`ESC 3/A 3/2 7/D`) passe l'écran en 80 × 25
+ISO 6429 (mode vidéo Hercules du firmware bmarty, 720 × 350) avec
+acquittement `SEP $70` ; `PRO2 MIXTE 2` ou `CSI ? {` reviennent au Videotex
+(`SEP $71`). Rangée 00 en Videotex réduit, rangées 01-24 en ISO 6429 avec
+les 4 attributs (clignotement, souligné, inverse, surintensité), jeux
+américain / français (SO/SI), clavier étendu. Propre au **Minitel 2**
+(STUM 2 §3.3/3.4, émulé dans les deux profils faute de raison de les
+distinguer, sauf `CSI 6 n` réservé au M2) : formats 40 / 80 colonnes
+(`CSI < 3 h` / `CSI ? 3 l`), mode page / rouleau (`CSI < 4 h|l`). Sur le
+firmware amont (pas de mode 1), le passage en mode Mixte est refusé avec
+un message.
+
 ## Ce que les deux profils partagent
 
 Le protocole **Videotex 40 colonnes** (STUM 1B) décodé par `videotex.c` :
@@ -47,12 +62,10 @@ la barre de statut, ce qui permet de voir ce qu'un serveur demande.
   règle générale de NeoTel (rangées doublées), la « 1ʳᵉ ligne triplée » du
   §2.3.6 n'ayant pas de place en 18 lignes. L'interruption par la rangée 00
   (§2.3.4) est gérée depuis la v0.2.1.
-- **Modes Mixte et Téléinformatique (80 colonnes)** : ils existent sur le
-  1B comme sur le 2 (STUM 1B partie 2 p. 106 et partie 3 ; le Minitel 2
-  ajoute des jeux et des séquences, STUM 2 §3). Décodage ISO 6429 sur 80 × 25
-  non implémenté : l'écran 320 px du Neo6502 ne donne que 4 px par colonne
-  en mode 0 (mode Hercules du fork envisageable). PRO2 `0x32 0x7D` reste
-  refusé silencieusement, comme dans OricTel.
+- **Jeux DEC et complémentaire** du mode Mixte du Minitel 2 (STUM 2 §3.1,
+  annexes 3.12-3.13, `ESC 2/8 3/0`, `ESC 2/8 3/3`) : non implémentés (les
+  associations américain / français par SO/SI et `ESC 2/8 4/2|5/2` du 1B
+  sont celles émulées).
 - **Retournement de modem**, prise péripherique à 9600 bauds : sans objet
   avec un modem Hayes sur USB.
 

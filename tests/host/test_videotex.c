@@ -651,13 +651,20 @@ static void test_pro2_mode_protocole(void)
     ASSERT_EQ("apres VIDEOTEX: terminal_mode inchange",
               TERM_MODE_VIDEOTEX, ctx.terminal_mode);
 
-    /* PRO2 demande MIXED: refus silencieux (pas d'ACK, mode inchange) */
+    /* PRO2 MIXTE 1 : NeoTel (contrairement a OricTel) passe en mode Mixte,
+     * acquitte par SEP $70 (STUM 1B partie 2 chap. 1 par. 2.4 : "Au passage
+     * du mode Videotex au mode Mixte, la sequence SEP 0x70 est emise"). */
     tx_reset();
     vtx_process(&ctx, 0x1B); vtx_process(&ctx, 0x3A);
     vtx_process(&ctx, 0x32); vtx_process(&ctx, 0x7D);
-    ASSERT_EQ("MIXED request: 0 octet emis", 0, tx_len);
-    ASSERT_EQ("MIXED request: terminal_mode reste VIDEOTEX",
-              TERM_MODE_VIDEOTEX, ctx.terminal_mode);
+    ASSERT_EQ("MIXTE request: 2 octets ACK", 2, tx_len);
+    ASSERT_EQ("MIXTE request: ack SEP $70", 0x70, tx_buf[1]);
+    ASSERT_EQ("MIXTE request: terminal_mode = MIXED",
+              TERM_MODE_MIXED, ctx.terminal_mode);
+    /* retour Videotex */
+    vtx_process(&ctx, 0x1B); vtx_process(&ctx, 0x3A);
+    vtx_process(&ctx, 0x32); vtx_process(&ctx, 0x7E);
+    ASSERT_EQ("MIXTE 2: terminal_mode = VIDEOTEX", TERM_MODE_VIDEOTEX, ctx.terminal_mode);
 
     /* Sync OK apres la sequence */
     vtx_set_cursor(&ctx, 5, 0);

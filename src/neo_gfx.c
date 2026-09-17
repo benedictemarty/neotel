@@ -11,7 +11,7 @@
  * solide, hauteur, largeur 16 bits = 12 octets). Statiques : le blitter les
  * lit dans la RAM 6502 a l'adresse passee en parametre. */
 static unsigned char blt_src[12];
-static unsigned char blt_dst[12];
+unsigned char blt_dst[12];
 
 #define VRAM_PAGE 0x80
 
@@ -65,15 +65,28 @@ void gfx_set_palette(unsigned char idx, unsigned char r,
 void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
               unsigned int w, unsigned char h)
 {
-    /* Offset VRAM = y * 320 + x, sur 17 bits (76 800 octets) */
-    unsigned long off = (unsigned long)y * 320u + x;
+    gfx_blit_ex(src, 320, (unsigned long)y * 320u + x, 320, w, h);
+}
+
+unsigned char gfx_set_mode(unsigned char mode)
+{
+    neo_wait();
+    NEO_P[0] = mode;
+    neo_call(NEO_G_GRAPHICS, 9);
+    return NEO_ERR ? 0 : 1;
+}
+
+void gfx_blit_ex(const unsigned char* src, unsigned int src_stride,
+                 unsigned long off, unsigned int dst_stride,
+                 unsigned int w, unsigned char h)
+{
 
     blt_src[0] = (unsigned char)((unsigned int)src & 0xFF);
     blt_src[1] = (unsigned char)((unsigned int)src >> 8);
     blt_src[2] = 0;                             /* page 0 : RAM 6502 */
     blt_src[3] = 0;
-    blt_src[4] = 320 & 0xFF;                    /* pas = 320 */
-    blt_src[5] = 320 >> 8;
+    blt_src[4] = (unsigned char)(src_stride & 0xFF);
+    blt_src[5] = (unsigned char)(src_stride >> 8);
     blt_src[6] = 0;                             /* format octets */
     blt_src[7] = 0;
     blt_src[8] = 0;
@@ -85,8 +98,8 @@ void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
     blt_dst[1] = (unsigned char)((off >> 8) & 0xFF);
     blt_dst[2] = (unsigned char)(VRAM_PAGE + (unsigned char)(off >> 16));
     blt_dst[3] = 0;
-    blt_dst[4] = 320 & 0xFF;
-    blt_dst[5] = 320 >> 8;
+    blt_dst[4] = (unsigned char)(dst_stride & 0xFF);
+    blt_dst[5] = (unsigned char)(dst_stride >> 8);
     blt_dst[6] = 0;
 
     neo_wait();

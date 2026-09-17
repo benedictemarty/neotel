@@ -49,6 +49,17 @@ démarrage. Sans carte ou sans fichier : valeurs par défaut, sans message.
 7. **Perte de porteuse** : quand le modem émet une ligne `NO CARRIER` suivie
    de 4 s de silence : `1` reconnecter, `2` rester en local, `ESC` menu.
 
+### Mode Mixte / Téléinformatique (80 colonnes)
+
+Quand le serveur envoie `PRO2 MIXTE 1`, NeoTel passe en **80 × 25** (mode
+vidéo Hercules 720 × 350 du firmware bmarty ; sur le firmware amont un message
+« 80 colonnes: firmware sans mode 1 » s'affiche et l'écran reste en Videotex).
+Le clavier devient **étendu** : `Entrée` = CR, `CTRL+lettre` = code de
+contrôle, `Suppr` = BS, flèches = `CSI A/B/C/D` ; `F1-F9` restent les touches
+Minitel (SEP), `ESC` reste la sortie locale (la question s'affiche sur la
+rangée 00). Il n'y a pas de barre de statut en mode 1. Le retour au Videotex
+se fait par le serveur (`PRO2 MIXTE 2`, `CSI ? {`) ou par `ESC ESC`.
+
 ## Touches en session
 
 | Touche | Minitel | Code émis |
