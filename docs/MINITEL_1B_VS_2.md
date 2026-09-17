@@ -50,7 +50,10 @@ et `{tc` apparaît dans le champ de saisie. `C v 1` est l'identifiant d'un
 Minitel 2 Telic première version (STUM 2 p. 103) ; `C u 1` n'est pas un
 identifiant relevé tel quel (les 1B Telic vont de Cu2 à Cu<) mais respecte
 le format. La STUM 2 précise que sur Minitel 2 la réponse « n'est plus
-prioritaire sur le flux » (p. 63).
+prioritaire sur le flux » (p. 63). Quand elle est activée, la réponse part
+bien dès l'`ENQROM` d'ouverture de page (`ESC 9 {`), y compris lorsqu'il est
+le tout premier octet reçu après le `CONNECT` (corrigé en v0.6.3 ; vérifié
+sur PAVI, MiniPavi et 3617.fr).
 
 La vitesse programmée n'a pas d'effet physique : la liaison réelle est le
 modem USB (ou l'UART UEXT à 115200). Elle est mémorisée et affichée dans

@@ -270,6 +270,20 @@ else
     echo "SKIP ws (module python3 websockets absent)"
 fi
 
+# --- 4e. ENQROM en tete de page (MiniPavi, 3617.fr) : l'ESC recu juste apres
+# CONNECT ne doit pas etre perdu ; identification ON par les reglages -> le
+# modem doit voir la reponse SOH C u 1 EOT.
+rm -rf "$STORAGE"; mkdir -p "$STORAGE"
+python3 -c "
+open('$STORAGE/neotel.cfg','wb').write(b'NT'+bytes([3,0,0,1,0])+bytes(40)+bytes([0,1]))"
+STORAGE_KEEP=1 run "--serve --page tests/page_enqrom.vdt" --cycles 60000000 $KEYS \
+    --dump-ram-when "$NB:$(printf '%X' $(wc -c < tests/page_enqrom.vdt)):$OUT/enqrom.bin"
+if [ -f "$OUT/enqrom.bin" ] && page_has "$OUT/enqrom.bin" "PAGE DE TEST NEOTEL" && grep -q "> b'\\\\x01Cu1\\\\x04'" build/modem.log; then
+    echo "PASS enqrom (ESC 9 { en tete de page : identification envoyee, page decodee)"
+else
+    echo "FAIL enqrom (voir build/modem.log)"; fail=1
+fi
+
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------
 run "--serve" --cycles 80000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
     --poke-at "15000000:$KI=1B" --type-keys '40000000:PRINT 6*7\n' \

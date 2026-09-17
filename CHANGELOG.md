@@ -3,7 +3,24 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.6.2] — 2026-09-17
+## [0.6.3] — 2026-09-17
+
+### Corrigé
+- **Identification manquée en début de page** : l'octet reçu juste après le
+  `CONNECT` était passé à un décodeur Videotex remis à zéro avant l'entrée
+  en session ; un `ESC` de tête (donc l'`ENQROM` `ESC 9 {` que MiniPavi et
+  3617.fr envoient à l'ouverture) était perdu et le terminal ne
+  s'identifiait pas, même identification activée (menu `5`). Cet octet est
+  désormais gardé (`s_first_byte`) et rejoué comme premier octet de session
+  (enregistrement compris). Vérifié sur les serveurs réels : PAVI 3617 et
+  MiniPavi (TCP), 3617.fr (WebSocket) reçoivent `SOH C u 1 EOT`.
+
+### Ajouté
+- Scénario cible **enqrom** : page précédée de `ESC 9 {`
+  (`tests/page_enqrom.vdt`), identification activée par les réglages ; le
+  faux modem doit voir la réponse `\x01Cu1\x04` et la page est décodée.
+
+
 
 ### Ajouté
 - Menu `7 - Son: ON/OFF` : coupe les bips (BEL Videotex et 80 colonnes,
