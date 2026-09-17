@@ -18,7 +18,7 @@ PicoWiFiModemUSB (modem Hayes, Wi-Fi)      ── ou modem AT sur l'UART UEXT
         │  USB CDC
 RP2040 du Neo6502 (firmware bmarty : API UART 10,15-10,18 routée vers le CDC)
         │  bloc $FF00
-NeoTel sur le 65C02 : Videotex → cellules 40x25 → tampon de ligne → blitter → VRAM
+NeoTel sur le 65C02 : Videotex → cellules 40x25 → tampon de demi-rangée → blitter → VRAM
 ```
 
 ## État

@@ -62,10 +62,46 @@ void gfx_set_palette(unsigned char idx, unsigned char r,
     neo_call(NEO_G_GRAPHICS, NEO_F_SET_PALETTE);
 }
 
-void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
-              unsigned int w, unsigned char h)
+void gfx_blit(const unsigned char* src, unsigned int src_stride,
+              unsigned int x, unsigned char y, unsigned int w, unsigned char h)
 {
-    gfx_blit_ex(src, 320, (unsigned long)y * 320u + x, 320, w, h);
+    /* Chemin chaud du rendu (deux appels par rangee) : descripteurs ecrits
+     * au minimum, offset y * 320 = (y << 8) + (y << 6) en 16 bits + retenue
+     * (y < 240 : y << 6 < 15 360, y << 8 tient sur 16 bits). */
+    unsigned int lo = (unsigned int)y << 8;
+    unsigned int mid = ((unsigned int)y << 6) + x;
+    unsigned char page = VRAM_PAGE;
+    lo += mid;
+    if (lo < mid) ++page;                       /* retenue : offset >= 65 536 */
+
+    blt_src[0] = (unsigned char)((unsigned int)src & 0xFF);
+    blt_src[1] = (unsigned char)((unsigned int)src >> 8);
+    blt_src[2] = 0;                             /* page 0 : RAM 6502 */
+    blt_src[3] = 0;
+    blt_src[4] = (unsigned char)(src_stride & 0xFF);
+    blt_src[5] = (unsigned char)(src_stride >> 8);
+    blt_src[6] = 0;                             /* format octets */
+    blt_src[7] = 0;
+    blt_src[8] = 0;
+    blt_src[9] = h;
+    blt_src[10] = (unsigned char)(w & 0xFF);
+    blt_src[11] = (unsigned char)(w >> 8);
+
+    blt_dst[0] = (unsigned char)(lo & 0xFF);
+    blt_dst[1] = (unsigned char)(lo >> 8);
+    blt_dst[2] = page;
+    blt_dst[3] = 0;
+    blt_dst[4] = 320 & 0xFF;
+    blt_dst[5] = 320 >> 8;
+    blt_dst[6] = 0;
+
+    neo_wait();
+    NEO_P[0] = 0;                               /* action : copie */
+    NEO_P[1] = (unsigned char)((unsigned int)blt_src & 0xFF);
+    NEO_P[2] = (unsigned char)((unsigned int)blt_src >> 8);
+    NEO_P[3] = (unsigned char)((unsigned int)blt_dst & 0xFF);
+    NEO_P[4] = (unsigned char)((unsigned int)blt_dst >> 8);
+    neo_call(NEO_G_BLITTER, NEO_F_BLIT_COMPLEX);
 }
 
 unsigned char gfx_set_mode(unsigned char mode)

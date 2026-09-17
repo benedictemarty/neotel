@@ -138,8 +138,13 @@ extern unsigned char drcs_pattern_set;
 const unsigned char* __fastcall__ drcs_pattern9(unsigned char ch);
 
 /**
- * Tampon de ligne (CELL_H x SCREEN_W octets), pour inspection en test.
+ * Tampon de rangee : une DEMI-rangee (CELL_H x HALF_W octets, v0.9.0). Une
+ * rangee est rendue et blittee en deux moities (colonnes 0-19, 20-39) ; la
+ * colonne de tampon est col mod 20. 1 440 octets au lieu de 2 880 ; le
+ * mode 80 colonnes (14 x 90 = 1 260 octets) y tient toujours.
  */
-extern unsigned char display_rowbuf[CELL_H * SCREEN_W];
+#define HALF_COLS     20
+#define HALF_W        (HALF_COLS * CELL_W)   /* 160 */
+extern unsigned char display_rowbuf[CELL_H * HALF_W];
 
 #endif /* DISPLAY_H */

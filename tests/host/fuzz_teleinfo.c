@@ -18,7 +18,7 @@
 
 unsigned char g_blink_phase;
 unsigned char g_global_mask = 1;
-unsigned char display_rowbuf[2880];
+unsigned char display_rowbuf[1440];
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {

@@ -34,7 +34,8 @@
         .import   _drcs_pattern9, _drcs_pattern_set
 
 ROWBUF  = _display_rowbuf
-STRIDE  = 320
+STRIDE  = 160               ; demi-rangee (HALF_W, display.h) : la colonne de
+                            ; tampon est ccol mod 20, X = bufcol*8 < 160
 CELLS   = 5                 ; sizeof(vtx_cell_t) : size loge dans flags (bits 5-6)
 
 ; --- attributs (videotex.h) ---
@@ -63,7 +64,8 @@ _blit_pat:  .res 2
 _blit_col:  .res 1
 _blit_fg:   .res 1
 _blit_bg:   .res 1
-_rb_state:  .res 40         ; par colonne : 0 = quelconque, fond+1 = cellule vide de ce fond
+_rb_state:  .res 20         ; par colonne de TAMPON : 0 = quelconque, sinon fond+1,
+                            ; bit 4 = moitie droite (colonnes 20-39)
 
         .segment "RODATA"
 ; Ligne de pixels d'une rangee de mosaique selon ses deux blocs (bit 0 =
@@ -119,7 +121,8 @@ g1_tbl: .byte $00, $F0, $0F, $FF
 :
 .endmacro
 
-; Les 9 lignes, variante A (colonnes 0-31) et B (colonnes 32-39).
+; Les 9 lignes : une seule variante, bufcol*8 <= 152 (demi-rangee, v0.9.0 ;
+; auparavant deux copies pour les colonnes 0-31 et 32-39).
 draw_a:
         LINE ROWBUF+0*STRIDE, pat+0
         LINE ROWBUF+1*STRIDE, pat+1
@@ -131,28 +134,29 @@ draw_a:
         LINE ROWBUF+7*STRIDE, pat+7
         LINE ROWBUF+8*STRIDE, pat+8
         rts
-draw_b:
-        LINE ROWBUF+0*STRIDE+256, pat+0
-        LINE ROWBUF+1*STRIDE+256, pat+1
-        LINE ROWBUF+2*STRIDE+256, pat+2
-        LINE ROWBUF+3*STRIDE+256, pat+3
-        LINE ROWBUF+4*STRIDE+256, pat+4
-        LINE ROWBUF+5*STRIDE+256, pat+5
-        LINE ROWBUF+6*STRIDE+256, pat+6
-        LINE ROWBUF+7*STRIDE+256, pat+7
-        LINE ROWBUF+8*STRIDE+256, pat+8
+
+; X := colonne de tampon (ccol mod 20) ; A := marque de moitie ($10 si ccol >= 20)
+bufcol_x:
+        lda  ccol
+        cmp  #20
+        bcc  @left
+        sbc  #20            ; retenue deja a 1
+        tax
+        lda  #$10
+        rts
+@left:  tax
+        lda  #0
         rts
 
 ; Dessine pat[] a la colonne ccol avec cfg/cbg.
 draw_cell:
-        lda  ccol
+        jsr  bufcol_x
+        txa
         asl
         asl
-        asl                 ; col*8, retenue = col >= 32
+        asl                 ; bufcol*8 (< 160)
         tax
-        bcs  @b
         jmp  draw_a
-@b:     jmp  draw_b
 
 ; pat[] := 0
 clear_pat:
@@ -187,7 +191,7 @@ _blit_cell9:
         sta  cbg
         lda  _blit_col
         sta  ccol
-        tax
+        jsr  bufcol_x
         stz  _rb_state,x    ; le tampon ne contient plus une cellule vide
         jmp  draw_cell
 
@@ -405,15 +409,15 @@ _blit_run:
         ora  pat+7
         ora  pat+8
         bne  @paint_nb
-        ldx  ccol
-        lda  cbg
-        inc  a
+        jsr  bufcol_x       ; X = colonne de tampon, A = marque de moitie
+        ora  cbg
+        inc  a              ; fond + 1 (+ $10 a droite)
         cmp  _rb_state,x
         beq  @advance
         sta  _rb_state,x
         bra  @paint_do
 @paint_nb:
-        ldx  ccol
+        jsr  bufcol_x
         stz  _rb_state,x
 @paint_do:
         jsr  draw_cell

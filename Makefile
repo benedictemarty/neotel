@@ -77,7 +77,7 @@ test-host:
 	$(MAKE) -C tests/host
 
 # Banc de rendu sur cible : cycles par page complete (tests/emu/t_bench.c)
-BENCH_OBJ = $(filter-out $(BUILD)/main.o,$(OBJ)) $(BUILD)/t_bench.o
+BENCH_OBJ = $(filter-out $(BUILD)/main.o $(BUILD)/help.o,$(OBJ)) $(BUILD)/t_bench.o
 $(BUILD)/page_test_data.h: tests/page_test.vdt tools/vdt2c.py | $(BUILD)
 	python3 tools/vdt2c.py $< $@ page_test_data
 $(BUILD)/t_bench.o: tests/emu/t_bench.c $(BUILD)/page_test_data.h $(HDRS)

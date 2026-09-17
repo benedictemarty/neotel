@@ -23,10 +23,12 @@ void gfx_fill_rect(unsigned int x0, unsigned char y0,
 void gfx_set_palette(unsigned char idx, unsigned char r,
                      unsigned char g, unsigned char b);
 
-/** Copie h lignes de w octets depuis src (pas 320) vers la VRAM en (x, y)
- *  par le blitter (12,3). x + w <= 320, y + h <= 240. */
-void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
-              unsigned int w, unsigned char h);
+/** Copie h lignes de w octets depuis src (pas src_stride) vers la VRAM en
+ *  (x, y) par le blitter (12,3), mode 0 (320 x 240). x + w <= 320,
+ *  y + h <= 240. L'offset y * 320 + x se calcule par decalages (pas de
+ *  multiplication longue de la libc : ~10 k cycles par appel evites). */
+void gfx_blit(const unsigned char* src, unsigned int src_stride,
+              unsigned int x, unsigned char y, unsigned int w, unsigned char h);
 
 /** Copie generique : h lignes de w octets, pas source src_stride, vers
  *  l'offset VRAM dst_off (octets depuis le debut de la page video), pas

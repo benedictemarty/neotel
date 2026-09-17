@@ -3,6 +3,28 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.9.0] — 2026-09-18
+
+### Modifié
+- **Rendu par demi-rangées** (`display.c`, `display_asm.s`) : le tampon de
+  rangée passe de 9 × 320 à 9 × 160 octets (**−1 440 o de BSS**), une rangée
+  est rendue et blittée en deux moitiés (`render_half`, colonne de tampon
+  = col mod 20), en deux passes (gauches puis droites) pour conserver le
+  cache de cellules vides (`rb_state[20]`, bit 4 = moitié). Une double
+  largeur en colonne 19 est dessinée par les deux moitiés
+  (`render_cell_into_row`, `s_base`). L'assembleur n'a plus qu'un bloc de
+  lignes (X = bufcol × 8 ≤ 152) : −150 o de code. `gfx_blit` prend le pas
+  source et calcule l'offset par décalages (fin de la multiplication longue
+  de la libc). Rendu pixel pour pixel identique (références `page`, `drcs`,
+  `mixte`, `mixte40`, `poker` inchangées) ; coût mesuré `make bench` :
+  page de test 129 → 151 ms, 960 lettres 248 → 275 ms, page vide
+  70 → 94 ms (second blit). **Marge BSS : 76 o → ~1,8 Ko**, place pour
+  la refonte des menus (v0.9.1).
+- `make bench` : `help.o` exclu du programme de banc (dépendait de
+  `g_dbg_state` de `main.c`, édition de liens cassée depuis la v0.8.0).
+- Tests hôte : `test_display` 54 (50 blits par rafraîchissement complet,
+  frontière des demi-rangées, double largeur en colonne 19).
+
 ## [0.8.2] — 2026-09-18
 
 ### Corrigé

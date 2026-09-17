@@ -71,6 +71,15 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
       marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
+## v0.9.1 — Charte des menus [EN COURS]
+- [ ] Bandeau titre double hauteur, cadres et filets mosaïques, item courant
+      en inverse, navigation flèches + ENVOI ; splash, menu, liaison série,
+      aide sur la même charte.
+
+## v0.9.0 — Rendu par demi-rangées [TERMINÉ, 2026-09-18]
+- [x] Tampon de rangée 2 880 → 1 440 o, deux passes, un seul bloc asm ;
+      marge BSS ~1,8 Ko. Banc : +11 % (texte) à +33 % (page vide).
+
 ## v0.8.2 — Attributs de zone STUM [TERMINÉ, 2026-09-18]
 - [x] Semi-graphiques délimiteurs de couleur de fond ; zone d'accueil après
       déplacement (POKER 3617 conforme) ; RAM regagnée (76 o de marge).

@@ -53,6 +53,8 @@ toute modification.
 - Une page réelle qui s'affiche mal se capture directement (`websockets`,
   cf. scénario `poker`) puis se rejoue dans `tests/host/render_page` : c'est
   l'oracle le plus rapide pour isoler une séquence Vidéotex.
-- RAM : ~1,6 Ko de marge BSS en v0.5.1, **76 o en v0.8.2**. Les gros tampons transitoires se
+- RAM : ~1,6 Ko de marge BSS en v0.5.1, 76 o en v0.8.2, **~1,8 Ko en v0.9.0**
+  (tampon de demi-rangée). Toute multiplication `unsigned long` en C coûte
+  ~5 000 cycles (libc) : décalages. Les gros tampons transitoires se
   logent dans `vtx` (écran 80 col. dans `vtx.screen`, page Wi-Fi dans
   `vtx.drcs`) ; toute division en C tire `mod.o`/`shelp.o` de la libc.

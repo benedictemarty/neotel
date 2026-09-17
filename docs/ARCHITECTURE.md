@@ -23,7 +23,7 @@ logique de session sont ceux d'OricTel.
 |   font80.c    police 8x14 ASCII + jeu francais NF Z 62-010            |
 |   videotex.c  machine a etats Videotex -> screen[25][40] + dirty     |
 |   fonts.c     G0 (ASCII + accents), G2 (CEPT), 6x8                   |
-|   display.c   lignes sales -> tampon de ligne 320x9 -> blitter       |
+|   display.c   lignes sales -> tampon de demi-rangee 160x9 -> blitter |
 |   display_asm.s  blit_run / blit_cell9 : cellules -> pixels          |
 |   keyboard.c  file clavier du firmware -> touches Minitel            |
 |   serial.c    UART API (10,15-10,18), routage CDC (10,19)            |
@@ -53,11 +53,11 @@ $0800-       STARTUP, CODE (~42 Ko en v0.5.0), RODATA (polices 8x9 et 8x14,
              BSS (~12 Ko) : contexte Videotex (8 Ko dont 1 880 o de DRCS ;
                    l'ecran 80 colonnes de 4 Ko loge dans vtx.screen, les
                    tampons de la page Wi-Fi (312 o) dans vtx.drcs), tampon
-                   de ligne (2 880 o), reglages, tampon d'enregistrement
-                   (64 o). Plus de cache G1 depuis v0.5.1 (mosaiques
-                   calculees a la volee).
-                   Fin ~ $FB8E : ~18 o sous la pile (`grep BSS build/neotel.map` ;
-                   pile C reduite a 96 o pour la place)
+                   de demi-rangee (1 440 o, v0.9.0 ; 2 880 avant), reglages,
+                   tampon d'enregistrement (64 o). Plus de cache G1 depuis
+                   v0.5.1 (mosaiques calculees a la volee).
+                   Fin ~ $F4B9 en v0.9.0 : ~1,8 Ko sous la pile C (64 o,
+                   $FBC0-$FBFF) ; `grep BSS build/neotel.map`
 $FBA0-$FBFF  pile C cc65 (96 o ; usage mesure 33 o session et relecture,
              locales statiques ; `PASS stack` dans tests/run.sh)
 $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
@@ -84,22 +84,34 @@ contenir que des `unsigned char` / `unsigned short` (même taille sur cc65).
   vert < cyan < jaune < blanc) pour l'écran monochrome d'un Minitel 1B.
   Changer d'aspect = 8 écritures de palette, aucun re-rendu.
 - **Rendu** : les lignes sales (`dirty[]`, plage `dirty_min/max` héritées
-  d'OricTel) sont dessinées dans un **tampon de ligne** en RAM 6502
-  (9 × 320 octets) puis copiées dans la VRAM par le **blitter** (12,3,
-  copie rectangulaire, pas 320, page `$80/$81`). Une ligne = un appel API.
-  Budget : une ligne par `display_render()`, la boucle principale rappelle
-  tant qu'il reste des lignes sales et que rien n'attend (série, clavier).
+  d'OricTel) sont dessinées dans un **tampon de demi-rangée** en RAM 6502
+  (9 × 160 octets, v0.9.0 ; une rangée entière de 9 × 320 auparavant) puis
+  copiées dans la VRAM par le **blitter** (12,3, copie rectangulaire, pas
+  source 160, pas destination 320, page `$80/$81`). Une rangée = une ou
+  deux demi-rangées (`render_half`, colonne de tampon = col mod 20) ; une
+  double largeur en colonne 19 est visitée par les deux moitiés et
+  `render_cell_into_row` ne dessine que la moitié de glyphe qui tombe dans
+  la demi-rangée en cours (`s_base`). `render_dirty` travaille en **deux
+  passes** (toutes les moitiés gauches puis toutes les droites) pour que le
+  cache de cellules vides reste utile. Budget : une rangée par
+  `display_render()`, la boucle principale rappelle tant qu'il reste des
+  lignes sales et que rien n'attend (série, clavier). `gfx_blit` calcule
+  l'offset `y * 320` par décalages (la multiplication longue de la libc
+  coûtait ~5 000 cycles par appel).
 - **`blit_run`** (assembleur) rend une course de cellules de taille
   normale : lecture de la cellule (6 octets), inversion, masquage,
   clignotement, glyphe G0 (adresse calculée), G1 (cache), G2 (appel C
   `font_get_g2`), souligné, puis 9 lignes : fond (8 `sta abs,x`) et encre
-  sur les bits à 1. X = `col*8` déborde 255 à partir de la colonne 32 :
-  deux copies du bloc (base et base+256). Une cellule vide n'est pas
-  redessinée si le tampon contient déjà, à cette colonne, une cellule vide
-  du même fond (`rb_state[40]`, v0.6.1 ; le C invalide la colonne quand il
-  écrit lui-même, `display_init()` remet tout à zéro). Mesures `make bench`
-  (v0.6.1) : page vide 70 ms, page de test 129 ms, 960 lettres 248 ms
-  (~1 500 cycles par cellule dessinée). Les doubles tailles restent en C
+  sur les bits à 1. X = `bufcol*8` ≤ 152 : un seul bloc de lignes depuis
+  la v0.9.0 (deux copies, base et base+256, quand X couvrait 40 colonnes).
+  Une cellule vide n'est pas redessinée si le tampon contient déjà, à cette
+  colonne de tampon, une cellule vide du même fond et de la même moitié
+  (`rb_state[20]` = fond + 1, bit 4 = moitié droite ; v0.6.1, v0.9.0 ; le C
+  invalide la colonne quand il écrit lui-même, `display_init()` remet tout
+  à zéro). Mesures `make bench` : v0.6.1 (rangée entière) page vide 70 ms,
+  page de test 129 ms, 960 lettres 248 ms ; v0.9.0 (demi-rangées, deux
+  blits par rangée) page vide 94 ms, page de test 151 ms, 960 lettres
+  275 ms (~1 500 cycles par cellule dessinée, ~5 700 par blit). Les doubles tailles restent en C
   (`render_cell_into_row` + `blit_cell9`) ; `scan_dblh` (assembleur) trouve
   les doubles hauteurs de la rangée du dessous.
 - **Doubles hauteurs** : comme sur le Minitel, la cellule occupe sa ligne
