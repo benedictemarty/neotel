@@ -16,7 +16,7 @@ logique de session sont ceux d'OricTel.
 |   terminal.c  profil Minitel 1B / Minitel 2 (ident, vitesses)        |
 |   settings.c  neotel.cfg sur la carte (3,2 / 3,3) : profil, aspect...|
 |   record.c    enregistrement .vdt (3,4/3,9/3,5), relecture (3,8),    |
-|               liste des enregistrements (3,17/3,18/3,19)             |
+|               liste (3,17/3,18/3,19), suppression (3,13)             |
 |   teleinfo.c  ecran 80 col. ISO 6429 (mode Mixte / Teleinformatique) |
 |   display80.c + display80_asm.s  rendu 1 bpp 720x350 (mode video 1) |
 |   font80.c    police 8x14 ASCII + jeu francais NF Z 62-010            |
@@ -55,9 +55,10 @@ $0800-       STARTUP, CODE (~42 Ko en v0.5.0), RODATA (polices 8x9 et 8x14,
                    de ligne (2 880 o), reglages, tampon d'enregistrement
                    (64 o). Plus de cache G1 depuis v0.5.1 (mosaiques
                    calculees a la volee).
-                   Fin ~ $F4A0 : ~1,6 Ko de marge (`grep BSS build/neotel.map`)
-$FB00-$FBFF  pile C cc65 (256 o ; usage mesure 34 o, locales statiques ;
-             `PASS stack` dans tests/run.sh)
+                   Fin ~ $FB8E : ~18 o sous la pile (`grep BSS build/neotel.map` ;
+                   pile C reduite a 96 o pour la place)
+$FBA0-$FBFF  pile C cc65 (96 o ; usage mesure 33 o session et relecture,
+             locales statiques ; `PASS stack` dans tests/run.sh)
 $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
 ```
 

@@ -3,7 +3,25 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.7.0] — 2026-09-17
+## [0.7.1] — 2026-09-17
+
+### Ajouté
+- **Suppression d'un enregistrement** depuis le menu `6` : la touche `Suppr`
+  (ou `Correction`) arme l'effacement, la lettre choisit le fichier
+  `neoNN.vdt` à supprimer (API `3,13`), la liste se rafraîchit ; `ESC`
+  annule l'armement. Geste en deux temps (action destructive).
+  `record_delete()` dans `record.c` ; `test_record` +4 (233), stub hôte
+  `3,13`, scénario cible **recdel**.
+
+### Modifié
+- Pile C ramenée de 256 à **96 octets** (`$FBA0-$FBFF`) : usage réel mesuré
+  sur les dumps RAM (session **et** relecture) = 33 octets ; libère 160
+  octets pour la BSS (le menu de relecture était à ~140 octets du plafond).
+  `PASS stack` vérifie `$FBA0-$FBCF` vierge (marge >= 48 o).
+- Le rafraîchissement de la liste après suppression passe par une boucle
+  (pas de récursion : supprimer en série ne pouvait plus empiler).
+
+
 
 ### Ajouté
 - **Liste des enregistrements** dans le menu `6` : au lieu de saisir un nom,

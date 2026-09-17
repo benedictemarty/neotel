@@ -32,7 +32,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.7.0"
+#define NEOTEL_VERSION "v0.7.1"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -857,8 +857,9 @@ static unsigned char replay_idx[REPLAY_LIST_MAX];
  * choisi (1) ou renonce (0). */
 static unsigned char replay_prompt(void)
 {
-    unsigned char n, count, i;
+    unsigned char n, count, i, del, prow;
 
+  for (;;) {                            /* recommence apres un effacement */
     vtx_clear_page(&vtx);
     ui_print(&vtx, 3, 3, "Relire un enregistrement", VTX_CYAN);
     count = record_list(replay_idx, REPLAY_LIST_MAX);
@@ -888,30 +889,50 @@ static unsigned char replay_prompt(void)
         record_make_name(line + 4, replay_idx[i]);
         ui_print(&vtx, (unsigned char)(6 + i), 5, line, VTX_YELLOW);
     }
-    ui_print(&vtx, (unsigned char)(7 + count), 3,
-             "Lettre, ENVOI = dernier, ESC", VTX_WHITE);
+    {
+    static const char help[] = "Lettre  ENVOI=dernier  Suppr";
+    prow = (unsigned char)(7 + count);
+    del = 0;
+    ui_print(&vtx, prow, 3, help, VTX_WHITE);
     display_render_all(&vtx);
 
     keyboard_flush();
     for (;;) {
         unsigned char key = keyboard_scan();
-        if (key == KEY_LOCAL_ESCAPE) return 0;
-        if ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_ENVOI) {
+        if (key == KEY_LOCAL_ESCAPE) {
+            if (!del) return 0;
+            del = 0;
+            ui_print(&vtx, prow, 3, help, VTX_WHITE);
+            display_render_all(&vtx);
+            continue;
+        }
+        if (!del && (key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_ENVOI) {
             if (!g_settings.rec_index) continue;
             record_make_name(rec_name, g_settings.rec_index);
             if (replay_open(rec_name)) return 1;
             continue;
         }
-        if (key >= 'a' && key <= 'z') key = (unsigned char)(key - 'a' + 'A');
-        if (key >= 'A' && key < 'A' + count) {
-            record_make_name(rec_name, replay_idx[key - 'A']);
-            if (replay_open(rec_name)) return 1;
-            /* echec (fichier efface entre-temps) : signaler et rester */
-            ui_print(&vtx, (unsigned char)(9 + count), 3,
-                     "Fichier introuvable", VTX_RED);
+        if (!del && (key == 0x08 || key == 0x7F ||
+            ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_CORRECTION))) {
+            del = 1;
+            ui_print(&vtx, prow, 3, "SUPPR quelle lettre ?  ESC  ", VTX_RED);
             display_render_all(&vtx);
+            continue;
         }
+        if (key >= 'a' && key <= 'z') key = (unsigned char)(key - 'a' + 'A');
+        if (key < 'A' || key >= 'A' + count) continue;
+        if (del) {
+            record_delete(replay_idx[key - 'A']);
+            break;                      /* rafraichir la liste (boucle externe) */
+        }
+        record_make_name(rec_name, replay_idx[key - 'A']);
+        if (replay_open(rec_name)) return 1;
+        ui_print(&vtx, (unsigned char)(9 + count), 3,
+                 "Fichier introuvable", VTX_RED);
+        display_render_all(&vtx);
     }
+    }
+  }
 }
 
 int main(void)

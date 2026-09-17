@@ -174,12 +174,13 @@ if [ -f "$OUT/mixte_hungup.bin" ] && grep -q "commande b'ATH'" build/modem.log; 
 else
     echo "FAIL mixte-exit"; fail=1
 fi
-# Pile C ($FB00-$FBFF) : la moitie basse doit rester vierge (marge >= 128 o)
+# Pile C ($FBA0-$FBFF, 96 o ; usage mesure 33) : la moitie basse ($FBA0-$FBCF)
+# doit rester vierge (marge >= 48 octets)
 if python3 -c "
-import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFB00:0xFB80]) else 1)"; then
-    echo "PASS stack (pile C : au moins 128 octets de marge)"
+import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFBA0:0xFBD0]) else 1)"; then
+    echo "PASS stack (pile C : au moins 48 octets de marge)"
 else
-    echo "FAIL stack (pile C descendue sous \$FB80)"; fail=1
+    echo "FAIL stack (pile C descendue sous \$FBD0)"; fail=1
 fi
 
 # --- 3. ESC ESC en session -> raccrochage, retour au menu ------------------
@@ -299,6 +300,21 @@ if [ -f "$OUT/rlist.bin" ] && page_has "$OUT/rlist.bin" "G1 BASE"; then
     echo "PASS reclist (menu 6 liste neoNN.vdt, lettre B rejoue neo02)"
 else
     echo "FAIL reclist (voir $OUT/phos.log)"; fail=1
+fi
+
+# --- 4g. suppression d'un enregistrement (Suppr + lettre) depuis le menu 6 --
+rm -rf "$STORAGE"; mkdir -p "$STORAGE"
+cp tests/page_test.vdt "$STORAGE/neo01.vdt"
+cp tests/page_drcs.vdt "$STORAGE/neo02.vdt"
+cp tests/page_test.vdt "$STORAGE/neo07.vdt"
+python3 -c "open('$STORAGE/neotel.cfg','wb').write(b'NT'+bytes([3,0,0,0,0])+bytes(40)+bytes([7,1]))"
+STORAGE_KEEP=1 run "--serve" --cycles 55000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "18000000:$KI=36" --poke-at "30000000:$KI=08" --poke-at "34000000:$KI=42" \
+    --poke-at "50000000:$KI=1B"
+if [ ! -f "$STORAGE/neo02.vdt" ] && [ -f "$STORAGE/neo01.vdt" ] && [ -f "$STORAGE/neo07.vdt" ]; then
+    echo "PASS recdel (Suppr + B efface neo02, neo01/neo07 conserves)"
+else
+    echo "FAIL recdel (voir $STORAGE)"; fail=1
 fi
 
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------
