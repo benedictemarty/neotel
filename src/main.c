@@ -32,7 +32,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.6.2"
+#define NEOTEL_VERSION "v0.6.3"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -517,9 +517,13 @@ static void wifi_config_page(vtx_context_t* ctx)
  *  Connexion modem AT (ATZ / ATI / ATDT) - reprise d'OricTel
  * =================================================================== */
 
+static unsigned char s_first_byte;      /* octet recu juste apres CONNECT */
+static unsigned char s_have_first;
+
 static unsigned char modem_connect(vtx_context_t* ctx, unsigned char server_idx)
 {
     g_dbg_state = ST_CONNECT;
+    s_have_first = 0;
     vtx_clear_page(ctx);
     ui_print(ctx, 10, 17, "ATZ...", VTX_WHITE);
     display_render_all(ctx);
@@ -572,7 +576,12 @@ static unsigned char modem_connect(vtx_context_t* ctx, unsigned char server_idx)
                     ++drain;
                     continue;
                 }
-                vtx_process(ctx, b);    /* premier octet Videotex : au decodeur */
+                /* Premier octet Videotex : garde pour la session (le
+                 * decodeur est remis a zero entre-temps ; le passer ici
+                 * perdait un ESC de tete, donc l'ENQROM d'ouverture de
+                 * MiniPavi et 3617.fr — v0.6.3). */
+                s_first_byte = b;
+                s_have_first = 1;
                 break;
             }
             neo_delay_ms(10);
@@ -977,8 +986,14 @@ int main(void)
     keyboard_flush();
 
     for (;;) {
-        /* 1. Drainer la reception */
+        /* 1. Drainer la reception (d'abord l'octet garde par modem_connect) */
         got_data = 0;
+        if (s_have_first) {
+            s_have_first = 0;
+            record_byte(s_first_byte);
+            session_byte(s_first_byte);
+            got_data = 1;
+        }
         while (g_replay ? replay_pending() : serial_poll()) {
             if (g_replay) {
                 byte = replay_next();
