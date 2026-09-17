@@ -24,8 +24,9 @@ toute modification.
 - Phosphoneo (`~/Phosphoneo/build/phosphoneo`) : oracle déterministe
   (`--cycles`, `--poke-at`, `--dump-ram-when`, `--screenshot-at`, `--api-log`,
   `NEO_CDC_TTY`). `neo` (`~/Neo6502firmware/bin/neo`) : jeu et fumée.
-- Faux modem : `tools/fake_modem.py` (pty, Hayes, TCP réel ou `--serve`,
-  `--on-rx`, `--delay`, `--nc`, `--guard`).
+- Faux modem : `tools/fake_modem.py` (pty, Hayes, TCP réel, `ws://`/`wss://`
+  via `websockets`, ou `--serve`, `--on-rx`, `--delay`, `--nc`, `--guard`) ;
+  serveur WebSocket de test `tools/ws_page_server.py`.
 
 ## Pièges connus
 - Les flèches arrivent avec les codes de CTRL+A/D/S/W : `keyboard.c` lit

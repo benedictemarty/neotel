@@ -39,7 +39,8 @@ Les écarts connus (DRCS, 80 colonnes, jeux DEC du Minitel 2) sont détaillés d
 ## Prérequis
 
 - cc65 ≥ 2.19 (`cl65`, `ca65`, `ld65`), Python 3.8+, gcc (tests hôte),
-  pillow facultatif (conversion des captures).
+  pillow facultatif (conversion des captures), `websockets` facultatif
+  (serveurs `ws://` via le faux modem).
 - Firmware Neo6502 **fork bmarty** (`~/Neo6502firmware`) pour le modem USB
   (groupe 14 CDC + routage 10,19). Sur le firmware amont, seule l'UART de
   l'UEXT est utilisable (détecté et affiché à l'écran « Liaison série »).
@@ -55,8 +56,8 @@ make run-phos          # idem sous Phosphoneo (SDL)
 make run MODEM=--serve # page de test locale, sans réseau
 make test              # tests hôte (gcc) + tests cible (Phosphoneo headless)
 make test-host         # 753 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série, enregistrement
-make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, enregistrement/relecture, sortie, neo
-make test-servers      # fumée sur les vrais serveurs PAVI 3617 / MiniPavi (réseau)
+make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, enregistrement/relecture, WebSocket, sortie, neo
+make test-servers      # fumée sur les vrais serveurs PAVI 3617 / MiniPavi / wss://3617.fr (réseau)
 make ref               # régénère tests/ref/*.ppm après un changement visuel voulu
 ```
 

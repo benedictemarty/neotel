@@ -35,8 +35,13 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
      statut affiche le nom ; `ESC ESC` revient au menu ;
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
-   (`go.minipavi.fr:516`), `3` saisie libre `hôte:port` (Envoi valide,
-   Annulation/ESC annule), `ENVOI` = dernier serveur utilisé.
+   (`go.minipavi.fr:516`), `3` 3617.fr en WebSocket (`wss://3617.fr/ws`),
+   `4` saisie libre `hôte:port` ou `ws://…` / `wss://…` (Envoi valide,
+   Annulation/ESC annule), `ENVOI` = dernier serveur utilisé. Les cibles
+   WebSocket sont relayées par le faux modem sur PC (module python3
+   `websockets`) ; sur un PicoWiFiModemUSB réel, ce n'est **pas vérifié**
+   (pas de commande AT WebSocket connue : le modem répondra sans doute
+   `NO CARRIER`, écran « ÉCHEC DE CONNEXION »).
 
 Les réglages (profil, aspect, identification, dernier serveur) sont sauvés
 dans `neotel.cfg` sur la carte SD / clé USB à chaque changement et relus au

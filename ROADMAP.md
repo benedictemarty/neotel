@@ -64,7 +64,12 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
       marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
+## v0.6.0 — Serveurs WebSocket [TERMINÉ, 2026-09-17]
+- [x] `ATDT ws://` relayé par le faux modem (PC), serveur 3 = `wss://3617.fr/ws`,
+      scénario cible + serveur réel.
+- [ ] Sur carte réelle : le PicoWiFiModemUSB n'a pas de WebSocket connu
+      (non vérifié) ; il faudrait une commande AT dédiée dans son firmware
+      ou un relais sur PC (`ws_page_server.py` montre le côté serveur).
+
 ## Idées
-- Bridge WebSocket (serveurs `ws://`) : réutiliser `orictel_bridge.py`
-  côté PC, ou une commande `AT` dédiée du Pico.
 - Mode « réponse ENQROM » automatique par serveur.

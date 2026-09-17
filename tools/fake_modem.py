@@ -9,6 +9,11 @@ un PicoWiFiModemUSB :
   AT$SCAN             -> deux reseaux fictifs puis OK
   ATDT hote:port      -> vraie connexion TCP, "CONNECT", relais transparent ;
                          fermeture distante -> "NO CARRIER", retour en commande
+  ATDT ws://... | wss://...
+                      -> serveur Minitel en WebSocket (module python3
+                         "websockets", sous-protocole "binary", messages texte
+                         ramenes sur 7 bits comme le bridge d'OricTel) ; meme
+                         relais, meme NO CARRIER. Ex. : ATDTws://3617.fr/ws
   +++ (garde 1 s)     -> OK, mode commande (la connexion reste ouverte, ATH la ferme)
 
 Options :
@@ -34,6 +39,7 @@ import re
 import select
 import socket
 import sys
+import threading
 import time
 
 # Page de test integree : couvre curseur US, couleurs, double hauteur,
@@ -123,6 +129,52 @@ last_rx = time.time()
 plus_count = 0
 
 
+def ws_open(url):
+    """Ouvre url en WebSocket et rend une socket locale (socketpair) que la
+    boucle principale traite exactement comme une connexion TCP : deux fils
+    relaient socket <-> WebSocket ; la fermeture distante ferme la socket
+    (-> NO CARRIER), la fermeture locale (ATH) ferme le WebSocket."""
+    from websockets.sync.client import connect     # ImportError si absent
+    ws = connect(url, subprotocols=["binary"], max_size=65536, open_timeout=10)
+    a, b = socket.socketpair()
+
+    def ws_to_sock():
+        try:
+            for msg in ws:
+                if isinstance(msg, str):
+                    msg = bytes(ord(c) & 0x7F for c in msg)
+                if msg:
+                    b.sendall(msg)
+        except Exception:
+            pass
+        try:
+            b.shutdown(socket.SHUT_WR)
+        except OSError:
+            pass
+
+    def sock_to_ws():
+        try:
+            while True:
+                data = b.recv(1024)
+                if not data:
+                    break
+                ws.send(data)
+        except Exception:
+            pass
+        try:
+            ws.close()
+        except Exception:
+            pass
+        try:
+            b.close()
+        except OSError:
+            pass
+
+    threading.Thread(target=ws_to_sock, daemon=True).start()
+    threading.Thread(target=sock_to_ws, daemon=True).start()
+    return a
+
+
 def hangup(notify):
     global online, sock, served, t_conn, sent_nc
     if sock:
@@ -172,6 +224,18 @@ def command(line):
             else:
                 w(page_bytes())
                 log("serveur integre : page envoyee")
+        elif target.startswith("ws://") or target.startswith("wss://"):
+            try:
+                s = ws_open(target)
+                s.setblocking(False)
+                sock = s
+                online = True
+                t_conn = time.time()
+                w(b"\r\nCONNECT\r\n")
+                log("WebSocket %s ouvert" % target)
+            except Exception as e:      # ImportError, OSError, erreur WS
+                log("ATD %s : %s" % (target, e))
+                w(b"\r\nNO CARRIER\r\n")
         else:
             host, _, port = target.rpartition(":")
             try:
