@@ -83,6 +83,11 @@ adresses lues dans `build/neotel.lbl`.
    `ws://127.0.0.1:PORT` comme dernier serveur ; menu `1` + ENVOI → le faux
    modem (sans `--serve`) ouvre le WebSocket, la page est décodée. SKIP sans
    le module `websockets`.
+6e-ter. **poker** : `tests/page_poker.vdt`, page réelle du jeu POKER de
+   3617.fr capturée le 2026-09-18 (cartes blanches : mosaïques et double
+   taille noires sur fond blanc validé par les semi-graphiques, valeur
+   écrite sur le délimiteur après US) ; capture cible == oracle hôte et
+   carte 1 majoritairement blanche.
 6e-bis. **dec** : `tests/page_dec.vdt` (profil Minitel 2, mode Mixte) affiche
    les cinq traits de balayage DEC et un cadre ; capture cible == oracle hôte.
 6f. **reclist** : trois `.vdt` déposés sur le stockage ; menu `6` les liste

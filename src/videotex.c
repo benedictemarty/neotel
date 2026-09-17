@@ -300,19 +300,32 @@ static void put_char(unsigned char ch, unsigned char cs)
     cell->bg = s_ctx->bg_color;
     cell->flags = (unsigned char)(s_ctx->attr_flags | (s_ctx->attr_size << SIZE_SHIFT));
 
-    /* Appliquer les attributs en attente sur un delimiteur (espace G0) */
-    if (ch == 0x20 && cs == CHARSET_G0 && s_ctx->has_pending) {
-        cell->bg = s_ctx->pending_bg;
-        if (s_ctx->pending_underline) {
-            cell->flags |= ATTR_UNDERLINE;
+    /* Attributs de zone en attente (STUM 1B, codage des attributs definis
+     * par zone) : un espace G0 est le delimiteur explicite, il valide tout
+     * (fond, soulignement) ; un caractere semi-graphique (G1, ou DRCS
+     * associe a G1) valide la couleur de fond seulement, les autres
+     * attributs latents attendent le premier espace (v0.8.2 ; auparavant
+     * les mosaiques gardaient l'ancien fond : cartes du POKER de 3617.fr). */
+    if (s_ctx->has_pending) {
+        unsigned char delim = 0;
+        if (cs == CHARSET_G0) {
+            if (ch == 0x20) delim = 1;
+        } else if (cs == CHARSET_G1 || cs == CHARSET_DRCS1) {
+            delim = 2;                          /* semi-graphique : fond seul */
         }
-        s_ctx->bg_color = s_ctx->pending_bg;
-        if (s_ctx->pending_underline) {
-            s_ctx->attr_flags |= ATTR_UNDERLINE;
-        } else {
-            s_ctx->attr_flags &= ~ATTR_UNDERLINE;
+        if (delim) {
+            cell->bg = s_ctx->pending_bg;
+            s_ctx->bg_color = s_ctx->pending_bg;
         }
-        s_ctx->has_pending = 0;
+        if (delim == 1) {
+            if (s_ctx->pending_underline) {
+                cell->flags |= ATTR_UNDERLINE;
+                s_ctx->attr_flags |= ATTR_UNDERLINE;
+            } else {
+                s_ctx->attr_flags &= ~ATTR_UNDERLINE;
+            }
+            s_ctx->has_pending = 0;
+        }
     }
 
     /* Marquer la plage modifiee: la cellule, +1 colonne en double
@@ -360,7 +373,21 @@ static void put_char(unsigned char ch, unsigned char cs)
 
 /* ===================================================================
  *  Deplacement curseur
+ *
+ *  Zone d'accueil (STUM 1B) : « lors d'un changement de zone (LF, VT, BS,
+ *  HT, CSI, [US]), l'ecriture s'effectue avec les attributs serie de la
+ *  zone d'accueil tant qu'un delimiteur explicite ne permet pas la prise
+ *  en compte des attributs serie latents ». Le Minitel ne relit pas sa
+ *  memoire de page ; NeoTel, lui, connait la cellule d'arrivee : la
+ *  couleur de fond courante devient celle de la zone ou arrive le curseur
+ *  (v0.8.2 ; auparavant fond noir force apres US, d'ou un caractere ecrit
+ *  sur une zone blanche qui perdait son fond).
  * =================================================================== */
+
+static void adopt_zone_bg(void)
+{
+    s_ctx->bg_color = CELL_AT(s_ctx, s_ctx->cur_y, s_ctx->cur_x)->bg;
+}
 
 static void cursor_left(vtx_context_t* ctx)
 {
@@ -370,6 +397,7 @@ static void cursor_left(vtx_context_t* ctx)
         ctx->cur_x = VTX_COLS - 1;
         ctx->cur_y--;
     }
+    adopt_zone_bg();
 }
 
 static void cursor_right(vtx_context_t* ctx)
@@ -382,6 +410,7 @@ static void cursor_right(vtx_context_t* ctx)
             ctx->cur_y = VTX_ROWS - 1;
         }
     }
+    adopt_zone_bg();
 }
 
 static void cursor_up(vtx_context_t* ctx)
@@ -389,6 +418,7 @@ static void cursor_up(vtx_context_t* ctx)
     if (ctx->cur_y > 1) {
         ctx->cur_y--;
     }
+    adopt_zone_bg();
 }
 
 static void cursor_down(vtx_context_t* ctx)
@@ -400,6 +430,7 @@ static void cursor_down(vtx_context_t* ctx)
         scroll_up(ctx);
     }
     /* Mode page: pas de scroll, curseur reste en ligne 24 */
+    adopt_zone_bg();
 }
 
 static void scroll_up(vtx_context_t* ctx)
@@ -788,6 +819,7 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
                      * param=0 est force a 1 plus haut). col 1-based ->
                      * 0-based; vtx_set_cursor clampe row/col invalides. */
             vtx_set_cursor(ctx, param, (param2 > 0) ? param2 - 1 : 0);
+            adopt_zone_bg();
             break;
         case 'J':   /* ED - effacer ecran */
             if (param == 2 || ctx->csi_len == 0) {
@@ -1084,10 +1116,10 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
          * Ref: telenet emulateur.js lignes 785-795 */
         ctx->charset = CHARSET_G0;      /* modeG1 = false */
         ctx->fg_color = VTX_WHITE;      /* fgColor = 7 */
-        ctx->bg_color = VTX_BLACK;      /* bgColor = 0 */
         ctx->attr_flags = 0;            /* souligne, inversion, clignotement = false */
         ctx->attr_size = SIZE_NORMAL;   /* taille = 0 */
         ctx->has_pending = 0;
+        adopt_zone_bg();                /* fond : celui de la zone d'accueil */
         /* Minitel 2 : un acces en rangee 00 reassocie les jeux de base a
          * G0 et G1 (STUM 2 par. 2.2.2). */
         if (ctx->us_row == 0) {

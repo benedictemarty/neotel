@@ -178,6 +178,21 @@ ESC, formes 8 × 10 dans le contexte, associations `ESC 2/8|2/9`, cellules
 `drcs_pattern9` (display.c, rangées 9 et 10 fusionnées) que `blit_run`
 appelle comme `font_get_g2`.
 
+Attributs de zone (STUM 1B, « codage des attributs définis par zone »),
+écart assumé avec OricTel depuis la v0.8.2 (raison : cartes du POKER de
+3617.fr, fond blanc perdu) :
+- un **espace G0** est le délimiteur explicite : il valide le fond et le
+  soulignement latents ; un **caractère semi-graphique** (G1, ou DRCS
+  associé à G1) valide **la couleur de fond seulement**, les autres attributs
+  latents attendent l'espace suivant (`put_char`) ;
+- **zone d'accueil** : après un déplacement explicite (US, LF, VT, BS, HT,
+  CSI), le fond courant devient celui de la cellule où arrive le curseur
+  (`adopt_zone_bg`, appelée par `cursor_*`, US et CUP). Le Minitel ne relit
+  pas sa mémoire de page mais écrit « avec les attributs série de la zone
+  d'accueil » ; NeoTel, qui garde le fond par cellule, obtient le même
+  résultat en le lisant. L'avance automatique après un caractère n'est pas
+  un changement de zone.
+
 ## Tests
 
 Voir [TESTS.md](TESTS.md).

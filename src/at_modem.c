@@ -94,11 +94,17 @@ void at_send_kv(const char* prefix, const char* value)
  * temps-octet de la liaison (8,33 ms a 1200 bauds). */
 #define AT_POLL_MS 2
 
+/* Ligne de reponse en cours, partagee par at_wait_response, at_wait_ip et la
+ * surveillance de porteuse (jamais actives en meme temps ; BSS, pas la pile).
+ * NeoTel v0.8.2 : un seul tampon au lieu de trois (96 octets de RAM ; OricTel
+ * garde les siens). */
+static char s_line[AT_LINE_MAX];
+
 unsigned char at_wait_response(const char* keyword, unsigned int timeout_ms)
 {
     unsigned int  elapsed = 0;
     unsigned char pending = 0;          /* octets recus, rendu differe au creux */
-    static char   line[AT_LINE_MAX];    /* ligne courante (BSS, pas la pile) */
+    char*         line = s_line;        /* ligne courante */
     unsigned char lp = 0;
 
     while (elapsed < timeout_ms) {
@@ -160,7 +166,7 @@ unsigned char at_wait_ip(unsigned int timeout_ms)
         unsigned char vocab = 0;        /* reponse ATI mentionne le WiFi/connexion */
         unsigned char pending = 0;
         unsigned int  rwait = 0;        /* budget lecture d'une reponse ATI */
-        static char   line[AT_LINE_MAX];
+        char*         line = s_line;
         unsigned char lp = 0;
 
         at_send("ATI");
@@ -262,7 +268,10 @@ unsigned char at_hangup(void)
 
 /* --- Surveillance de la porteuse (voir at_modem.h) ----------------------- */
 
-static char          s_car_line[AT_LINE_MAX];
+/* Ligne en cours de la surveillance : partage s_line (les attentes AT ont
+ * lieu hors session, la surveillance en session ; s_car_len est remis a 0 par
+ * at_carrier_reset avant chaque session, le contenu anterieur est ignore). */
+#define s_car_line s_line
 static unsigned char s_car_len;
 
 void at_carrier_reset(void)
