@@ -6,6 +6,10 @@ Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 ## [0.4.2] — 2026-09-17
 
 ### Ajouté
+- `tests/host/fuzz_teleinfo.c` : fuzzer libFuzzer + ASan du décodeur 80
+  colonnes et du rendu (118 000 cas / 30 s sans défaut). `fuzz_videotex`
+  rejoué (1 M de cas) après DRCS et mode Mixte.
+- `docs/ARCHITECTURE.md` : carte mémoire mise à jour (v0.4.2).
 - Format 40 colonnes du mode Mixte (STUM 2 `CSI < 3 h`) : **pixels doublés**
   (cellules de 18 pixels = deux créneaux de 9 bits), en assembleur et dans
   l'oracle hôte ; curseur sur 18 pixels. Scénario cible `mixte40` (capture ==
