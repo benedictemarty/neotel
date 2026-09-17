@@ -15,7 +15,8 @@ logique de session sont ceux d'OricTel.
 |   at_modem.c  ATZ / ATI / ATDT, +++ ATH, veille "NO CARRIER"         |
 |   terminal.c  profil Minitel 1B / Minitel 2 (ident, vitesses)        |
 |   settings.c  neotel.cfg sur la carte (3,2 / 3,3) : profil, aspect...|
-|   record.c    enregistrement .vdt (3,4/3,9/3,5) et relecture (3,8)   |
+|   record.c    enregistrement .vdt (3,4/3,9/3,5), relecture (3,8),    |
+|               liste des enregistrements (3,17/3,18/3,19)             |
 |   teleinfo.c  ecran 80 col. ISO 6429 (mode Mixte / Teleinformatique) |
 |   display80.c + display80_asm.s  rendu 1 bpp 720x350 (mode video 1) |
 |   font80.c    police 8x14 ASCII + jeu francais NF Z 62-010            |

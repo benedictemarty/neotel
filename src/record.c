@@ -11,6 +11,9 @@
 #define F_CLOSE      5
 #define F_READ       8
 #define F_WRITE      9
+#define F_OPENDIR    17
+#define F_READDIR    18
+#define F_CLOSEDIR   19
 #define CH_REC       1          /* canal d'enregistrement */
 #define CH_REPLAY    2          /* canal de relecture */
 #define MODE_CREATE  3          /* creer / tronquer, lecture-ecriture */
@@ -57,6 +60,53 @@ static void flush(void)
     NEO_P[4] = 0;
     neo_call(NEO_G_FILE, F_WRITE);
     s_len = 0;
+}
+
+/* Un nom vaut-il "neoNN.vdt" (NN = deux chiffres) ? -> 1..99, sinon 0. */
+static unsigned char rec_index_of(const unsigned char* nm, unsigned char len)
+{
+    unsigned char d0, d1;
+    if (len != 9) return 0;
+    if (nm[0] != 'n' || nm[1] != 'e' || nm[2] != 'o') return 0;
+    if (nm[5] != '.' || nm[6] != 'v' || nm[7] != 'd' || nm[8] != 't') return 0;
+    d0 = (unsigned char)(nm[3] - '0');
+    d1 = (unsigned char)(nm[4] - '0');
+    if (d0 > 9 || d1 > 9) return 0;
+    return (unsigned char)(d0 * 10 + d1);   /* 00 exclu par l'appelant */
+}
+
+unsigned char record_list(unsigned char* idx, unsigned char max)
+{
+    unsigned char count = 0;
+    unsigned char n, i, j, v;
+
+    if (s_active) return 0;             /* le tampon sert de retour de 3,18 */
+    /* Repertoire courant "." (nom prefixe par sa longueur) */
+    s_name[0] = 1; s_name[1] = '.';
+    neo_wait();
+    NEO_SET_ADDR0(s_name);
+    neo_call(NEO_G_FILE, F_OPENDIR);
+    if (NEO_ERR) return 0;
+
+    for (;;) {
+        s_buf[0] = RECORD_CHUNK - 1;     /* capacite du tampon (3,18 ecrit min(capacite, longueur)) */
+        neo_wait();
+        NEO_SET_ADDR0(s_buf);           /* tampon prefixe par sa capacite */
+        neo_call(NEO_G_FILE, F_READDIR);
+        if (NEO_ERR) break;             /* plus d'entree */
+        n = s_buf[0];
+        v = rec_index_of(s_buf + 1, n);
+        if (v == 0 || count >= max) continue;
+        /* insertion triee (peu d'elements) */
+        for (i = 0; i < count && idx[i] < v; ++i) ;
+        if (i < count && idx[i] == v) continue;    /* doublon (improbable) */
+        for (j = count; j > i; --j) idx[j] = idx[j - 1];
+        idx[i] = v;
+        ++count;
+    }
+    neo_wait();
+    neo_call(NEO_G_FILE, F_CLOSEDIR);
+    return count;
 }
 
 void record_make_name(char* name, unsigned char index)

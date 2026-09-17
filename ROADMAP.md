@@ -69,6 +69,10 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
       marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
+## v0.7.0 — Liste des enregistrements [TERMINÉ, 2026-09-17]
+- [x] Menu `6` : énumération des `neoNN.vdt` (API répertoire 3,17-3,19),
+      choix par lettre ; correction du tampon capacité de 3,18.
+
 ## v0.6.0 — Serveurs WebSocket [TERMINÉ, 2026-09-17]
 - [x] `ATDT ws://` relayé par le faux modem (PC), serveur 3 = `wss://3617.fr/ws`,
       scénario cible + serveur réel.

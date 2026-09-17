@@ -124,6 +124,7 @@ host_disk_file_t host_disk[HOST_FILES];
 int host_open_count;
 unsigned char host_disk_ro;
 static struct { host_disk_file_t* f; int pos; } chan[8];
+static int dir_open, dir_next;      /* enumeration 3,17-3,19 */
 
 host_disk_file_t* host_disk_find(const char* name)
 {
@@ -155,6 +156,27 @@ static void disk_op(unsigned char f)
     case 5:                                 /* close */
         if (!chan[ch].f) { NEO_ERR = 1; return; }
         chan[ch].f = 0; --host_open_count;
+        return;
+    case 17:                                /* open directory (P0,P1 -> nom) */
+        dir_open = 1; dir_next = 0;
+        return;
+    case 18: {                              /* read directory */
+        int k, len;
+        if (!dir_open) { NEO_ERR = 1; return; }
+        while (dir_next < HOST_FILES && !host_disk[dir_next].name[0]) ++dir_next;
+        if (dir_next >= HOST_FILES) { NEO_ERR = 1; return; }
+        len = (int)strlen(host_disk[dir_next].name);
+        if (len > neo_host_ptr[0]) len = neo_host_ptr[0];   /* capacite (3,18) */
+        neo_host_ptr[0] = (unsigned char)len;
+        for (k = 0; k < len; ++k) neo_host_ptr[1 + k] = (unsigned char)host_disk[dir_next].name[k];
+        NEO_P[2] = (unsigned char)(host_disk[dir_next].len & 0xFF);
+        NEO_P[3] = (unsigned char)((host_disk[dir_next].len >> 8) & 0xFF);
+        NEO_P[4] = 0; NEO_P[5] = 0; NEO_P[6] = 0;   /* attributs : fichier */
+        ++dir_next;
+        return;
+    }
+    case 19:                                /* close directory */
+        dir_open = 0;
         return;
     case 8:                                 /* read */
         df = chan[ch].f;

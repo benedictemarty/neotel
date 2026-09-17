@@ -32,7 +32,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.6.3"
+#define NEOTEL_VERSION "v0.7.0"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -849,25 +849,69 @@ static unsigned char session_escape_page(vtx_context_t* ctx)
 static unsigned char g_replay;
 static char          rec_name[RECORD_NAME_MAX];
 
+#define REPLAY_LIST_MAX 12
+static unsigned char replay_idx[REPLAY_LIST_MAX];
+
+/* Menu de relecture : liste des neoNN.vdt (choix par lettre A.., ENVOI =
+ * dernier enregistre), ou saisie libre s'il n'y en a aucun. Ouvre le fichier
+ * choisi (1) ou renonce (0). */
 static unsigned char replay_prompt(void)
 {
-    unsigned char n;
+    unsigned char n, count, i;
 
     vtx_clear_page(&vtx);
-    ui_print(&vtx, 8, 3, "Fichier a relire (ENVOI = dernier)", VTX_WHITE);
-    display_render_all(&vtx);
-    n = ui_text_input(&vtx, 10, 3, rec_name, sizeof rec_name, 0);
-    if (n == 0xFF) return 0;
-    if (n == 0) {
-        if (!g_settings.rec_index) return 0;
-        record_make_name(rec_name, g_settings.rec_index);
+    ui_print(&vtx, 3, 3, "Relire un enregistrement", VTX_CYAN);
+    count = record_list(replay_idx, REPLAY_LIST_MAX);
+
+    if (count == 0) {
+        ui_print(&vtx, 6, 3, "Aucun enregistrement. Nom du", VTX_WHITE);
+        ui_print(&vtx, 7, 3, "fichier (ENVOI = dernier) :", VTX_WHITE);
+        display_render_all(&vtx);
+        n = ui_text_input(&vtx, 9, 3, rec_name, sizeof rec_name, 0);
+        if (n == 0xFF) return 0;
+        if (n == 0) {
+            if (!g_settings.rec_index) return 0;
+            record_make_name(rec_name, g_settings.rec_index);
+        }
+        if (replay_open(rec_name)) return 1;
+        ui_print(&vtx, 11, 3, "Fichier introuvable", VTX_RED);
+        display_render_all(&vtx);
+        keyboard_flush();
+        while (keyboard_scan() == KEY_NONE) { }
+        return 0;
     }
-    if (replay_open(rec_name)) return 1;
-    ui_print(&vtx, 12, 3, "Fichier introuvable", VTX_RED);
+
+    for (i = 0; i < count; ++i) {
+        char line[24];
+        line[0] = (char)('A' + i);
+        line[1] = ' '; line[2] = '-'; line[3] = ' ';
+        record_make_name(line + 4, replay_idx[i]);
+        ui_print(&vtx, (unsigned char)(6 + i), 5, line, VTX_YELLOW);
+    }
+    ui_print(&vtx, (unsigned char)(7 + count), 3,
+             "Lettre, ENVOI = dernier, ESC", VTX_WHITE);
     display_render_all(&vtx);
+
     keyboard_flush();
-    while (keyboard_scan() == KEY_NONE) { }
-    return 0;
+    for (;;) {
+        unsigned char key = keyboard_scan();
+        if (key == KEY_LOCAL_ESCAPE) return 0;
+        if ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_ENVOI) {
+            if (!g_settings.rec_index) continue;
+            record_make_name(rec_name, g_settings.rec_index);
+            if (replay_open(rec_name)) return 1;
+            continue;
+        }
+        if (key >= 'a' && key <= 'z') key = (unsigned char)(key - 'a' + 'A');
+        if (key >= 'A' && key < 'A' + count) {
+            record_make_name(rec_name, replay_idx[key - 'A']);
+            if (replay_open(rec_name)) return 1;
+            /* echec (fichier efface entre-temps) : signaler et rester */
+            ui_print(&vtx, (unsigned char)(9 + count), 3,
+                     "Fichier introuvable", VTX_RED);
+            display_render_all(&vtx);
+        }
+    }
 }
 
 int main(void)

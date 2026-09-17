@@ -21,6 +21,7 @@ int main(void)
     unsigned char data[200];
     host_disk_file_t* f;
     int i, n;
+    unsigned char i2, ok2 = 1;
 
     record_make_name(name, 1);   CHECK(strcmp(name, "neo01.vdt") == 0, "nom 1");
     record_make_name(name, 42);  CHECK(strcmp(name, "neo42.vdt") == 0, "nom 42");
@@ -81,6 +82,30 @@ int main(void)
     CHECK(replay_open("neo01.vdt") == 1 && record_active() == 0 &&
           host_disk_find("neo06.vdt")->len == 2, "relecture arrete l'enregistrement (tampon partage)");
     replay_close();
+
+    /* Enumeration : record_list trie les neoNN.vdt presents */
+    {
+        unsigned char idx[16];
+        unsigned char cnt;
+        /* Le disque contient neo01,02,03,05,06 (neo04 refuse) */
+        cnt = record_list(idx, 16);
+        CHECK(cnt >= 5, "record_list : au moins 5 enregistrements");
+        {
+            unsigned char i, ok = 1;
+            for (i = 1; i < cnt; ++i) if (idx[i] <= idx[i - 1]) ok = 0;
+            CHECK(ok, "record_list : indices tries et distincts");
+        }
+        CHECK(idx[0] == 1, "record_list : premier = neo01");
+        /* Un nom non conforme est ignore */
+        {
+            host_disk_file_t* f = host_disk_find("neo01.vdt");
+            (void)f;
+            strcpy(host_disk[7].name, "autre.txt"); host_disk[7].len = 3;
+            cnt = record_list(idx, 16);
+            for (i2 = 0; i2 < cnt; ++i2) if (idx[i2] == 0) ok2 = 0;
+            CHECK(ok2, "record_list : autre.txt ignore");
+        }
+    }
 
     printf("test_record : %d/%d\n", pass, run);
     return pass == run ? 0 : 1;

@@ -3,7 +3,28 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.6.3] — 2026-09-17
+## [0.7.0] — 2026-09-17
+
+### Ajouté
+- **Liste des enregistrements** dans le menu `6` : au lieu de saisir un nom,
+  NeoTel énumère les `neoNN.vdt` de la carte (API répertoire 3,17 / 3,18 /
+  3,19) et les affiche triés, chacun choisi par une lettre (`A`..`L`) ;
+  `ENVOI` rejoue le dernier, `ESC` renonce. Sans enregistrement, on retombe
+  sur la saisie libre. `record_list()` dans `record.c` ; le stub hôte gagne
+  l'énumération par répertoire ; `test_record` +3 (229 assertions) ;
+  scénario cible **reclist** (trois `.vdt` déposés, la lettre `B` rejoue le
+  second).
+
+### Corrigé
+- **Tampon de l'API 3,18 (Read Directory)** : son premier octet doit contenir
+  la **capacité** en entrée (`DSPSetStdString` écrit `min(capacité, longueur)`)
+  — il était mis à 0, donc le nom revenait vide et la liste paraissait
+  toujours absente. Corrigé (`RECORD_CHUNK - 1`) ; le stub hôte respecte
+  désormais aussi cette capacité (il l'ignorait, masquant le bug).
+- `NEO_SET_ADDR0` (pointeur en P0,P1) : les fonctions répertoire prennent le
+  nom en P0,P1, pas en P1,P2 comme l'ouverture de fichier.
+
+
 
 ### Corrigé
 - **Identification manquée en début de page** : l'octet reçu juste après le

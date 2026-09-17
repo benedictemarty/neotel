@@ -284,6 +284,23 @@ else
     echo "FAIL enqrom (voir build/modem.log)"; fail=1
 fi
 
+# --- 4f. liste des enregistrements (menu 6) : 3,17-3,19 sur cible ----------
+# Trois .vdt deposes ; le menu doit les lister tries et la lettre B rejouer
+# le second (page DRCS -> "G1 BASE").
+rm -rf "$STORAGE"; mkdir -p "$STORAGE"
+cp tests/page_test.vdt "$STORAGE/neo01.vdt"
+cp tests/page_drcs.vdt "$STORAGE/neo02.vdt"
+cp tests/page_test.vdt "$STORAGE/neo07.vdt"
+python3 -c "open('$STORAGE/neotel.cfg','wb').write(b'NT'+bytes([3,0,0,0,0])+bytes(40)+bytes([7,1]))"
+STORAGE_KEEP=1 run "--serve" --cycles 70000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "18000000:$KI=36" --poke-at "32000000:$KI=42" \
+    --dump-ram-when "$ST:$ST_REPLAY_END:$OUT/rlist.bin"
+if [ -f "$OUT/rlist.bin" ] && page_has "$OUT/rlist.bin" "G1 BASE"; then
+    echo "PASS reclist (menu 6 liste neoNN.vdt, lettre B rejoue neo02)"
+else
+    echo "FAIL reclist (voir $OUT/phos.log)"; fail=1
+fi
+
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------
 run "--serve" --cycles 80000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
     --poke-at "15000000:$KI=1B" --type-keys '40000000:PRINT 6*7\n' \
