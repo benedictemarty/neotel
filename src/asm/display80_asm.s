@@ -141,7 +141,7 @@ _blit80_row:
         sta  cellp+1
         lda  #0
         sta  col
-@cell:
+cell_loop:
         ; --- attributs ---
         ldy  #1
         lda  (cellp),y
@@ -252,8 +252,9 @@ _blit80_row:
         ;                40 col. : bit = col*18 -> b = 2*col + col/4, s = (2*col) & 7
         lda  _b80_ncols
         cmp  #40
-        beq  @pos40
-        lda  col
+        bne  :+
+        jmp  cell40
+:       lda  col
         lsr  a
         lsr  a
         lsr  a
@@ -264,19 +265,6 @@ _blit80_row:
         and  #7
         sta  tmp                    ; s
         bra  @pos_ok
-@pos40: lda  col
-        lsr  a
-        lsr  a
-        sta  tmp
-        lda  col
-        asl  a
-        clc
-        adc  tmp
-        sta  bidx
-        lda  col
-        asl  a
-        and  #7
-        sta  tmp
 @pos_ok:
         asl  a
         tax                         ; s * 2
@@ -376,5 +364,223 @@ _blit80_row:
         lda  col
         cmp  _b80_ncols
         beq  @done
-        jmp  @cell
+        jmp  cell_loop
 @done:  rts
+
+;-----------------------------------------------------------------
+; Format 40 colonnes : pixels doubles, cellule de 18 pixels = deux creneaux
+; de 9 bits. D = glyphe double (16 bits) : creneau A = D15..D7, creneau B =
+; D6..D0 puis deux pixels de fond. Aucun attribut (filtres en 40 colonnes,
+; STUM 1B p. 165) sauf le curseur (14e ligne inversee) et le clignotement.
+;-----------------------------------------------------------------
+dbl_nib: .byte $00,$03,$0C,$0F,$30,$33,$3C,$3F,$C0,$C3,$CC,$CF,$F0,$F3,$FC,$FF
+
+do_shrB: jmp  shr0
+do_shlB: jmp  shl0
+
+        .zeropage
+bidxB:  .res 1
+mask9B: .res 1
+ninthA: .res 1              ; 9e pixel du creneau A (bit 7 de Dlo), par ligne
+gbyteB: .res 1
+ninthB: .res 1              ; 9e pixel du creneau B (curseur seulement)
+cursor40: .res 1            ; $FF si la cellule porte le curseur
+
+        .segment "CODE"
+
+; Depose Dhi/ninthA (creneau A, X = bidx) puis gbyteB (creneau B, X = bidxB)
+.macro  DEPOSIT40 base
+        ldx  bidx
+        lda  gbyte
+        beq  :+
+        jsr  do_shr
+        ora  base,x
+        sta  base,x
+        lda  gbyte
+        jsr  do_shl
+        ora  base+1,x
+        sta  base+1,x
+:       lda  ninthA
+        beq  :+
+        ora  base+1,x
+        sta  base+1,x
+:       ldx  bidxB
+        lda  gbyteB
+        beq  :+
+        jsr  do_shrB
+        ora  base,x
+        sta  base,x
+        lda  gbyteB
+        jsr  do_shlB
+        ora  base+1,x
+        sta  base+1,x
+:       lda  ninthB
+        beq  :+
+        ora  base+1,x
+        sta  base+1,x
+:
+.endmacro
+
+; Charge la ligne y : gbyte = Dhi, ninthA = mask9 si D7, gbyteB = Dlo << 1
+.macro  LOADG40
+        lda  (glyph),y
+        sta  tmp
+        lsr  a
+        lsr  a
+        lsr  a
+        lsr  a
+        tax
+        lda  dbl_nib,x
+        sta  gbyte                  ; Dhi
+        lda  tmp
+        and  #$0F
+        tax
+        lda  dbl_nib,x              ; Dlo
+        asl  a                      ; carry = D7
+        sta  gbyteB
+        lda  #0
+        bcc  :+
+        lda  mask9
+:       sta  ninthA
+.endmacro
+
+cell40:
+        ; bits de depart : A = col*18 -> b = 2*col + col/4, s = (2*col) & 7
+        ;                  B = col*18 + 9
+        lda  col
+        lsr  a
+        lsr  a
+        sta  tmp
+        lda  col
+        asl  a
+        clc
+        adc  tmp
+        sta  bidx
+        lda  col
+        asl  a
+        and  #7
+        sta  tmp                    ; sA
+        asl  a
+        tax
+        lda  shr_tab,x
+        sta  do_shr+1
+        lda  shr_tab+1,x
+        sta  do_shr+2
+        lda  shl_tab,x
+        sta  do_shl+1
+        lda  shl_tab+1,x
+        sta  do_shl+2
+        lda  #$80
+        ldx  tmp
+        beq  :++
+:       lsr  a
+        dex
+        bne  :-
+:       sta  mask9
+        ; creneau B : sB = sA + 1 (car 9 = 8 + 1), bB = bidx + 1 (+1 si sA = 7)
+        lda  tmp
+        clc
+        adc  #1
+        and  #7
+        sta  cursor40               ; (temporaire) sB
+        lda  bidx
+        adc  #0                     ; carry = (sA + 1) >= 8 -> +1 de plus
+        clc
+        adc  #1
+        sta  bidxB
+        lda  #$80
+        ldx  cursor40
+        beq  :++
+:       lsr  a
+        dex
+        bne  :-
+:       sta  mask9B
+        stz  ninthB
+        lda  cursor40
+        asl  a
+        tax
+        lda  shr_tab,x
+        sta  do_shrB+1
+        lda  shr_tab+1,x
+        sta  do_shrB+2
+        lda  shl_tab,x
+        sta  do_shlB+1
+        lda  shl_tab+1,x
+        sta  do_shlB+2
+        ; curseur sur cette cellule ?
+        lda  #0
+        ldx  col
+        cpx  _b80_cursor
+        bne  :+
+        lda  #$FF
+:       sta  cursor40
+
+        ldy  #0
+        LOADG40
+        DEPOSIT40 ROWBUF+0*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+1*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+2*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+3*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+4*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+5*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+6*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+7*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+8*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+9*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+10*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+11*STRIDE
+        iny
+        LOADG40
+        DEPOSIT40 ROWBUF+12*STRIDE
+        iny
+        LOADG40
+        ; 14e ligne : curseur = 18 pixels inverses
+        lda  cursor40
+        beq  :+
+        lda  gbyte
+        eor  #$FF
+        sta  gbyte
+        lda  ninthA
+        eor  mask9
+        sta  ninthA
+        lda  gbyteB
+        eor  #$FF
+        sta  gbyteB
+        lda  mask9B
+        sta  ninthB
+:       DEPOSIT40 ROWBUF+13*STRIDE
+
+        clc
+        lda  cellp
+        adc  #2
+        sta  cellp
+        bcc  :+
+        inc  cellp+1
+:       inc  col
+        lda  col
+        cmp  #40
+        beq  @done40
+        jmp  cell_loop
+@done40: rts

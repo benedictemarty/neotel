@@ -289,9 +289,9 @@ int main(void)
     {
         const unsigned char* gA = &font80[('A' - 0x20) * FONT80_H];
         ok = 1;
-        for (i = 0; i < 8; ++i) if (px(18 + i, 3) != ((gA[3] >> (7 - i)) & 1)) ok = 0;
-        if (px(26, 3) || px(35, 3)) ok = 0;
-        CHECK(ok, "40 colonnes : glyphe a col*18 (non double)");
+        for (i = 0; i < 16; ++i) if (px(18 + i, 3) != ((gA[3] >> (7 - i / 2)) & 1)) ok = 0;
+        if (px(34, 3) || px(35, 3)) ok = 0;
+        CHECK(ok, "40 colonnes : pixels doubles a col*18, deux pixels de fond");
     }
 
     /* rendu complet et budget */
