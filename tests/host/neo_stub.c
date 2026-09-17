@@ -157,6 +157,15 @@ static void disk_op(unsigned char f)
         if (!chan[ch].f) { NEO_ERR = 1; return; }
         chan[ch].f = 0; --host_open_count;
         return;
+    case 13: {                              /* delete file (P0,P1 -> nom) */
+        char name[32]; int len = neo_host_ptr[0];
+        host_disk_file_t* df;
+        memcpy(name, neo_host_ptr + 1, len); name[len] = 0;
+        df = host_disk_find(name);
+        if (!df) { NEO_ERR = 1; return; }
+        df->name[0] = 0; df->len = 0;
+        return;
+    }
     case 17:                                /* open directory (P0,P1 -> nom) */
         dir_open = 1; dir_next = 0;
         return;

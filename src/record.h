@@ -40,6 +40,9 @@ void record_make_name(char* name, unsigned char index);
  *  nombre trouve (au plus max). N'ouvre rien d'autre en meme temps. */
 unsigned char record_list(unsigned char* idx, unsigned char max);
 
+/** Efface l'enregistrement neoNN.vdt (index 1..99) par 3,13. 1 si efface. */
+unsigned char record_delete(unsigned char index);
+
 /** Relecture : ouverture (1 si ok), puis replay_pending() != 0 tant qu'un
  *  octet reste (lecture par blocs de 64 dans le tampon partage), replay_next()
  *  le rend ; fermeture. Exclusif de l'enregistrement (meme tampon). */

@@ -20,7 +20,7 @@ canal), VRAM 320 × 240, palette, compteurs de blits.
 | `test_display` | 48 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear`, bip soumis au réglage son |
 | `test_drcs` | 40 | DRCS Minitel 2 (STUM 2 §2.2-2.5) : en-têtes, transfert (vecteur = exemple §2.3.5), B1 anticipé, excédent, C0 = fond, sortie US, associations, mapping 2/0 et 7/F, rangée 00, SS2, profil 1B, `CSI 6n`, rendu 8 × 9, effacement par `vtx_init` |
 | `test_settings` | 11 | `neotel.cfg` : défauts, aller-retour, magie/version (v1 et v2 acceptées), bornes, écriture refusée |
-| `test_record` | 229 | enregistrement / relecture `.vdt` (`record.c`) sur le disque en mémoire du stub (3,4/5/8/9 par canal, énumération 3,17/3,18/3,19) : noms `neoNN.vdt`, blocs de 64, vidage à l'arrêt, relecture octet par octet, fichier absent / vide, création refusée, exclusion enregistrement/relecture, `record_list` (tri, noms non conformes ignorés) |
+| `test_record` | 233 | enregistrement / relecture `.vdt` (`record.c`) sur le disque en mémoire du stub (3,4/5/8/9 par canal, énumération 3,17/3,18/3,19, suppression 3,13) : noms `neoNN.vdt`, blocs de 64, vidage à l'arrêt, relecture octet par octet, fichier absent / vide, création refusée, exclusion enregistrement/relecture, `record_list` (tri, noms non conformes ignorés), `record_delete` |
 | `test_teleinfo` | 87 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
 | `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |
 
@@ -68,8 +68,9 @@ adresses lues dans `build/neotel.lbl`.
 6b. **settings-save / settings-load** : `3` au menu écrit `neotel.cfg`
    (profil = 1) dans le stockage du scénario ; relancé sur le même stockage,
    NeoTel démarre en Minitel 2 (`g_term_model` lu dans le dump RAM).
-6c. **stack** : sur le dump de `mixte-exit`, `$FB00-$FB7F` (moitié basse de
-   la pile C de 256 octets) doit être vierge : marge d'au moins 128 octets.
+6c. **stack** : sur le dump de `mixte-exit`, `$FBA0-$FBCF` (moitié basse de
+   la pile C de 96 octets) doit être vierge : marge d'au moins 48 octets.
+   (Usage réel mesuré sur les chemins session et relecture : 33 octets.)
 6d. **record / replay** : le faux modem (`--on-rx`) n'envoie la page qu'au
    premier octet tapé ; `CTRL+O` (0x0F injecté), ENVOI, `CTRL+O` : le
    fichier `neo01.vdt` du stockage est la copie exacte de
@@ -84,6 +85,8 @@ adresses lues dans `build/neotel.lbl`.
    le module `websockets`.
 6f. **reclist** : trois `.vdt` déposés sur le stockage ; menu `6` les liste
    (3,17/3,18/3,19), la lettre `B` rejoue le second (page DRCS, `G1 BASE`).
+6g. **recdel** : menu `6`, `Suppr` puis `B` efface `neo02.vdt` ; `neo01`
+   et `neo07` restent sur le stockage.
 7. **exit** : ESC au menu → NeoBASIC répond (`PRINT 6*7` → `42`).
 8. **neo** : fumée dans l'émulateur officiel `neo` (splash affiché).
 

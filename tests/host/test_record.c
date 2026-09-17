@@ -107,6 +107,16 @@ int main(void)
         }
     }
 
+    /* Suppression (3,13) */
+    CHECK(host_disk_find("neo02.vdt") != 0, "neo02 present avant suppression");
+    CHECK(record_delete(2) == 1 && host_disk_find("neo02.vdt") == 0, "record_delete(2) efface neo02");
+    CHECK(record_delete(2) == 0, "record_delete d'un absent echoue");
+    {
+        unsigned char idx2[16], cnt2 = record_list(idx2, 16), k, seen = 0;
+        for (k = 0; k < cnt2; ++k) if (idx2[k] == 2) seen = 1;
+        CHECK(!seen, "neo02 absent de la liste apres suppression");
+    }
+
     printf("test_record : %d/%d\n", pass, run);
     return pass == run ? 0 : 1;
 }

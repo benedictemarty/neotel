@@ -11,6 +11,7 @@
 #define F_CLOSE      5
 #define F_READ       8
 #define F_WRITE      9
+#define F_DELETE     13
 #define F_OPENDIR    17
 #define F_READDIR    18
 #define F_CLOSEDIR   19
@@ -107,6 +108,17 @@ unsigned char record_list(unsigned char* idx, unsigned char max)
     neo_wait();
     neo_call(NEO_G_FILE, F_CLOSEDIR);
     return count;
+}
+
+unsigned char record_delete(unsigned char index)
+{
+    if (s_active) return 0;             /* ne pas effacer pendant un enregistrement */
+    record_make_name((char*)s_buf, index);   /* s_buf : tampon de travail (hors enregistrement) */
+    set_name((char*)s_buf);
+    neo_wait();
+    NEO_SET_ADDR0(s_name);
+    neo_call(NEO_G_FILE, F_DELETE);
+    return NEO_ERR ? 0 : 1;
 }
 
 void record_make_name(char* name, unsigned char index)
