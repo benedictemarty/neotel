@@ -40,20 +40,27 @@ extern const unsigned char* run_cells;
 extern unsigned char        run_col;
 extern unsigned char        run_count;
 unsigned char __fastcall__  blit_run(void);
+unsigned char __fastcall__  scan_dblh(void);
 extern const unsigned char* blit_pat;
 extern unsigned char        blit_col;
 extern unsigned char        blit_fg;
 extern unsigned char        blit_bg;
+extern unsigned char        rb_state[SCREEN_COLS];  /* etat du tampon par colonne (asm) */
+#define rb_invalidate(col)  (rb_state[col] = 0)
+#define rb_reset()          memset(rb_state, 0, SCREEN_COLS)
 void __fastcall__           blit_cell9(void);
 #else
 static const unsigned char* run_cells;
 static unsigned char        run_col;
 static unsigned char        run_count;
 static unsigned char        blit_run(void);
+static unsigned char        scan_dblh(void);
 static const unsigned char* blit_pat;
 static unsigned char        blit_col;
 static unsigned char        blit_fg;
 static unsigned char        blit_bg;
+#define rb_invalidate(col)  ((void)0)     /* pas de cache sur l'hote : l'oracle reste le rendu direct */
+#define rb_reset()          ((void)0)
 static void blit_cell9(void)
 {
     unsigned char l, b, m;
@@ -278,6 +285,14 @@ static unsigned char blit_run(void)
     }
     return n;
 }
+static unsigned char scan_dblh(void)
+{
+    const vtx_cell_t* c = (const vtx_cell_t*)run_cells;
+    unsigned char n;
+    for (n = 0; n < run_count; ++n, ++c)
+        if (c->size & SIZE_DOUBLE_HEIGHT) return n;
+    return 0xFF;
+}
 #endif
 
 /* ===================================================================
@@ -327,17 +342,27 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
         }
     }
 
-    /* Moities hautes des doubles hauteurs de la ligne du dessous */
+    /* Moities hautes des doubles hauteurs de la ligne du dessous. Le
+     * pointeur avance de cellule en cellule (pas d'indexation *6 a chaque
+     * tour : c'etait 18 000 cycles par rangee, v0.6.1) ; bit 0 de size =
+     * double hauteur (1) ou double taille (3). */
     if (row + 1 < SCREEN_ROWS) {
-        const vtx_cell_t* below = &ctx->screen[row + 1][0];
-        for (c = c0; c <= c1; ++c) {
-            if (is_dbl_h(&below[c])) {
-                render_cell_into_row(&below[c], c, VPART_UPPER);
-                if (is_dbl_w(&below[c])) {
-                    if (c == c1 && c1 < SCREEN_COLS - 1) ++c1;
-                    ++c;
-                }
+        const vtx_cell_t* below = &ctx->screen[row + 1][c0];
+        c = c0;
+        for (;;) {
+            unsigned char n;
+            run_cells = (const unsigned char*)below;
+            run_count = (unsigned char)(c1 - c + 1);
+            n = scan_dblh();            /* asm : premiere double hauteur */
+            if (n == 0xFF) break;
+            c += n; below += n;
+            render_cell_into_row(below, c, VPART_UPPER);
+            if (below->size & SIZE_DOUBLE_WIDTH) {
+                if (c == c1 && c1 < SCREEN_COLS - 1) ++c1;
+                ++c; ++below;
             }
+            ++c; ++below;
+            if (c > c1) break;
         }
     }
 
@@ -346,6 +371,7 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
         ctx->cur_x >= c0 && ctx->cur_x <= c1) {
         memset(display_rowbuf + (CELL_H - 1) * SCREEN_W + ctx->cur_x * CELL_W,
                VTX_WHITE, CELL_W);
+        rb_invalidate(ctx->cur_x);
         cur_drawn = 1;
         cur_drawn_x = ctx->cur_x;
         cur_drawn_y = row;
@@ -523,6 +549,7 @@ void display_init(void)
     gfx_init();
     display_set_look(s_look);
     gfx_fill_rect(0, 0, SCREEN_W - 1, SCREEN_H - 1, VTX_BLACK);
+    rb_reset();                 /* le tampon de ligne a pu servir au mode 1 */
     cur_drawn = 0;
     display_status_clear();
     display_status_show();

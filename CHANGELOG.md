@@ -3,7 +3,30 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.6.0] — 2026-09-17
+## [0.6.1] — 2026-09-17
+
+### Ajouté
+- `make bench` : banc de rendu sur cible (`tests/emu/t_bench.c`,
+  `tests/bench.sh`, `tools/vdt2c.py`) — cycles d'une page complète (vide,
+  960 lettres, 960 mosaïques, page de test) lus entre deux marqueurs 5,37
+  dans le journal API de Phosphoneo.
+
+### Modifié
+- **Rendu Videotex 2 à 3 fois plus rapide** (profil par trace Phosphoneo) :
+  - `blit_run` mémorise par colonne (`rb_state`, 40 o) qu'une cellule vide
+    de fond B est déjà dans le tampon de ligne : une cellule vide identique
+    n'est pas redessinée (72 écritures). Le C invalide la colonne quand il
+    écrit lui-même (`blit_cell9`, barre curseur) et tout au `display_init()`
+    (le mode 1 partage le tampon). L'oracle hôte n'a pas ce cache : les
+    tests capture == oracle prouvent qu'il ne change rien à l'image ;
+  - l'espace ne lit plus son glyphe ;
+  - les moitiés hautes des doubles hauteurs de la rangée du dessous sont
+    cherchées en assembleur (`scan_dblh`) : la boucle C coûtait 7 800
+    cycles par rangée (indexation ×6 de chaque cellule).
+  Mesures (`make bench`, 6,25 MHz) : page vide 236 → 70 ms, page de test
+  273 → 129 ms, 960 lettres 318 → 248 ms, 960 mosaïques 312 → 245 ms.
+
+
 
 ### Ajouté
 - **Serveurs WebSocket** : `ATDT ws://…` / `wss://…` est relayé par

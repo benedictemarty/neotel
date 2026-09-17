@@ -36,8 +36,12 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
       (RX 1 Ko du firmware, `tuh_task` à ~100 Hz : risque R16 de F-90) et du
       temps de rendu réel. Ajuster le budget de rendu si des octets se
       perdent à 115200 bauds.
-- [ ] Rendu : ignorer les cellules inchangées (comparaison avec un cache
-      de la ligne précédente), rendu d'une page complète < 100 ms.
+- [x] Rendu : cellules vides déjà dans le tampon ignorées, `scan_dblh` en
+      assembleur — page vide 70 ms, page de test 129 ms (`make bench`),
+      v0.6.1.
+- [ ] Rendu : une page dense reste à ~250 ms (1 500 cycles par cellule
+      dessinée, dont 9 × 8 écritures) ; < 100 ms demanderait un dessin par
+      table de nibbles ou un cache d'image par cellule.
 - [x] Réglages persistants (profil, aspect, identification, dernier serveur)
       via l'API fichiers (3,3 / 3,2) sur la carte SD — v0.3.0.
 - [x] Bip Videotex (BEL) par 8,7 plutôt que le bip système — v0.4.3.
