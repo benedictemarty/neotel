@@ -28,4 +28,15 @@ void gfx_set_palette(unsigned char idx, unsigned char r,
 void gfx_blit(const unsigned char* src, unsigned int x, unsigned char y,
               unsigned int w, unsigned char h);
 
+/** Copie generique : h lignes de w octets, pas source src_stride, vers
+ *  l'offset VRAM dst_off (octets depuis le debut de la page video), pas
+ *  dst_stride. Mode 1 (Hercules, 1 bpp) : pas 90, offset = y * 90 + x / 8. */
+void gfx_blit_ex(const unsigned char* src, unsigned int src_stride,
+                 unsigned long dst_off, unsigned int dst_stride,
+                 unsigned int w, unsigned char h);
+
+/** Mode video (5,9) : 0 = 320x240x256, 1 = Hercules 720x350 1 bpp (fork).
+ *  Retourne 1 si le firmware l'accepte, 0 sinon (drapeau d'erreur). */
+unsigned char gfx_set_mode(unsigned char mode);
+
 #endif /* NEO_GFX_H */

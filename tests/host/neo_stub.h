@@ -5,6 +5,7 @@
 extern unsigned char host_vram[240][320];
 extern unsigned char host_palette[256][3];
 extern int host_blits, host_fills, host_beeps;
+extern unsigned char host_mode, host_mode_refuse;   /* mode video 5,9 */
 extern unsigned long host_timer, host_delay_ms;
 extern unsigned char host_keys_down[256];
 extern unsigned char host_tx[4096];

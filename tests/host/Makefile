@@ -6,7 +6,7 @@ SRC = ../../src
 STUB = neo_stub.c $(SRC)/settings.c
 HDRS = $(wildcard $(SRC)/*.h) neo_stub.h
 
-TESTS = test_videotex test_atmodem test_ui test_keyboard test_display test_terminal test_drcs test_settings
+TESTS = test_videotex test_atmodem test_ui test_keyboard test_display test_terminal test_drcs test_settings test_teleinfo
 TOOLS = render_page
 
 all: $(TESTS) $(TOOLS)
@@ -37,8 +37,11 @@ test_drcs: test_drcs.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/
 test_settings: test_settings.c $(STUB) $(HDRS)
 	$(CC) $(CFLAGS) -o $@ test_settings.c $(STUB)
 
-render_page: render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(STUB) $(HDRS)
-	$(CC) $(CFLAGS) -o $@ render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(STUB)
+test_teleinfo: test_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB) $(HDRS)
+	$(CC) $(CFLAGS) -o $@ test_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB)
+
+render_page: render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(STUB) $(HDRS)
+	$(CC) $(CFLAGS) -o $@ render_page.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/terminal.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(STUB)
 
 fuzz_videotex: fuzz_videotex.c $(SRC)/videotex.c $(SRC)/fonts.c $(SRC)/terminal.c
 	clang -g -O1 -fsanitize=fuzzer,address -I ../../src -DTEST_HOST -o $@ fuzz_videotex.c $(SRC)/videotex.c $(SRC)/fonts.c $(SRC)/terminal.c

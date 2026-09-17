@@ -8,6 +8,10 @@
 #include "neo.h"
 
 unsigned char keyboard_inject;
+static unsigned char s_extended;
+
+void keyboard_set_extended(unsigned char on) { s_extended = on ? 1 : 0; }
+unsigned char keyboard_extended(void) { return s_extended; }
 
 /* Chaines prefixees des hotkeys F1-F10 : un octet prive chacune. Statiques :
  * le firmware les copie a la definition, mais on ne parie pas dessus. */
@@ -123,6 +127,16 @@ unsigned char keyboard_translate(unsigned char ch, unsigned char arrow_hid)
         }
     }
 
+    if (s_extended) {
+        /* Mode Mixte : codes de controle tels quels (Entree = CR, retour
+         * arriere = BS, TAB = HT, CTRL+lettre = C0) ; ESC reste local. */
+        if (ch == 0x1B) return KEY_LOCAL_ESCAPE;
+        if (ch == 0x1A) return 0x08;            /* Suppr -> BS */
+        if (ch < 0x20) return (unsigned char)(KEY_FUNC_FLAG | 0x20 | ch);   /* C0 brut, marque */
+        if (ch < 0x7F) return ch;
+        return KEY_NONE;
+    }
+
     switch (ch) {
         case 0x0D:  /* Entree = Envoi */
             return KEY_FUNC_FLAG | KEY_ENVOI;
@@ -194,7 +208,7 @@ void keyboard_process(vtx_context_t* ctx, unsigned char key)
      * comme sur un Minitel 1B reel. Sequences CSI CUB/CUF/CUU/CUD. */
     if (key == KEY_ARROW_LEFT || key == KEY_ARROW_RIGHT ||
         key == KEY_ARROW_UP || key == KEY_ARROW_DOWN) {
-        if (ctx->kbd_cursor) {
+        if (ctx->kbd_cursor || s_extended) {
             kbd_emit(ctx, 0x1B);
             kbd_emit(ctx, 0x5B);
             switch (key) {
@@ -204,6 +218,12 @@ void keyboard_process(vtx_context_t* ctx, unsigned char key)
                 default:              kbd_emit(ctx, 0x42); break;
             }
         }
+        return;
+    }
+
+    /* Code C0 brut du clavier etendu (KEY_FUNC_FLAG | 0x20 | code) */
+    if ((key & KEY_FUNC_FLAG) && (key & 0x60) == 0x20) {
+        kbd_emit(ctx, key & 0x1F);
         return;
     }
 

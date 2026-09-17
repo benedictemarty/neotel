@@ -43,13 +43,18 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [ ] Bip Videotex (BEL) par 8,7 plutôt que le bip système.
 - [ ] Jingle du splash (son du RP2040), option pour le couper.
 
-## v0.4 — Modes Mixte et Téléinformatique (80 colonnes) [CONDITIONNEL]
-- [x] STUM 1B récupérée (transcription jbellue, `docs/ref/STUM1B-NOTES.md`) :
-      le mode Mixte 80 colonnes (ISO 6429) existe sur le 1B comme sur le 2.
-- [ ] Moteur 80 × 25 ISO 6429 (rangées 01-24) + rangée 00 Vidéotex.
-- [ ] Séquences relevées dans la STUM 2 : `CSI 3/C 3/3 6/8` 40 col.,
-      `CSI 3/F 3/3 6/C` 80 col., curseur `CSI 3/C 3/1 6/8|6/C`.
-- [ ] Étudier le mode Hercules 720 × 350 du fork pour 80 colonnes.
+## v0.4.0 — Modes Mixte et Téléinformatique (80 colonnes) [TERMINÉ, 2026-09-17]
+- [x] STUM 1B récupérée (transcription jbellue, `docs/ref/STUM1B-NOTES.md`).
+- [x] Moteur 80 × 25 ISO 6429 (rangées 01-24) + rangée 00 Vidéotex réduit
+      (`teleinfo.c`, 79 tests), rendu 1 bpp en mode Hercules du fork
+      (`display80.c` + asm, capture == oracle), clavier étendu, PRO2 MIXTE
+      1/2 avec acquittements SEP $70/$71, `CSI ? {`.
+- [x] STUM 2 : `CSI 6 n`, 40 / 80 colonnes, page / rouleau.
+- [ ] Écarts : 40 colonnes sans doublement des pixels ; `CSI 3/C 3/1 6/8|6/C`
+      (extinction / allumage du curseur, STUM 2) non implémenté (le 1B ne
+      permet pas d'éteindre le curseur) ; passage à la ligne après la 80ᵉ
+      colonne = hypothèse ; jeux DEC / complémentaire du Minitel 2 (annexes
+      3.12-3.13) non implémentés.
 
 ## Idées
 - Enregistrement des pages reçues (.vdt) sur la carte SD, relecture.

@@ -26,10 +26,12 @@
 #include "neo_time.h"
 #include "terminal.h"
 #include "settings.h"
+#include "teleinfo.h"
+#include "display80.h"
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.3.0"
+#define NEOTEL_VERSION "v0.4.0"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -44,6 +46,16 @@
 
 /* Contexte Videotex global */
 vtx_context_t vtx;                  /* non statique : lu dans les dumps RAM des tests (build/neotel.lbl) */
+
+/* Ecran 80 colonnes (mode Mixte / Teleinformatique) et mode d'ecran courant.
+ * Le contexte 80 colonnes (4 Ko) est LOGE dans vtx.screen (6 Ko), inutilise
+ * en mode Mixte : les seuls octets qui vont encore au decodeur Videotex sont
+ * les sequences Protocole (mixte_byte), qui n'ecrivent jamais l'ecran, et le
+ * retour au mode Videotex refait vtx_init. La RAM du Neo6502 ne permet pas
+ * les deux ecrans cote a cote (BSS a 375 octets de la pile C sinon). */
+#define ti (*(ti_context_t*)&vtx.screen[0][0])
+typedef char ti_fits_in_vtx_screen[(sizeof(ti_context_t) <= sizeof(((vtx_context_t*)0)->screen)) ? 1 : -1];
+unsigned char g_screen80;           /* 1 = ecran 80 colonnes actif (mode 1) */
 
 /* Phase de clignotement (lue par display.c) : bascule toutes les 500 ms */
 unsigned char g_blink_phase;
@@ -67,6 +79,7 @@ unsigned char g_dbg_hangups;    /* sessions quittees par ESC (persistant) */
 #define ST_EXIT       10
 #define ST_ESCAPE     11
 #define ST_HUNGUP     12   /* session quittee, modem raccroche */
+#define ST_MIXTE      13   /* session en mode Mixte (80 colonnes) */
 
 /* Routage serie choisi (SERIAL_ROUTE_*) */
 static unsigned char s_route = SERIAL_ROUTE_AUTO;
@@ -616,6 +629,8 @@ static void status_bar_draw(void)
     unsigned char m = (unsigned char)(status_secs / 60u);
     unsigned char sec = (unsigned char)(status_secs % 60u);
 
+    if (g_screen80) return;         /* pas de barre en mode 1 (25 rangees pleines) */
+
     if (m > 99) m = 99;
     clock[0] = '0' + m / 10;  clock[1] = '0' + m % 10;  clock[2] = ':';
     clock[3] = '0' + sec / 10; clock[4] = '0' + sec % 10; clock[5] = 0;
@@ -666,6 +681,94 @@ static void status_tick(unsigned char ticks)
     }
 }
 
+static void status_bar_draw(void);
+
+/* ===================================================================
+ *  Mode Mixte / Teleinformatique : ecran 80 colonnes (teleinfo.c) en mode
+ *  video 1. Entree sur PRO2 MIXTE 1 (videotex.c pose terminal_mode), sortie
+ *  sur PRO2 MIXTE 2 (acquitte par videotex.c) ou CSI ? { (teleinfo.c).
+ * =================================================================== */
+
+/* Entree : 0 si le firmware n'a pas le mode 1 (amont) */
+static unsigned char mixte_enter(void)
+{
+    if (!display80_init()) {
+        vtx.terminal_mode = TERM_MODE_VIDEOTEX;
+        display_status("80 colonnes: firmware sans mode 1");
+        return 0;
+    }
+    ti_init(&ti);
+    g_screen80 = 1;
+    keyboard_set_extended(1);
+    g_dbg_state = ST_MIXTE;
+    display80_render_all(&ti);
+    return 1;
+}
+
+/* Sortie : retour au mode Videotex, page effacee (STUM 1B p. 2759) */
+static void mixte_leave(void)
+{
+    display80_leave();
+    g_screen80 = 0;
+    keyboard_set_extended(0);
+    display_init();
+    vtx_init(&vtx);
+    vtx.terminal_mode = TERM_MODE_VIDEOTEX;
+    status_bar_draw();
+    g_dbg_state = ST_SESSION;
+}
+
+/* En mode Mixte, les sequences Protocole (ESC 3/9-3/B + 1..3 octets) sont
+ * traitees par la couche Protocole, pas par l'ecran (STUM 1B partie 2 chap. 6) :
+ * elles vont au decodeur Videotex (aiguillages, PRO2 MIXTE 2...), le reste
+ * a l'ecran 80 colonnes. */
+static unsigned char s_pro_pending;     /* ESC recu, en attente du 2e octet */
+static unsigned char s_pro_left;        /* octets de PRO restant a router */
+
+static void mixte_byte(unsigned char b)
+{
+    b &= 0x7F;
+    if (s_pro_left) {
+        vtx_process(&vtx, b);
+        --s_pro_left;
+        return;
+    }
+    if (s_pro_pending) {
+        s_pro_pending = 0;
+        if (b >= 0x39 && b <= 0x3B) {
+            vtx_process(&vtx, 0x1B);
+            vtx_process(&vtx, b);
+            s_pro_left = (unsigned char)(b - 0x38);
+            return;
+        }
+        ti_process(&ti, 0x1B);
+        ti_process(&ti, b);
+        return;
+    }
+    if (b == 0x1B) { s_pro_pending = 1; return; }
+    ti_process(&ti, b);
+}
+
+/* Un octet du flux de session : au decodeur du mode courant, puis bascule
+ * d'ecran si le flux l'a demandee (au meme octet : la suite de la rafale
+ * doit deja aller au bon decodeur). */
+static void session_byte(unsigned char byte)
+{
+    if (g_screen80) mixte_byte(byte); else vtx_process(&vtx, byte);
+
+    if (!g_screen80 && vtx.terminal_mode == TERM_MODE_MIXED) {
+        mixte_enter();
+    } else if (g_screen80 && (vtx.terminal_mode == TERM_MODE_VIDEOTEX || ti.req_videotex)) {
+        if (ti.req_videotex) {      /* CSI ? { : acquittement SEP 0x71 (STUM 1B p. 3349) */
+            serial_send(0x13); serial_send(0x71); serial_tx_flush();
+        }
+        mixte_leave();
+    } else if (g_screen80 && ti.req_beep) {
+        ti.req_beep = 0;
+        display_beep();
+    }
+}
+
 /* ESC en session : question posee sur la barre de statut, la page reste
  * intacte. Retour : 1 = quitter (raccrocher, menu), 0 = reprendre. Le flux
  * serie continue d'etre draine vers le decodeur pendant l'attente. */
@@ -674,20 +777,26 @@ static unsigned char session_escape_page(vtx_context_t* ctx)
     unsigned char key;
 
     g_dbg_state = ST_ESCAPE;
-    display_status("ESC: quitter? ESC=menu autre=reprendre");
+    if (g_screen80) display80_status(&ti, "ESC: quitter? ESC=menu autre=reprendre");
+    else display_status("ESC: quitter? ESC=menu autre=reprendre");
 
     keyboard_flush();
     for (;;) {
         while (serial_poll()) {
-            vtx_process(ctx, serial_recv());
+            session_byte(serial_recv());
         }
         key = keyboard_scan();
         if (key == KEY_LOCAL_ESCAPE) return 1;
         if (key != KEY_NONE) break;
     }
-    status_bar_draw();
-    ctx->full_refresh = 1;
-    g_dbg_state = ST_SESSION;
+    if (g_screen80) {
+        display80_status_clear(&ti);
+        g_dbg_state = ST_MIXTE;
+    } else {
+        status_bar_draw();
+        ctx->full_refresh = 1;
+        g_dbg_state = ST_SESSION;
+    }
     return 0;
 }
 
@@ -803,7 +912,7 @@ int main(void)
             } else if (carrier_pending && byte != 0x0D && byte != 0x0A) {
                 carrier_pending = 0;    /* la page continue : fausse alerte */
             }
-            vtx_process(&vtx, byte);
+            session_byte(byte);
             got_data = 1;
         }
 
@@ -816,7 +925,7 @@ int main(void)
         } else if (key == KEY_LOCAL_CLEAR) {
             vtx_clear_page(&vtx);
             vtx.full_refresh = 1;
-        } else if (key == KEY_LOCAL_RESET) {
+        } else if (key == KEY_LOCAL_RESET && !g_screen80) {
             serial_init(s_route);
             display_status("Liaison serie reinitialisee");
         } else if (key == KEY_LOCAL_ESCAPE) {
@@ -825,6 +934,9 @@ int main(void)
             }
         } else if (key != KEY_NONE) {
             keyboard_process(&vtx, key);
+        }
+        if (g_screen80 && key == KEY_TOGGLE_RENDER) {
+            /* pas de barre de statut ni de palette en mode 1 : sans effet */
         }
 
         /* 3. Base de temps, indicateur de connexion, porteuse */
@@ -843,6 +955,7 @@ int main(void)
                 carrier_idle = 0;
                 connected = 0;
                 at_carrier_reset();
+                if (g_screen80) mixte_leave();
                 r = carrier_lost_page(&vtx);
                 if (r == 2) {
                     break;
@@ -878,21 +991,31 @@ int main(void)
 
         /* 4. Rendu adaptatif : une ligne par passe, puis continuer tant que
          * rien d'autre n'attend (ni octet serie, ni touche). */
-        display_render(&vtx);
-        while (display_dirty_pending(&vtx) &&
-               !serial_poll() && !keyboard_pending()) {
+        if (g_screen80) {
+            display80_render(&ti);
+            while (display80_dirty_pending(&ti) &&
+                   !serial_poll() && !keyboard_pending()) {
+                display80_render(&ti);
+            }
+        } else {
             display_render(&vtx);
+            while (display_dirty_pending(&vtx) &&
+                   !serial_poll() && !keyboard_pending()) {
+                display_render(&vtx);
+            }
         }
 
         /* 5. Clignotement : 500 ms par phase */
         blink_ticks += ticks;
         if (blink_ticks >= 50) {
             blink_ticks = 0;
-            display_blink_toggle(&vtx);
+            if (g_screen80) display80_blink_toggle(&ti);
+            else display_blink_toggle(&vtx);
         }
     }
 
     /* Sortie de session par ESC : raccrocher proprement, puis menu. */
+    if (g_screen80) mixte_leave();
     at_hangup();
     keyboard_flush();
     g_dbg_state = ST_HUNGUP;

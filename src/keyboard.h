@@ -91,6 +91,14 @@ unsigned char keyboard_scan(void);
 void keyboard_process(vtx_context_t* ctx, unsigned char key);
 
 /**
+ * Clavier "etendu" du mode Mixte / Teleinformatique (STUM 1B p. 3387) :
+ * CTRL+lettre emet le code C0 (0x01-0x1A), Entree = CR, Retour arriere = BS,
+ * TAB = HT, fleches = CSI A/B/C/D sans condition. F1-F10 et ESC inchanges.
+ */
+void keyboard_set_extended(unsigned char on);
+unsigned char keyboard_extended(void);
+
+/**
  * Traduction pure d'un octet de la file clavier du firmware en code
  * keyboard_scan (exposee pour les tests hote). arrow_hid = code HID de la
  * fleche enfoncee (HID_LEFT/RIGHT/UP/DOWN) ou 0.

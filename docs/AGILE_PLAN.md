@@ -58,9 +58,19 @@ n'a pas la même taille sur l'hôte et sur cc65 (structures partagées en
 | US-16 Mes réglages (profil, aspect, identification, dernier serveur) sont conservés d'un lancement à l'autre | fait (`settings.c`, 7 tests hôte, 2 scénarios cible) |
 | US-18 Le projet est publié (dépôt distant) | fait (`github.com/benedictemarty/neotel`, public comme AsteroNeo/OricTel) |
 
-## Sprint 4 — v0.4 (à planifier)
+## Sprint 4 — v0.4.0 (2026-09-17) — TERMINÉ
+| User story | État |
+|---|---|
+| US-17 Un serveur peut passer NeoTel en mode Mixte / Téléinformatique 80 colonnes (ISO 6429) et revenir | fait (teleinfo.c, display80 + asm, 79 tests, capture == oracle) |
+| US-19 Le clavier suit le mode (étendu en Mixte) | fait (+11 tests) |
+
+Rétrospective : le premier rendu C coûtait 400 000 cycles par rangée (rangées
+≥ 14 jamais atteintes avant la capture — diagnostiqué comme un « bug » avant
+de mesurer) ; l'assembleur ramène à 67 000. La RAM a débordé de 671 octets :
+le contexte 80 colonnes partage désormais la mémoire de l'écran Videotex.
+
+## Sprint 5 — v0.5 (à planifier)
 - Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-13).
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
   budget de rendu sous flux 115200 (US-14).
 - Rendu : sauter les cellules inchangées / lignes vides (US-15).
-- 80 colonnes Minitel 2 après récupération de la STUM 1B (US-17, conditionnelle).

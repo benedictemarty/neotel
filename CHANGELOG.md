@@ -3,6 +3,57 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [0.4.0] — 2026-09-17
+
+Mode Mixte / standard Téléinformatique : écran **80 colonnes ISO 6429**
+(STUM 1B partie 3 chapitre 2, STUM 2 §3), sur le mode vidéo Hercules du
+firmware bmarty (720 × 350, 1 bpp, cellules 9 × 14).
+
+### Ajouté
+- `src/teleinfo.c/h` : décodeur ISO 6429 des rangées 01-24 + rangée 00 en
+  Videotex réduit (STUM 1B p. 160-170) : C0 (BS HT LF VT FF CR SO SI BEL CAN
+  SUB NUL, resynchronisation), ESC D/E/M/7/8/c, CSI A B C D H J K @ L M P,
+  SM4/RM4 (insertion), CSI Ps m (surintensité, souligné, clignotant, inverse
+  et leurs négations, un seul paramètre interprété comme sur Telic/Matra),
+  rouleau / page, filtrage des séquences inconnues, `US 4/0 X/Y`… `LF`
+  (rangée 00 : attributs Videotex avalés, semi-graphiques → espaces, SS2,
+  REP), `CSI ? {` (retour Videotex, SEP $71), STUM 2 : `CSI 6 n` (Minitel 2),
+  `CSI < 3 h` / `CSI ? 3 l` (40 / 80 colonnes, écran réinitialisé),
+  `CSI < 4 h|l` (page / rouleau, `l` = hypothèse symétrique). Hypothèse
+  signalée : passage à la rangée suivante après la 80ᵉ colonne.
+- `src/display80.c/h` + `src/asm/display80_asm.s` : rendu 1 bpp dans le
+  tampon de rangée (14 × 90 octets, partagé avec le mode 0) puis blit ;
+  attributs (inverse 9 pixels, souligné 14ᵉ ligne, gras double frappe,
+  clignotement, curseur tiret), rangée 00 sans attribut, format 40 colonnes
+  (pas de 18 px, glyphe non doublé). Composition en assembleur : ~67 000
+  cycles par rangée (11 ms) contre ~400 000 en C. Mode 1 absent (firmware
+  amont) : PRO2 MIXTE 1 est refusé avec un message, sans planter.
+- `src/font80.c/h` + `tools/gen_font80.py` : police 8 × 14 (Lat15-VGA14,
+  console-setup, domaine public), 96 ASCII + jeu français NF Z 62-010 (STUM 1B
+  tableau 4 relu sur `docs/ref/stum1b-img/p171.svg`) + pavé d'erreur.
+- `videotex.c` : PRO2 MIXTE 1 (`ESC 3/A 3/2 7/D`) passe en mode Mixte et
+  acquitte `SEP $70` (STUM 1B p. 3347) — OricTel le refusait ; PRO2 MIXTE 2
+  acquitte `SEP $71` et revient (page effacée).
+- `main.c` : bascule d'écran au même octet que la commande (`session_byte`),
+  filtre Protocole en mode Mixte (`ESC 3/9-3/B` + 1-3 octets → décodeur
+  Videotex : aiguillages, retour), question ESC sur la rangée 00, sortie de
+  session et perte de porteuse depuis le mode Mixte, pas de barre de statut
+  en mode 1. Le contexte 80 colonnes (4 Ko) est logé dans `vtx.screen`.
+- `keyboard.c` : clavier étendu (STUM 1B p. 3387) en mode Mixte : CTRL+lettre
+  = C0, Entrée = CR, Suppr = BS, flèches = CSI sans mode curseur ; F1-F10 et
+  ESC inchangés.
+- `neo_gfx` : `gfx_set_mode` (5,9), `gfx_blit_ex` (pas et offset libres).
+- Tests : `test_teleinfo` (79 assertions : décodeur + pixels du tampon),
+  `test_keyboard` +11 (clavier étendu), `test_videotex` mis à jour (MIXTE
+  acquitté) ; page `tests/page_mixte.vdt` ; scénarios cible `mixte` (capture
+  720 × 350 **identique** à l'oracle hôte `render_page --mixte`, asm == C),
+  `mixte-ref`, `mixte-exit` (ESC ESC en 80 colonnes → raccrochage, mode 0).
+- `docs/ref/STUM1B-NOTES.md`, `stum1b-img/` (tableaux des jeux).
+
+### Corrigé
+- Un `.o` de test (`tests/emu/*.c`) est construit à la main ; `t_blit1` et
+  `t_d80` servent à isoler le blitter et le rendu en mode 1.
+
 ## [0.3.0] — 2026-09-17
 
 ### Ajouté

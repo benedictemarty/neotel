@@ -15,6 +15,9 @@ logique de session sont ceux d'OricTel.
 |   at_modem.c  ATZ / ATI / ATDT, +++ ATH, veille "NO CARRIER"         |
 |   terminal.c  profil Minitel 1B / Minitel 2 (ident, vitesses)        |
 |   settings.c  neotel.cfg sur la carte (3,2 / 3,3) : profil, aspect...|
+|   teleinfo.c  ecran 80 col. ISO 6429 (mode Mixte / Teleinformatique) |
+|   display80.c + display80_asm.s  rendu 1 bpp 720x350 (mode video 1) |
+|   font80.c    police 8x14 ASCII + jeu francais NF Z 62-010            |
 |   videotex.c  machine a etats Videotex -> screen[25][40] + dirty     |
 |   fonts.c     G0 (ASCII + accents), G2 (CEPT), 6x8                   |
 |   display.c   lignes sales -> tampon de ligne 320x9 -> blitter       |
@@ -93,6 +96,23 @@ contenir que des `unsigned char` / `unsigned short` (même taille sur cc65).
 - **Preuve asm == C** : `tests/host/render_page` rend la page de test avec
   le chemin C (hôte) ; `tests/run.sh` exige que la capture Phosphoneo
   (chemin assembleur) soit identique pixel pour pixel (zone page).
+
+## Écran 80 colonnes (teleinfo.c, display80.c, display80_asm.s)
+
+- Contexte `ti_context_t` : 25 × 80 cellules (code + attributs, 4 Ko),
+  **logé dans `vtx.screen`** (6 Ko, inutilisé en mode Mixte ; la RAM ne
+  permet pas les deux écrans côte à côte). Garde-fou `sizeof` à la
+  compilation dans `main.c`.
+- Mode vidéo 1 du fork (F-52) : 720 × 350, 1 bpp MSB à gauche, 90 octets
+  par ligne, cellules 9 × 14. Une rangée est composée dans `display_rowbuf`
+  (14 × 90 octets) par `blit80_row` (asm) : octet `b = col + col/8`,
+  décalage `s = col & 7`, octet haut `g >> s`, bas `g << (8-s)` par chaînes
+  de LSR/ASL déroulées à point d'entrée patché, 9ᵉ pixel `$80 >> s` ; puis
+  blit (12,3) à l'offset `row × 1260`. Mesuré : ~67 000 cycles par rangée.
+  Le C de `display80.c` (même algorithme) ne sert que d'oracle sur l'hôte.
+- Bascule : `session_byte` route chaque octet au décodeur du mode courant
+  et change d'écran **au même octet** ; en mode Mixte les séquences
+  Protocole (`ESC 3/9-3/B` + n) vont au décodeur Videotex (`mixte_byte`).
 
 ## Clavier (keyboard.c)
 
