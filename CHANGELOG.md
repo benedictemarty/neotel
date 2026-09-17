@@ -3,7 +3,20 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.5.0] — 2026-09-17
+## [0.5.1] — 2026-09-17
+
+### Modifié
+- **Cache G1 supprimé** (1 152 octets de BSS) : les mosaïques sont calculées
+  à la volée, en C (`mosaic_pattern` dans `g1_pattern`) et en assembleur
+  (`display_asm.s`, table `g1_tbl` de 8 octets : ligne de pixels selon les
+  deux blocs d'une rangée, contigu / séparé). Rendu identique (capture ==
+  oracle sur les 4 pages de référence). Marge BSS : ~1,6 Ko.
+- `tests/run.sh` : capture de la page à 38 M cycles au lieu de 39 M, au
+  milieu d'une phase de clignotement (période 3,1 M cycles) plutôt qu'à
+  0,5 M d'une frontière ; `tests/ref/page.ppm` régénérée (autre phase,
+  même rendu — seules les autres phases diffèrent, vérifié contre l'oracle).
+
+
 
 ### Ajouté
 - **Enregistrement des pages reçues** (`src/record.c`) : `CTRL+O` en session

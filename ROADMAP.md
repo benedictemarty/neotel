@@ -61,9 +61,8 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] `CTRL+O` : enregistrement du flux reçu dans `neoNN.vdt` (API fichiers),
       menu `6` : relecture par la boucle de session. 225 tests hôte, 2
       scénarios cible.
-- [ ] Marge BSS ~330 o (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`) :
-      toute fonctionnalité nouvelle devra d'abord gagner de la place (cache
-      G1 1 152 o recalculable, code de `teleinfo.c` 9 Ko).
+- [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
+      marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
 ## Idées
 - Bridge WebSocket (serveurs `ws://`) : réutiliser `orictel_bridge.py`

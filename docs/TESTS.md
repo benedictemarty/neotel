@@ -44,7 +44,8 @@ adresses lues dans `build/neotel.lbl`.
 1. **session** : splash → liaison → menu `1` → serveur `1` → ATZ/ATI/ATDT →
    page décodée (« PAGE DE TEST NEOTEL » lu dans `vtx.screen` du dump RAM).
 2. **ATDT** : le journal du modem contient `ATDTpavi.3617.fr:3617`.
-3. **page** : la capture de la page (rendu **assembleur** sur cible) est
+3. **page** : la capture de la page (rendu **assembleur** sur cible, à 38 M
+   cycles = milieu d'une phase de clignotement de 3,1 M cycles) est
    **identique pixel pour pixel** au rendu **C** de l'hôte (`render_page`,
    l'une des deux phases de clignotement). C'est la preuve que
    `display_asm.s` et `display.c` font la même chose.

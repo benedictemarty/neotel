@@ -44,7 +44,8 @@ toute modification.
   la première occurrence (ne pas le combiner avec une action ultérieure).
 - Sa vitesse dépend de la machine hôte (jusqu'à ~100× le temps réel à
   vide) : un test ne doit jamais dépendre d'un délai mural du faux modem
-  (`--on-rx` déclenche la page sur un octet tapé).
-- RAM : ~330 o de marge BSS en v0.5.0. Les gros tampons transitoires se
+  (`--on-rx` déclenche la page sur un octet tapé). Le clignotement change
+  de phase tous les 3,1 M cycles : capturer au milieu d'une phase.
+- RAM : ~1,6 Ko de marge BSS en v0.5.1. Les gros tampons transitoires se
   logent dans `vtx` (écran 80 col. dans `vtx.screen`, page Wi-Fi dans
   `vtx.drcs`) ; toute division en C tire `mod.o`/`shelp.o` de la libc.

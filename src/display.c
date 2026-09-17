@@ -138,30 +138,15 @@ static void mosaic_pattern(unsigned char code, unsigned char separated,
     }
 }
 
-/* Cache des 128 motifs G1 (codes $20-$3F et $60-$7F -> index 0-63, bit 5 =
- * bloc bas-droit) x 2 modes (contigu / separe) : 1 152 octets de BSS contre un
- * calcul par cellule sur une page dense en mosaiques. */
-unsigned char g1_cache[2][64][CELL_H];    /* importe par display_asm.s */
-
-static void g1_cache_init(void)
-{
-    unsigned char sep, p;
-    for (sep = 0; sep < 2; ++sep) {
-        for (p = 0; p < 64; ++p) {
-            /* Reconstruire un code de motif p sans tomber sur le cas $60 */
-            unsigned char code = (unsigned char)(0x20 | (p & 0x1F) | ((p & 0x20) << 1));
-            mosaic_pattern(code, sep, &g1_cache[sep][p][0]);
-        }
-    }
-}
-
-/* Motif G1 depuis le cache (ou le trait special $60) */
-static const unsigned char g1_pat_60[CELL_H] = { 0xFF, 0, 0, 0, 0, 0, 0, 0, 0 };
+/* Motif G1 calcule a la volee (le cache de 1 152 octets de BSS a ete
+ * supprime en v0.5.1 : la RAM manquait ; display_asm.s fait le meme calcul
+ * avec la table g1_tbl). */
+static unsigned char s_g1_pat[CELL_H];
 
 static const unsigned char* g1_pattern(unsigned char ch, unsigned char separated)
 {
-    if (ch == 0x60) return g1_pat_60;
-    return &g1_cache[separated][(ch & 0x1F) | ((ch & 0x40) >> 1)][0];
+    mosaic_pattern(ch, separated, s_g1_pat);
+    return s_g1_pat;
 }
 
 /* Motif 8x9 d'une forme DRCS (Minitel 2). La forme fait 8x10 (STUM 2
@@ -535,7 +520,6 @@ void display_beep(void)
 
 void display_init(void)
 {
-    g1_cache_init();
     gfx_init();
     display_set_look(s_look);
     gfx_fill_rect(0, 0, SCREEN_W - 1, SCREEN_H - 1, VTX_BLACK);

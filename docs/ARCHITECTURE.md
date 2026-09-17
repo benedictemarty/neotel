@@ -48,12 +48,13 @@ $0000-$00FF  page zero (cc65 + display_asm.s + display80_asm.s)
 $0100-$01FF  pile 65C02
 $0800-       STARTUP, CODE (~42 Ko en v0.5.0), RODATA (polices 8x9 et 8x14,
              tables : ~4,7 Ko), DATA
-             BSS (~13,2 Ko) : contexte Videotex (8 Ko dont 1 880 o de DRCS ;
+             BSS (~12 Ko) : contexte Videotex (8 Ko dont 1 880 o de DRCS ;
                    l'ecran 80 colonnes de 4 Ko loge dans vtx.screen, les
                    tampons de la page Wi-Fi (312 o) dans vtx.drcs), tampon
-                   de ligne (2 880 o), cache G1 (1 152 o), reglages, tampon
-                   d'enregistrement (64 o).
-                   Fin ~ $F9B0 : ~330 o de marge (`grep BSS build/neotel.map`)
+                   de ligne (2 880 o), reglages, tampon d'enregistrement
+                   (64 o). Plus de cache G1 depuis v0.5.1 (mosaiques
+                   calculees a la volee).
+                   Fin ~ $F4A0 : ~1,6 Ko de marge (`grep BSS build/neotel.map`)
 $FB00-$FBFF  pile C cc65 (256 o ; usage mesure 34 o, locales statiques ;
              `PASS stack` dans tests/run.sh)
 $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
