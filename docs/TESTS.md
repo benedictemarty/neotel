@@ -21,7 +21,7 @@ canal), VRAM 320 × 240, palette, compteurs de blits.
 | `test_drcs` | 40 | DRCS Minitel 2 (STUM 2 §2.2-2.5) : en-têtes, transfert (vecteur = exemple §2.3.5), B1 anticipé, excédent, C0 = fond, sortie US, associations, mapping 2/0 et 7/F, rangée 00, SS2, profil 1B, `CSI 6n`, rendu 8 × 9, effacement par `vtx_init` |
 | `test_settings` | 11 | `neotel.cfg` : défauts, aller-retour, magie/version (v1 et v2 acceptées), bornes, écriture refusée |
 | `test_record` | 233 | enregistrement / relecture `.vdt` (`record.c`) sur le disque en mémoire du stub (3,4/5/8/9 par canal, énumération 3,17/3,18/3,19, suppression 3,13) : noms `neoNN.vdt`, blocs de 64, vidage à l'arrêt, relecture octet par octet, fichier absent / vide, création refusée, exclusion enregistrement/relecture, `record_list` (tri, noms non conformes ignorés), `record_delete` |
-| `test_teleinfo` | 87 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
+| `test_teleinfo` | 89 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
 | `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |
 
 `render_page` (même Makefile) est l'**oracle** : il rend une page `.vdt`

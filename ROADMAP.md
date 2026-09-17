@@ -59,8 +59,10 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
       `CSI < 1 h|l` — v0.4.1.
 - [x] Fumée sur les vrais serveurs (`make test-servers`) — v0.4.1.
 - [x] 40 colonnes avec pixels doublés — v0.4.2.
-- [ ] Écarts : passage à la ligne après la 80ᵉ colonne = hypothèse ; traits
-      de balayage DEC approximés.
+- [x] Passage à la ligne 80ᵉ colonne : auto-wrap **différé** ISO 6429
+      (v0.7.2), plus une « hypothèse » — cohérent avec les CSI qui s'arrêtent
+      au bord droit (STUM p. 168). Non vérifié sur Minitel physique.
+- [ ] Écart restant : traits de balayage DEC approximés (jeu spécial).
 
 ## v0.5.0 — Enregistrement et relecture [TERMINÉ, 2026-09-17]
 - [x] `CTRL+O` : enregistrement du flux reçu dans `neoNN.vdt` (API fichiers),

@@ -51,11 +51,24 @@ int main(void)
     CHECK(ch_at(1, 0) == 'H' && ch_at(1, 4) == 'o' && ctx.cur_x == 5 && at_at(1, 0) == 0, "texte en (1,1..5)");
     feed("\x0E#\x0F#");
     CHECK(at_at(1, 5) == TI_ATTR_FRENCH && at_at(1, 6) == 0 && ch_at(1, 6) == '#', "SO : jeu francais fige dans la cellule, SI : americain");
+    /* Auto-wrap differe (ISO 6429) : la 80e ecriture reste en rangee 1,
+     * cur_x = cols (etat en attente) ; le caractere suivant passe a la ligne. */
     ti_init(&ctx);
     for (i = 0; i < 80; ++i) ti_process(&ctx, 'x');
-    CHECK(ctx.cur_y == 2 && ctx.cur_x == 0 && ch_at(1, 79) == 'x', "80e caractere : passage a la rangee suivante (hypothese)");
-    feed("\x7F");
-    CHECK(ch_at(2, 0) == ' ', "DEL : non visualisable");
+    CHECK(ctx.cur_y == 1 && ctx.cur_x == 80 && ch_at(1, 79) == 'x',
+          "80e caractere : reste en rangee 1, wrap differe (cur_x = cols)");
+    feed("y");
+    CHECK(ctx.cur_y == 2 && ctx.cur_x == 1 && ch_at(2, 0) == 'y',
+          "81e caractere : passe en rangee 2, colonne 1");
+    ti_init(&ctx);
+    for (i = 0; i < 80; ++i) ti_process(&ctx, 'x');
+    feed("\x0Dz");
+    CHECK(ctx.cur_y == 2 && ch_at(2, 0) == 'z' && ch_at(1, 79) == 'x',
+          "rangee pleine + CR : ecrit en rangee 2 (pas de rangee sautee)");
+    ti_init(&ctx);
+    for (i = 0; i < 80; ++i) ti_process(&ctx, 'x');
+    feed("\x1B[D");
+    CHECK(ctx.cur_x == 79 && ctx.cur_y == 1, "CSI D apres rangee pleine : recule depuis le bord droit");
 
     /* --- C0 --- */
     ti_init(&ctx);

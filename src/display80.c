@@ -78,6 +78,8 @@ void display80_compose_row(ti_context_t* ctx, unsigned char row)
     if (ctx->cur_visible && g_blink_phase == 0) {
         if (ctx->r0_active) { if (row == 0) cursor_col = ctx->r0_col; }
         else if (row == ctx->cur_y) cursor_col = ctx->cur_x;
+            /* cur_x peut valoir cols (wrap differe) : hors 0..cols-1, le
+             * curseur n'est simplement pas dessine cette phase-la. */
     }
 
 #ifndef TEST_HOST
