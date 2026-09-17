@@ -26,7 +26,7 @@
 ; ~1 200 cycles par cellule tout compris, contre ~3 800 en C.
 ;=================================================================
 
-        .export   _blit_run, _blit_cell9
+        .export   _blit_run, _blit_cell9, _rb_state, _scan_dblh
         .export   _run_cells, _run_col, _run_count
         .export   _blit_pat, _blit_col, _blit_fg, _blit_bg
         .import   _display_rowbuf, _font_g0, _font_get_g2
@@ -63,6 +63,7 @@ _blit_pat:  .res 2
 _blit_col:  .res 1
 _blit_fg:   .res 1
 _blit_bg:   .res 1
+_rb_state:  .res 40         ; par colonne : 0 = quelconque, fond+1 = cellule vide de ce fond
 
         .segment "RODATA"
 ; Ligne de pixels d'une rangee de mosaique selon ses deux blocs (bit 0 =
@@ -186,7 +187,39 @@ _blit_cell9:
         sta  cbg
         lda  _blit_col
         sta  ccol
+        tax
+        stz  _rb_state,x    ; le tampon ne contient plus une cellule vide
         jmp  draw_cell
+
+;-----------------------------------------------------------------
+; scan_dblh : index (A) de la premiere cellule double hauteur (size & 1)
+; parmi run_count cellules a partir de run_cells, $FF si aucune. Remplace
+; une boucle C de 7 800 cycles par rangee (v0.6.1).
+;-----------------------------------------------------------------
+_scan_dblh:
+        lda  _run_cells
+        sta  cellp
+        lda  _run_cells+1
+        sta  cellp+1
+        ldx  #0
+        ldy  #5
+@loop:  cpx  _run_count
+        bcs  @none
+        lda  (cellp),y      ; size
+        lsr
+        bcs  @found
+        clc
+        lda  cellp
+        adc  #CELLS
+        sta  cellp
+        bcc  :+
+        inc  cellp+1
+:       inx
+        bra  @loop
+@none:  ldx  #$FF
+@found: txa
+        ldx  #0
+        rts
 
 ;-----------------------------------------------------------------
 ; blit_run : suite de cellules taille normale
@@ -274,6 +307,7 @@ _blit_run:
         sec
         sbc  #$20
         bcc  @space
+        beq  @space         ; espace : motif nul sans lire le glyphe
         cmp  #$60
         bcs  @space
         ; glyph = font_g0 + (ch-$20)*8
@@ -356,7 +390,33 @@ _blit_run:
         lda  #$FF
         sta  pat+8
 @paint:
+        ; Cellule vide (motif nul) : si le tampon contient deja, a cette
+        ; colonne, une cellule vide du meme fond (rb_state = fond + 1), ne
+        ; rien redessiner (72 ecritures economisees ; v0.6.1). Le C remet
+        ; rb_state a 0 quand il ecrit lui-meme dans le tampon.
+        lda  pat+0
+        ora  pat+1
+        ora  pat+2
+        ora  pat+3
+        ora  pat+4
+        ora  pat+5
+        ora  pat+6
+        ora  pat+7
+        ora  pat+8
+        bne  @paint_nb
+        ldx  ccol
+        lda  cbg
+        inc  a
+        cmp  _rb_state,x
+        beq  @advance
+        sta  _rb_state,x
+        bra  @paint_do
+@paint_nb:
+        ldx  ccol
+        stz  _rb_state,x
+@paint_do:
         jsr  draw_cell
+@advance:
         ; cellule suivante
         clc
         lda  cellp

@@ -59,6 +59,7 @@ make test-host         # 753 assertions : décodeur, modem AT, UI, clavier, affi
 make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, enregistrement/relecture, WebSocket, sortie, neo
 make test-servers      # fumée sur les vrais serveurs PAVI 3617 / MiniPavi / wss://3617.fr (réseau)
 make ref               # régénère tests/ref/*.ppm après un changement visuel voulu
+make bench             # cycles / ms d'une page complète sur cible (Phosphoneo)
 ```
 
 Sur le Neo6502 : copier `build/neotel.neo` sur la carte SD/clé USB et

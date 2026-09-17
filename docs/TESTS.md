@@ -88,6 +88,14 @@ adresses lues dans `build/neotel.lbl`.
 Durée : ~9 s. Les scénarios sont déterministes côté 65C02 ; seul le faux
 modem est asynchrone (il répond en quelques ms, bien avant les timeouts).
 
+## Banc de rendu (`make bench`)
+
+`tests/emu/t_bench.c` (programme cible sans `main.c`, page de test intégrée
+par `tools/vdt2c.py`) rend quatre pages complètes en encadrant chaque rendu
+de deux appels 5,37 ; `tests/bench.sh` lit les cycles dans `--api-log` et
+affiche ms et cycles par rangée. Profil détaillé : `--trace` de Phosphoneo
+agrégé par symbole de `build/t_bench.lbl` (méthode de la v0.6.1).
+
 ## Serveurs réels (`make test-servers`, hors `make test`)
 
 PAVI 3617 et MiniPavi en TCP, puis `wss://3617.fr/ws` en WebSocket (serveur

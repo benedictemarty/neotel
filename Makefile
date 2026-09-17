@@ -38,7 +38,7 @@ ASRC    = src/asm/crt0.s src/asm/display_asm.s src/asm/neo_delay.s src/asm/displ
 OBJ     = $(patsubst src/%.c,$(BUILD)/%.o,$(CSRC)) \
           $(patsubst src/asm/%.s,$(BUILD)/%.o,$(ASRC))
 
-.PHONY: all run run-phos test test-host test-emu test-servers ref clean help
+.PHONY: all run run-phos test test-host test-emu test-servers ref bench clean help
 
 all: $(NEO)
 
@@ -75,6 +75,18 @@ test: test-host test-emu
 
 test-host:
 	$(MAKE) -C tests/host
+
+# Banc de rendu sur cible : cycles par page complete (tests/emu/t_bench.c)
+BENCH_OBJ = $(filter-out $(BUILD)/main.o,$(OBJ)) $(BUILD)/t_bench.o
+$(BUILD)/page_test_data.h: tests/page_test.vdt tools/vdt2c.py | $(BUILD)
+	python3 tools/vdt2c.py $< $@ page_test_data
+$(BUILD)/t_bench.o: tests/emu/t_bench.c $(BUILD)/page_test_data.h $(HDRS)
+	$(CC) $(CFLAGS) -I $(BUILD) -c -o $@ $<
+$(BUILD)/t_bench.neo: $(BENCH_OBJ) $(CFG)
+	ld65 -C $(CFG) -o $(BUILD)/t_bench.bin $(BENCH_OBJ) none.lib
+	python3 tools/mkneo.py $(BUILD)/t_bench.bin $@ 0800 0800 "NeoTelBench"
+bench: $(BUILD)/t_bench.neo
+	tests/bench.sh
 
 test-emu: $(NEO)
 	tests/run.sh check

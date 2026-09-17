@@ -91,10 +91,14 @@ contenir que des `unsigned char` / `unsigned short` (même taille sur cc65).
   clignotement, glyphe G0 (adresse calculée), G1 (cache), G2 (appel C
   `font_get_g2`), souligné, puis 9 lignes : fond (8 `sta abs,x`) et encre
   sur les bits à 1. X = `col*8` déborde 255 à partir de la colonne 32 :
-  deux copies du bloc (base et base+256). ~60 000 cycles par ligne de 40
-  cellules (mesuré sous Phosphoneo, `--api-log 12`), soit ~10 ms ; une page
-  complète ~250 ms. Les doubles tailles restent en C (`render_cell_into_row`
-  + `blit_cell9`).
+  deux copies du bloc (base et base+256). Une cellule vide n'est pas
+  redessinée si le tampon contient déjà, à cette colonne, une cellule vide
+  du même fond (`rb_state[40]`, v0.6.1 ; le C invalide la colonne quand il
+  écrit lui-même, `display_init()` remet tout à zéro). Mesures `make bench`
+  (v0.6.1) : page vide 70 ms, page de test 129 ms, 960 lettres 248 ms
+  (~1 500 cycles par cellule dessinée). Les doubles tailles restent en C
+  (`render_cell_into_row` + `blit_cell9`) ; `scan_dblh` (assembleur) trouve
+  les doubles hauteurs de la rangée du dessous.
 - **Doubles hauteurs** : comme sur le Minitel, la cellule occupe sa ligne
   (moitié basse) et la ligne du dessus (moitié haute). Le rendu d'une ligne
   r superpose donc les moitiés hautes des cellules double hauteur de r+1 ;

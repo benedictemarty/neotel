@@ -85,8 +85,16 @@ valeurs de `--dump-ram-when` sont en hexadécimal : « 15 » valait 0x15.
 |---|---|
 | US-21 Je peux joindre un serveur Minitel WebSocket (`ws://`) depuis NeoTel | fait côté PC (faux modem, serveur 3 `wss://3617.fr/ws`, scénario `ws`, serveur réel) ; non vérifié sur un Pico réel |
 
+## Sprint 6b — v0.6.1 (2026-09-17) — TERMINÉ
+| User story | État |
+|---|---|
+| US-15 Le rendu saute les cellules vides déjà affichées ; page complète nettement plus rapide | fait (`rb_state`, `scan_dblh`, `make bench` : page vide 236 → 70 ms, page de test 273 → 129 ms) |
+
+Rétrospective : le profil par trace a montré que la moitié du temps de la
+page vide était dans deux boucles C (indexation ×6 des cellules) et dans le
+chargement du glyphe de l'espace, pas dans le dessin lui-même.
+
 ## Sprint 7 — v0.7 (à planifier)
 - Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-13).
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
   budget de rendu sous flux 115200 (US-14).
-- Rendu : sauter les cellules inchangées / lignes vides (US-15).
