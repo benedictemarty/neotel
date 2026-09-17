@@ -20,21 +20,29 @@ int main(void)
     host_file_len = 0;
     CHECK(settings_load() == 0 && g_settings.model == TERM_MINITEL_1B &&
           g_settings.look == DISPLAY_LOOK_COLOR && g_settings.ident == 0 &&
-          g_settings.server_idx == 0 && g_settings.magic0 == 'N' && g_settings.version == SETTINGS_VERSION,
+          g_settings.server_idx == 0 && g_settings.magic0 == 'N' && g_settings.version == SETTINGS_VERSION &&
+          g_settings.rec_index == 0,
           "sans fichier : defauts");
 
     g_settings.model = TERM_MINITEL_2; g_settings.look = DISPLAY_LOOK_GREY; g_settings.ident = 1;
     g_settings.server_idx = 255; strcpy(g_settings.server, "mon.serveur.fr:1234");
+    g_settings.rec_index = 17;
     CHECK(settings_save() == 1 && host_file_len == (int)sizeof(settings_t), "sauvegarde : taille de la structure");
     memset(&g_settings, 0xEE, sizeof g_settings);
     CHECK(settings_load() == 1 && g_settings.model == TERM_MINITEL_2 && g_settings.look == DISPLAY_LOOK_GREY &&
-          g_settings.ident == 1 && g_settings.server_idx == 255 && strcmp(g_settings.server, "mon.serveur.fr:1234") == 0,
+          g_settings.ident == 1 && g_settings.server_idx == 255 && strcmp(g_settings.server, "mon.serveur.fr:1234") == 0 &&
+          g_settings.rec_index == 17,
           "aller-retour");
 
     host_file[0] = 'X';
     CHECK(settings_load() == 0 && g_settings.model == TERM_MINITEL_1B, "magie invalide : defauts");
     host_file[0] = 'N'; host_file[2] = SETTINGS_VERSION + 1;
     CHECK(settings_load() == 0 && g_settings.look == DISPLAY_LOOK_COLOR, "version inconnue : defauts");
+    host_file[2] = 1; host_file[7 + SETTINGS_SERVER_MAX] = 55;
+    CHECK(settings_load() == 1 && g_settings.version == SETTINGS_VERSION && g_settings.rec_index == 0 &&
+          g_settings.look == DISPLAY_LOOK_GREY, "version 1 acceptee : compteur d'enregistrement a 0");
+    host_file[2] = SETTINGS_VERSION; host_file[7 + SETTINGS_SERVER_MAX] = 150;
+    CHECK(settings_load() == 1 && g_settings.rec_index == 0, "compteur > 99 : remis a 0");
     host_file[2] = SETTINGS_VERSION; host_file[3] = 7; host_file[4] = 9; host_file[5] = 3;
     memset(host_file + 7, 'a', SETTINGS_SERVER_MAX);
     CHECK(settings_load() == 1 && g_settings.model == TERM_MINITEL_1B && g_settings.look == DISPLAY_LOOK_COLOR &&

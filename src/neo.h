@@ -23,6 +23,8 @@ extern unsigned char neo_regs[16];
 #define NEO_ERR   (neo_regs[2])
 #define NEO_P     (neo_regs + 4)
 void neo_host_dispatch(void);      /* le harnais "execute" la commande */
+extern unsigned char* neo_host_ptr; /* adresse hote derriere P1-2 (fichiers) */
+#define NEO_SET_ADDR(p) do { NEO_P[1] = 0; NEO_P[2] = 0; neo_host_ptr = (unsigned char*)(p); } while (0)
 #define neo_wait()        ((void)0)
 #define neo_call(g, f)    do { NEO_FN = (f); NEO_CMD = (g); neo_host_dispatch(); } while (0)
 #else
@@ -32,6 +34,9 @@ void neo_host_dispatch(void);      /* le harnais "execute" la commande */
 #define NEO_P     ((volatile unsigned char *)0xFF04)   /* P0..P7 */
 #define neo_wait()        do { while (NEO_CMD) ; } while (0)
 #define neo_call(g, f)    do { NEO_FN = (f); NEO_CMD = (g); neo_wait(); } while (0)
+/* Adresse 16 bits d'un tampon dans P1-2 */
+#define NEO_SET_ADDR(p) do { NEO_P[1] = (unsigned char)((unsigned int)(p) & 0xFF); \
+                             NEO_P[2] = (unsigned char)((unsigned int)(p) >> 8); } while (0)
 #endif
 
 /* Groupes */

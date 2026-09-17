@@ -23,10 +23,10 @@ NeoTel sur le 65C02 : Videotex → cellules 40x25 → tampon de ligne → blitte
 
 ## État
 
-**v0.4.0 — sprints 1 à 4 livrés.** Minitel 1B complet (Videotex 40 colonnes :
+**v0.5.0 — sprints 1 à 5 livrés.** Minitel 1B complet (Videotex 40 colonnes :
 G0/G1/G2, couleurs, attributs, doubles tailles, PRO1/2/3, aiguillages),
 profil Minitel 2 (identification, vitesses PRO2 PROG jusqu'à 9600, **jeux
-DRCS téléchargeables** conformes à la STUM 2, demande de position curseur), réglages persistants sur la carte, **mode Mixte / Téléinformatique 80 colonnes** (ISO 6429, mode Hercules du fork), menus,
+DRCS téléchargeables** conformes à la STUM 2, demande de position curseur), réglages persistants sur la carte, **mode Mixte / Téléinformatique 80 colonnes** (ISO 6429, mode Hercules du fork), **enregistrement des pages reçues (`CTRL+O`, `.vdt`) et relecture** (menu `6`), menus,
 connexion AT, page de configuration Wi-Fi du Pico, perte de porteuse,
 retour à NeoBASIC. Vérifié dans les émulateurs Phosphoneo et `neo` avec un
 faux modem, et **sur les vrais serveurs PAVI 3617 et MiniPavi** (`make
@@ -54,8 +54,8 @@ make run               # émulateur neo + faux modem (ATDT hôte:port = vraie co
 make run-phos          # idem sous Phosphoneo (SDL)
 make run MODEM=--serve # page de test locale, sans réseau
 make test              # tests hôte (gcc) + tests cible (Phosphoneo headless)
-make test-host         # 526 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
-make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, sortie, neo
+make test-host         # 753 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série, enregistrement
+make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, enregistrement/relecture, sortie, neo
 make test-servers      # fumée sur les vrais serveurs PAVI 3617 / MiniPavi (réseau)
 make ref               # régénère tests/ref/*.ppm après un changement visuel voulu
 ```

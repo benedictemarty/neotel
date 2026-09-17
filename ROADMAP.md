@@ -55,10 +55,17 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] Fumée sur les vrais serveurs (`make test-servers`) — v0.4.1.
 - [x] 40 colonnes avec pixels doublés — v0.4.2.
 - [ ] Écarts : passage à la ligne après la 80ᵉ colonne = hypothèse ; traits
-      de balayage DEC approximés. Marge BSS ~1,4 Ko (pile C à 512 o, v0.4.3).
+      de balayage DEC approximés.
+
+## v0.5.0 — Enregistrement et relecture [TERMINÉ, 2026-09-17]
+- [x] `CTRL+O` : enregistrement du flux reçu dans `neoNN.vdt` (API fichiers),
+      menu `6` : relecture par la boucle de session. 225 tests hôte, 2
+      scénarios cible.
+- [ ] Marge BSS ~330 o (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`) :
+      toute fonctionnalité nouvelle devra d'abord gagner de la place (cache
+      G1 1 152 o recalculable, code de `teleinfo.c` 9 Ko).
 
 ## Idées
-- Enregistrement des pages reçues (.vdt) sur la carte SD, relecture.
 - Bridge WebSocket (serveurs `ws://`) : réutiliser `orictel_bridge.py`
   côté PC, ou une commande `AT` dédiée du Pico.
 - Mode « réponse ENQROM » automatique par serveur.

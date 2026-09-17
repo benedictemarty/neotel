@@ -18,8 +18,8 @@
  * Raccourcis conserves d'OricTel : Entree = Envoi, Retour arriere = Correction,
  * CTRL+A Annulation, CTRL+R Retour, CTRL+E Repetition, CTRL+G Guide,
  * CTRL+S Sommaire, CTRL+N Suite, CTRL+C Connexion/Fin, CTRL+L effacer la
- * page, CTRL+F reinitialiser la liaison serie, CTRL+D aspect, ESC = sortie
- * locale. Les fleches arrivent avec les memes codes que CTRL+A/D/S/W
+ * page, CTRL+F reinitialiser la liaison serie, CTRL+D aspect, CTRL+O
+ * enregistrer / arreter (.vdt), ESC = sortie locale. Les fleches arrivent avec les memes codes que CTRL+A/D/S/W
  * (console du firmware) : elles sont distinguees par l'etat de la touche
  * HID (API 1,2).
  */
@@ -54,6 +54,7 @@
 #define KEY_LOCAL_ESCAPE  0xF9  /* ESC = sortie (quitter la session / retour menu) */
 #define KEY_ARROW_UP      0xF8  /* Fleche haut (mode curseur PRO3) */
 #define KEY_ARROW_DOWN    0xF7  /* Fleche bas (mode curseur PRO3) */
+#define KEY_LOCAL_RECORD  0xF6  /* CTRL+O = enregistrer / arreter (.vdt sur la carte) */
 
 /* Octets prives emis par les hotkeys F1-F10 (2,4) */
 #define KEY_HOTKEY_BASE   0x81

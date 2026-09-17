@@ -6,7 +6,7 @@ SRC = ../../src
 STUB = neo_stub.c $(SRC)/settings.c
 HDRS = $(wildcard $(SRC)/*.h) neo_stub.h
 
-TESTS = test_videotex test_atmodem test_ui test_keyboard test_display test_terminal test_drcs test_settings test_teleinfo
+TESTS = test_videotex test_atmodem test_ui test_keyboard test_display test_terminal test_drcs test_settings test_teleinfo test_record
 TOOLS = render_page
 
 all: $(TESTS) $(TOOLS)
@@ -36,6 +36,9 @@ test_drcs: test_drcs.c $(SRC)/display.c $(SRC)/fonts.c $(SRC)/videotex.c $(SRC)/
 
 test_settings: test_settings.c $(STUB) $(HDRS)
 	$(CC) $(CFLAGS) -o $@ test_settings.c $(STUB)
+
+test_record: test_record.c $(SRC)/record.c $(STUB) $(HDRS)
+	$(CC) $(CFLAGS) -o $@ test_record.c $(SRC)/record.c $(STUB)
 
 test_teleinfo: test_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB) $(HDRS)
 	$(CC) $(CFLAGS) -o $@ test_teleinfo.c $(SRC)/teleinfo.c $(SRC)/display80.c $(SRC)/font80.c $(SRC)/terminal.c $(SRC)/serial.c $(STUB)

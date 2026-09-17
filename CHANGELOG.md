@@ -3,7 +3,44 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.4.3] — 2026-09-17
+## [0.5.0] — 2026-09-17
+
+### Ajouté
+- **Enregistrement des pages reçues** (`src/record.c`) : `CTRL+O` en session
+  ouvre `neoNN.vdt` (NN = 01..99, compteur `rec_index` dans `neotel.cfg`)
+  par l'API fichiers (3,4 création, 3,9 écriture par blocs de 64 octets,
+  3,5 fermeture) et y copie tel quel tout octet reçu du serveur ; `CTRL+O`
+  de nouveau, ESC ESC ou une perte de porteuse arrêtent. Indicateur `RE`
+  (rouge, inversé) en bas à droite de la barre de statut. Format = flux
+  Videotex brut, le même que les pages `tests/*.vdt`.
+- **Relecture** : menu `6 - Relire neoNN.vdt` (ENVOI = dernier enregistré,
+  ou un nom saisi). Le fichier est rejoué par la boucle de session elle-même
+  (source = `record.c` au lieu de la liaison ; mode Mixte compris), la barre
+  de statut affiche le nom ; ESC ESC revient au menu sans `+++`/`ATH`.
+- Tests : `tests/host/test_record.c` (225 assertions : noms, blocs de 64,
+  vidage à l'arrêt, relecture jusqu'à la fin, fichier absent, création
+  refusée, exclusion enregistrement/relecture, canaux fermés) sur un disque
+  en mémoire ajouté à `neo_stub.c` (3,4/5/8/9 par canal, `neo_host_ptr`
+  pour les adresses 16 bits) ; scénarios cible **record** (`neo01.vdt` ==
+  page reçue, octet pour octet) et **replay** (menu 6 → page décodée) ;
+  `tools/fake_modem.py --on-rx` (page envoyée au premier octet tapé, pour
+  armer l'enregistrement avant, quelle que soit la vitesse de l'émulateur)
+  et `--delay S`.
+- `NEO_SET_ADDR(p)` dans `neo.h` (adresse 16 bits dans P1-2 ; sur l'hôte,
+  pointeur réel via `neo_host_ptr`).
+
+### Modifié
+- `neotel.cfg` version 2 (+ `rec_index`) ; un fichier version 1 est accepté
+  (compteur à 0), > 99 remis à 0 (+2 tests).
+- RAM : les tampons de la page Wi-Fi (312 o) logent dans `vtx.drcs`, remis
+  à zéro par `vtx_init()` avant chaque session ; pile C ramenée à **256
+  octets** (`$FB00-$FBFF`, usage mesuré 34 o) ; `PASS stack` vérifie
+  `$FB00-$FB7F` vierge. Marge BSS : ~330 octets (`grep BSS build/neotel.map`).
+- `tests/run.sh` : les valeurs de `--dump-ram-when` sont en **hexadécimal**
+  (`ST_EXIT=0A`, `ST_HUNGUP=0C`, `ST_REPLAY_END=0F`) — les anciennes
+  constantes décimales 10/12 n'étaient utilisées par aucun scénario.
+
+
 
 ### Modifié
 - Pile C ramenée de 1 Ko à **512 octets** (`$FA00-$FBFF`) : avec

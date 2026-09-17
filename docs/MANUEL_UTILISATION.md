@@ -29,6 +29,10 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
      [MINITEL_1B_VS_2.md](MINITEL_1B_VS_2.md)) ;
    - `4` Aspect : **couleur** ↔ **gris (1B mono)** ;
    - `5` Identification ENQROM : OFF (défaut) ↔ ON ;
+   - `6` Relire un `.vdt` : nom du fichier (ENVOI seul = dernier
+     enregistrement `neoNN.vdt`, ESC annule). La page est rejouée comme si
+     le serveur l'envoyait (mode Mixte compris), sans liaison ; la barre de
+     statut affiche le nom ; `ESC ESC` revient au menu ;
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
    (`go.minipavi.fr:516`), `3` saisie libre `hôte:port` (Envoi valide,
@@ -45,7 +49,8 @@ démarrage. Sans carte ou sans fichier : valeurs par défaut, sans message.
 6. **Session** : la page Videotex occupe les 225 lignes du haut ; la barre
    de statut en bas affiche `C`/`F` (données reçues il y a moins de 30 s),
    le serveur, le chrono `mm:ss`, le profil (`1B`/`M2`), la vitesse
-   programmée, l'aspect (`COUL`/`GRIS`) et le rappel `F1`.
+   programmée, l'aspect (`COUL`/`GRIS`) et le rappel `F1` (`RE` rouge
+   pendant un enregistrement).
 7. **Perte de porteuse** : quand le modem émet une ligne `NO CARRIER` suivie
    de 4 s de silence : `1` reconnecter, `2` rester en local, `ESC` menu.
 
@@ -77,7 +82,8 @@ se fait par le serveur (`PRO2 MIXTE 2`, `CSI ? {`) ou par `ESC ESC`.
 | lettres, chiffres, ponctuation | texte | ASCII 7 bits |
 
 Touches locales (rien n'est envoyé) : `F10` / `CTRL+D` aspect couleur/gris,
-`CTRL+L` effacer la page, `CTRL+F` réinitialiser la liaison série, `ESC`
+`CTRL+L` effacer la page, `CTRL+F` réinitialiser la liaison série, `CTRL+O`
+enregistrer / arrêter (voir ci-dessous), `ESC`
 pose la question « quitter ? » dans la barre de statut : `ESC` à nouveau
 raccroche (`+++`, `ATH`) et revient au menu, toute autre touche reprend.
 
@@ -89,6 +95,17 @@ interprétée comme le `CTRL` correspondant.
 L'écho local est **désactivé** par défaut (aiguillage clavier → écran OFF,
 comme sur un Minitel 1B) : ce qu'on tape n'apparaît que si le serveur le
 renvoie ou active l'écho (PRO3 SWITCH ON écran ← clavier).
+
+## Enregistrer une page (`CTRL+O`)
+
+En session, `CTRL+O` ouvre `neoNN.vdt` (NN = 01, 02… jusqu'à 99, puis 01)
+sur la carte SD / clé USB et y copie **tel quel** tout ce que le serveur
+envoie à partir de ce moment (pas d'instantané de l'écran : commencer
+l'enregistrement avant de demander la page). `CTRL+O` de nouveau, `ESC ESC`
+ou une perte de porteuse ferment le fichier. Sans carte : message
+« Enregistrement impossible ». Le fichier est un flux Videotex brut,
+relisible par le menu `6`, par `tests/host/render_page` ou par tout
+lecteur `.vdt`.
 
 ## Sur PC (émulateurs)
 

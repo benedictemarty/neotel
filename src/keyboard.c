@@ -131,6 +131,7 @@ unsigned char keyboard_translate(unsigned char ch, unsigned char arrow_hid)
         /* Mode Mixte : codes de controle tels quels (Entree = CR, retour
          * arriere = BS, TAB = HT, CTRL+lettre = C0) ; ESC reste local. */
         if (ch == 0x1B) return KEY_LOCAL_ESCAPE;
+        if (ch == 0x0F) return KEY_LOCAL_RECORD;    /* CTRL+O local, meme en etendu */
         if (ch == 0x1A) return 0x08;            /* Suppr -> BS */
         if (ch < 0x20) return (unsigned char)(KEY_FUNC_FLAG | 0x20 | ch);   /* C0 brut, marque */
         if (ch < 0x7F) return ch;
@@ -156,6 +157,7 @@ unsigned char keyboard_translate(unsigned char ch, unsigned char arrow_hid)
         case 0x04:  return KEY_TOGGLE_RENDER;                /* CTRL+D */
         case 0x0C:  return KEY_LOCAL_CLEAR;                  /* CTRL+L */
         case 0x06:  return KEY_LOCAL_RESET;                  /* CTRL+F */
+        case 0x0F:  return KEY_LOCAL_RECORD;                 /* CTRL+O */
         default:
             break;
     }

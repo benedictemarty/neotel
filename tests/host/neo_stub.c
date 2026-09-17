@@ -118,6 +118,63 @@ void host_tx_reset(void) { host_tx_len = 0; }
 unsigned char host_file[256];
 int host_file_len;
 unsigned char host_file_ro;
+unsigned char* neo_host_ptr;
+
+host_disk_file_t host_disk[HOST_FILES];
+int host_open_count;
+unsigned char host_disk_ro;
+static struct { host_disk_file_t* f; int pos; } chan[8];
+
+host_disk_file_t* host_disk_find(const char* name)
+{
+    int i;
+    for (i = 0; i < HOST_FILES; ++i)
+        if (host_disk[i].name[0] && strcmp(host_disk[i].name, name) == 0) return &host_disk[i];
+    return 0;
+}
+
+static void disk_op(unsigned char f)
+{
+    unsigned char ch = NEO_P[0];
+    int n = NEO_P[3] | (NEO_P[4] << 8);
+    char name[32];
+    host_disk_file_t* df;
+    if (ch >= 8) { NEO_ERR = 1; return; }
+    switch (f) {
+    case 4:                                 /* open */
+        if (chan[ch].f) { NEO_ERR = 1; return; }
+        memcpy(name, neo_host_ptr + 1, neo_host_ptr[0]); name[neo_host_ptr[0]] = 0;
+        df = host_disk_find(name);
+        if (NEO_P[3] == 3) {
+            if (host_disk_ro) { NEO_ERR = 1; return; }
+            if (!df) { int i; for (i = 0; i < HOST_FILES && host_disk[i].name[0]; ++i) ; if (i == HOST_FILES) { NEO_ERR = 1; return; } df = &host_disk[i]; strcpy(df->name, name); }
+            df->len = 0;
+        } else if (!df) { NEO_ERR = 1; return; }
+        chan[ch].f = df; chan[ch].pos = 0; ++host_open_count;
+        return;
+    case 5:                                 /* close */
+        if (!chan[ch].f) { NEO_ERR = 1; return; }
+        chan[ch].f = 0; --host_open_count;
+        return;
+    case 8:                                 /* read */
+        df = chan[ch].f;
+        if (!df) { NEO_ERR = 1; return; }
+        if (n > df->len - chan[ch].pos) n = df->len - chan[ch].pos;
+        memcpy(neo_host_ptr, df->data + chan[ch].pos, n);
+        chan[ch].pos += n;
+        NEO_P[3] = (unsigned char)n; NEO_P[4] = (unsigned char)(n >> 8);
+        if (n == 0) NEO_ERR = 1;            /* FIOERROR_EOF */
+        return;
+    case 9:                                 /* write */
+        df = chan[ch].f;
+        if (!df || chan[ch].pos + n > HOST_FILE_MAX) { NEO_ERR = 1; return; }
+        memcpy(df->data + chan[ch].pos, neo_host_ptr, n);
+        chan[ch].pos += n;
+        if (chan[ch].pos > df->len) df->len = chan[ch].pos;
+        return;
+    }
+    NEO_ERR = 1;
+}
 
 /* --- dispatch ----------------------------------------------------------- */
 void neo_host_dispatch(void)
@@ -152,7 +209,7 @@ void neo_host_dispatch(void)
         } else if (f == 3) {                /* Store File */
             if (host_file_ro) NEO_ERR = 1;
             else { host_file_len = sizeof g_settings; memcpy(host_file, &g_settings, host_file_len); }
-        } else NEO_ERR = 1;
+        } else disk_op(f);
         break;
     case NEO_G_GRAPHICS:
     case NEO_G_BLITTER:
