@@ -50,6 +50,9 @@ toute modification.
   vide) : un test ne doit jamais dépendre d'un délai mural du faux modem
   (`--on-rx` déclenche la page sur un octet tapé). Le clignotement change
   de phase tous les 3,1 M cycles : capturer au milieu d'une phase.
-- RAM : ~1,6 Ko de marge BSS en v0.5.1. Les gros tampons transitoires se
+- Une page réelle qui s'affiche mal se capture directement (`websockets`,
+  cf. scénario `poker`) puis se rejoue dans `tests/host/render_page` : c'est
+  l'oracle le plus rapide pour isoler une séquence Vidéotex.
+- RAM : ~1,6 Ko de marge BSS en v0.5.1, **76 o en v0.8.2**. Les gros tampons transitoires se
   logent dans `vtx` (écran 80 col. dans `vtx.screen`, page Wi-Fi dans
   `vtx.drcs`) ; toute division en C tire `mod.o`/`shelp.o` de la libc.

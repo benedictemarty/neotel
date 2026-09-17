@@ -165,6 +165,27 @@ if [ "$mode" = ref ]; then cp "$OUT/mixte40.ppm" "$REF/mixte40.ppm"; echo "REF  
 elif [ -f "$REF/mixte40.ppm" ] && cmp -s "$OUT/mixte40.ppm" "$REF/mixte40.ppm"; then echo "PASS mixte40-ref"
 elif [ -f "$REF/mixte40.ppm" ]; then echo "FAIL mixte40-ref"; fail=1; fi
 
+# --- 2c'. page reelle du POKER de 3617.fr (capturee le 2026-09-18) : cartes
+# blanches en mosaiques et double taille noires ; couvre la validation du fond
+# par les semi-graphiques et la zone d'accueil apres US (STUM 1B, v0.8.2)
+tests/host/render_page tests/page_poker.vdt "$OUT/poker_gold0.ppm" "$OUT/poker_gold1.ppm"
+run "--serve --page tests/page_poker.vdt" --cycles 40000000 $KEYS \
+    --screenshot-at "38000000:$OUT/poker.ppm"
+python3 - "$OUT/poker.ppm" "$OUT/poker_gold0.ppm" "$OUT/poker_gold1.ppm" <<'EOF2'
+import sys
+def load(p): return open(p, 'rb').read().split(b'\n', 3)[3]
+cap, g0, g1 = (load(a) for a in sys.argv[1:4])
+n = 320 * 225 * 3
+# la carte 1 (rangees 2-10, colonnes 3-8) doit etre majoritairement blanche
+white = sum(1 for y in range(20, 100) for x in range(24, 72)
+            if cap[(y * 320 + x) * 3:(y * 320 + x) * 3 + 3] == b'\xff\xff\xff')
+ok = (cap[:n] == g0[:n] or cap[:n] == g1[:n]) and white > 2000
+if not ok: print("blanc carte 1 :", white)
+sys.exit(0 if ok else 1)
+EOF2
+if [ $? -eq 0 ]; then echo "PASS poker (page reelle 3617 : capture == oracle hote, cartes blanches)"
+else echo "FAIL poker (voir $OUT/poker.ppm)"; fail=1; fi
+
 # --- 2c''. jeu special DEC : les 5 traits de balayage a hauteurs distinctes
 tests/host/render_page --m2 --mixte tests/page_dec.vdt "$OUT/dec_gold0.ppm" "$OUT/dec_gold1.ppm"
 run "--serve --page tests/page_dec.vdt" --cycles 60000000 \

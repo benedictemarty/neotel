@@ -71,6 +71,10 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
       marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
+## v0.8.2 — Attributs de zone STUM [TERMINÉ, 2026-09-18]
+- [x] Semi-graphiques délimiteurs de couleur de fond ; zone d'accueil après
+      déplacement (POKER 3617 conforme) ; RAM regagnée (76 o de marge).
+
 ## v0.8.1 — Raccourcis clavier [TERMINÉ, 2026-09-17]
 - [x] `Suppr` Annulation, `CTRL+R` Répétition, `←` Retour, `→` Suite (hors
       mode curseur) ; premiers essais sur carte réelle (clavier corrigé en 0.8.0).

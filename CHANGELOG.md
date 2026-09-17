@@ -3,6 +3,31 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.8.2] — 2026-09-18
+
+### Corrigé
+- **Attributs de zone (STUM 1B)** — révélé par le POKER de 3617.fr (cartes
+  affichées noires, valeurs hors des cartes) :
+  - un **caractère semi-graphique (G1 / DRCS G'1) valide la couleur de fond
+    latente** (« tout caractère semi-graphique joue le rôle de délimiteur de
+    couleur de fond ») ; NeoTel n'appliquait le fond que sur un espace G0,
+    les mosaïques gardaient l'ancien fond ;
+  - **zone d'accueil** : après US, LF, VT, BS, HT ou CSI, l'écriture reprend
+    le fond de la zone où arrive le curseur (`adopt_zone_bg`) au lieu d'un
+    fond noir forcé — un « R » écrit sur une zone blanche restait noir sur
+    noir.
+  Tests hôte (`test_videotex`, 235) et scénario cible **poker** sur la page
+  réelle capturée (`tests/page_poker.vdt`). Écart documenté avec
+  `videotex.c` d'OricTel (docs/ARCHITECTURE.md).
+
+### Modifié
+- **RAM** (les corrections coûtaient 135 octets de code, marge 60) :
+  `at_modem.c` n'a plus qu'un tampon de ligne partagé (attentes AT et
+  surveillance de porteuse, jamais simultanées : −96 o), un seul tampon de
+  définition des hotkeys F1-F10 (le firmware copie le texte : −18 o), libellé
+  du menu 6 dans `vtx.drcs` (−28 o). Marge BSS : **76 octets** sous la
+  pile C.
+
 ## [0.8.1] — 2026-09-17
 
 ### Modifié

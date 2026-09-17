@@ -33,7 +33,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.8.1"
+#define NEOTEL_VERSION "v0.8.2"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -235,7 +235,9 @@ static unsigned char select_mode(vtx_context_t* ctx)
                               ? "5 - Identification: ON"
                               : "5 - Identification: OFF");
         {
-            static char item[28];
+            /* Libelle compose du menu 6 : tampon transitoire dans vtx.drcs
+             * (inutilise au menu ; vtx_init le remet a zero avant la session) */
+            char* item = (char*)&vtx.drcs[0][0][0];
             strcpy(item, "6 - Relire un .vdt");
             if (g_settings.rec_index) record_make_name(item + 11, g_settings.rec_index);
             ui_menu_item(ctx, 19, item);

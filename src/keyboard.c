@@ -13,9 +13,10 @@ static unsigned char s_extended;
 void keyboard_set_extended(unsigned char on) { s_extended = on ? 1 : 0; }
 unsigned char keyboard_extended(void) { return s_extended; }
 
-/* Chaines prefixees des hotkeys F1-F10 : un octet prive chacune. Statiques :
- * le firmware les copie a la definition, mais on ne parie pas dessus. */
-static unsigned char hotkey_str[10][2];
+/* Chaine prefixee d'un hotkey : un octet prive. Un seul tampon reutilise
+ * pour F1-F10 : le firmware copie le texte a la definition (strcpy dans
+ * KBDSetFunctionKey, keyboard.cpp) et ne garde pas l'adresse (v0.8.2). */
+static unsigned char hotkey_str[2];
 
 /* ===================================================================
  *  Initialisation : F1-F10 -> octets prives $81-$8A
@@ -27,14 +28,14 @@ void keyboard_init(void)
 
     keyboard_inject = 0;
     for (i = 0; i < 10; ++i) {
-        hotkey_str[i][0] = 1;
-        hotkey_str[i][1] = (unsigned char)(KEY_HOTKEY_BASE + i);
+        hotkey_str[0] = 1;
+        hotkey_str[1] = (unsigned char)(KEY_HOTKEY_BASE + i);
 #ifndef TEST_HOST
         /* Adresse 16 bits de la chaine prefixee (RAM 6502) */
         neo_wait();
         NEO_P[0] = (unsigned char)(i + 1);
-        NEO_P[2] = (unsigned char)((unsigned int)hotkey_str[i] & 0xFF);
-        NEO_P[3] = (unsigned char)((unsigned int)hotkey_str[i] >> 8);
+        NEO_P[2] = (unsigned char)((unsigned int)hotkey_str & 0xFF);
+        NEO_P[3] = (unsigned char)((unsigned int)hotkey_str >> 8);
         neo_call(NEO_G_CONSOLE, NEO_F_DEF_HOTKEY);
 #endif
     }
