@@ -10,7 +10,7 @@
 ;   premiere cellule de taille non normale (double hauteur/largeur), rendue
 ;   par le C. Retourne le nombre de cellules rendues.
 ;   Gere : inversion, masquage (g_global_mask), clignotement (g_blink_phase),
-;   G0 (font_g0, 6 pixels centres), G1 (cache g1_cache, 8x9 natif, $60 =
+;   G0 (font_g0, 6 pixels centres), G1 (mosaiques calculees, 8x9, $60 =
 ;   trait haut), G2 (font_get_g2 en C), DRCS G'0/G'1 (drcs_pattern9 en C),
 ;   souligne (ligne 8).
 ;
@@ -29,7 +29,7 @@
         .export   _blit_run, _blit_cell9
         .export   _run_cells, _run_col, _run_count
         .export   _blit_pat, _blit_col, _blit_fg, _blit_bg
-        .import   _display_rowbuf, _font_g0, _g1_cache, _font_get_g2
+        .import   _display_rowbuf, _font_g0, _font_get_g2
         .import   _g_global_mask, _g_blink_phase
         .import   _drcs_pattern9, _drcs_pattern_set
 
@@ -63,6 +63,13 @@ _blit_pat:  .res 2
 _blit_col:  .res 1
 _blit_fg:   .res 1
 _blit_bg:   .res 1
+
+        .segment "RODATA"
+; Ligne de pixels d'une rangee de mosaique selon ses deux blocs (bit 0 =
+; gauche, bit 1 = droit) : contigu (4 + 4 pixels) puis separe (3 + 3, colonne
+; de droite de chaque bloc vide) — meme table que mosaic_pattern (display.c).
+g1_tbl: .byte $00, $F0, $0F, $FF
+        .byte $00, $E0, $0E, $EE
 
         .segment "CODE"
 
@@ -305,7 +312,9 @@ _blit_run:
         lda  #$FF
         sta  pat+0
         bra  @underline
-@g1c:   ; index = (ch & $1F) | ((ch & $40) >> 1), separe = flag $10
+@g1c:   ; index = (ch & $1F) | ((ch & $40) >> 1) : bits (2k, 2k+1) = blocs
+        ; gauche / droit de la rangee k ; separe = flag $10 (v0.5.1 : calcule
+        ; a la volee, plus de cache de 1 152 octets)
         tay
         and  #$1F
         sta  glyph
@@ -313,42 +322,33 @@ _blit_run:
         and  #$40
         lsr
         ora  glyph          ; 0..63
-        ; glyph = g1_cache + sep*576 + index*9
         sta  glyph
-        stz  glyph+1
-        asl  glyph
-        rol  glyph+1        ; *2
-        asl  glyph
-        rol  glyph+1        ; *4
-        asl  glyph
-        rol  glyph+1        ; *8
-        clc
-        adc  glyph          ; *9
-        sta  glyph
-        bcc  :+
-        inc  glyph+1
-:       lda  cflags
+        ldx  #0             ; table contigue
+        lda  cflags
         and  #ATTR_SEPARATED
-        beq  @g1sum
+        beq  :+
+        ldx  #4             ; table separee
+:       stx  glyph+1
+        ldy  #0
+@g1k:   lda  glyph
+        and  #3
         clc
-        lda  glyph
-        adc  #<576
-        sta  glyph
-        lda  glyph+1
-        adc  #>576
-        sta  glyph+1
-@g1sum: clc
-        lda  glyph
-        adc  #<_g1_cache
-        sta  glyph
-        lda  glyph+1
-        adc  #>_g1_cache
-        sta  glyph+1
-        ldy  #8
-:       lda  (glyph),y
+        adc  glyph+1
+        tax
+        lda  g1_tbl,x       ; ligne des deux blocs
         sta  pat,y
-        dey
-        bpl  :-
+        iny
+        sta  pat,y
+        iny
+        ldx  glyph+1
+        beq  :+
+        lda  #0             ; separe : 3e ligne vide
+:       sta  pat,y
+        iny
+        lsr  glyph
+        lsr  glyph
+        cpy  #9
+        bne  @g1k
 @underline:
         lda  cflags
         and  #ATTR_UNDERLINE

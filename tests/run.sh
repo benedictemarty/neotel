@@ -81,7 +81,7 @@ grep -q "commande b'ATDTpavi.3617.fr:3617'" build/modem.log && echo "PASS ATDT (
 # --- 2. capture de la page == rendu hote (asm == C) ------------------------
 tests/host/render_page tests/page_test.vdt "$OUT/gold0.ppm" "$OUT/gold1.ppm"
 run "--serve --page tests/page_test.vdt" --cycles 40000000 $KEYS \
-    --screenshot-at "39000000:$OUT/page.ppm"
+    --screenshot-at "38000000:$OUT/page.ppm"   # milieu d une phase de clignotement (3,1 M cycles)
 python3 - "$OUT/page.ppm" "$OUT/gold0.ppm" "$OUT/gold1.ppm" <<'EOF'
 import sys
 def load(p):
