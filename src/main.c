@@ -32,7 +32,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.5.1"
+#define NEOTEL_VERSION "v0.6.0"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -270,15 +270,20 @@ static unsigned char select_mode(vtx_context_t* ctx)
 }
 
 /* Serveurs disponibles */
+/* Cibles ATDT : hote:port (TCP) ou ws:// / wss:// (WebSocket, relaye par
+ * tools/fake_modem.py sur PC ; non verifie sur un PicoWiFiModemUSB). */
 static const char* servers[] = {
     "pavi.3617.fr:3617",
     "go.minipavi.fr:516",
+    "wss://3617.fr/ws",
 };
 static const char* server_names[] = {
     "PAVI 3617",
     "MiniPavi",
+    "3617.fr (WS)",
 };
-#define NUM_SERVERS 2
+#define NUM_SERVERS 3
+#define KEY_OTHER_SERVER ('1' + NUM_SERVERS)
 
 /* Buffer pour saisie libre du serveur */
 static char custom_server[40];
@@ -307,11 +312,11 @@ static unsigned char select_server(vtx_context_t* ctx)
     }
     {
         unsigned char row = 10 + NUM_SERVERS * 2;
-        ctx->screen[row][5].ch = '3';
+        ctx->screen[row][5].ch = KEY_OTHER_SERVER;
         ctx->screen[row][5].fg = VTX_CYAN;
         ctx->screen[row][7].ch = '-';
         ctx->screen[row][7].fg = VTX_WHITE;
-        ui_print(ctx, row, 9, "Autre (host:port)", VTX_YELLOW);
+        ui_print(ctx, row, 9, "Autre (host:port, ws://)", VTX_YELLOW);
     }
     display_render_all(ctx);
 
@@ -328,9 +333,9 @@ static unsigned char select_server(vtx_context_t* ctx)
             }
             if (g_settings.server_idx < NUM_SERVERS) return g_settings.server_idx;
         }
-        if (key == '3') {
+        if (key == KEY_OTHER_SERVER) {
             unsigned char row = 10 + NUM_SERVERS * 2 + 2;
-            ui_print(ctx, row, 3, "host:port> ", VTX_WHITE);
+            ui_print(ctx, row, 3, "Serveur  > ", VTX_WHITE);
             display_render_all(ctx);
             n = ui_text_input(ctx, row, 14, custom_server,
                               sizeof(custom_server), 0);

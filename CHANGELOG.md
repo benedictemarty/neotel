@@ -3,7 +3,27 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.5.1] — 2026-09-17
+## [0.6.0] — 2026-09-17
+
+### Ajouté
+- **Serveurs WebSocket** : `ATDT ws://…` / `wss://…` est relayé par
+  `tools/fake_modem.py` (module python3 `websockets`, sous-protocole
+  `binary`, messages texte ramenés sur 7 bits comme le bridge d'OricTel ;
+  deux fils et une `socketpair`, la boucle principale voit une connexion TCP
+  ordinaire : `NO CARRIER` à la fermeture distante, `ATH` ferme le
+  WebSocket). Serveur prédéfini `3` = `wss://3617.fr/ws` (vérifié : même
+  page d'accueil que PAVI 3617, `ws://` y répond 308 vers `wss://`), saisie
+  libre passée en `4` (accepte `hôte:port` ou `ws://`). **Non vérifié sur un
+  PicoWiFiModemUSB réel** (son firmware AT ne documente pas de WebSocket).
+- `tools/ws_page_server.py` : serveur Minitel WebSocket minimal (port libre
+  écrit dans un fichier, envoie une page `.vdt` à la connexion, journal,
+  `--echo`).
+- Tests : scénario cible **ws** (réglages préremplis avec
+  `ws://127.0.0.1:PORT`, menu 1 + ENVOI, page reçue par WebSocket ; SKIP sans
+  `websockets`) ; `make test-servers` joue aussi `wss://3617.fr/ws`
+  (**PASS** : 667 octets, page Télétel affichée).
+
+
 
 ### Modifié
 - **Cache G1 supprimé** (1 152 octets de BSS) : les mosaïques sont calculées

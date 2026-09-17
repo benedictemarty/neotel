@@ -77,6 +77,11 @@ adresses lues dans `build/neotel.lbl`.
    dump RAM quand `g_dbg_state` = `ST_REPLAY_END` (0x0F, fichier rejoué),
    la page doit y être décodée. NB : `--dump-ram-when` et `--poke-at`
    lisent les valeurs en **hexadécimal**.
+6e. **ws** : `tools/ws_page_server.py` sert la page de test en WebSocket
+   sur un port libre ; `neotel.cfg` est prérempli avec
+   `ws://127.0.0.1:PORT` comme dernier serveur ; menu `1` + ENVOI → le faux
+   modem (sans `--serve`) ouvre le WebSocket, la page est décodée. SKIP sans
+   le module `websockets`.
 7. **exit** : ESC au menu → NeoBASIC répond (`PRINT 6*7` → `42`).
 8. **neo** : fumée dans l'émulateur officiel `neo` (splash affiché).
 
@@ -84,6 +89,9 @@ Durée : ~9 s. Les scénarios sont déterministes côté 65C02 ; seul le faux
 modem est asynchrone (il répond en quelques ms, bien avant les timeouts).
 
 ## Serveurs réels (`make test-servers`, hors `make test`)
+
+PAVI 3617 et MiniPavi en TCP, puis `wss://3617.fr/ws` en WebSocket (serveur
+`3`) : > 200 octets reçus et une page allumée.
 
 `tests/test_servers.sh` : session complète sur **PAVI 3617** puis **MiniPavi**
 par le faux modem (relais TCP réel), 1,5 G cycles chacune (Phosphoneo va

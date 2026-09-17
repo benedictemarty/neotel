@@ -244,6 +244,32 @@ else
     echo "FAIL replay (voir $OUT/phos.log)"; fail=1
 fi
 
+# --- 4d. serveur WebSocket : ATDT ws://127.0.0.1:PORT relaye par le faux modem
+# (module python3 "websockets" ; SKIP sinon). Le dernier serveur des reglages
+# est prerempli avec l'URL : menu 1 puis ENVOI compose.
+if python3 -c "import websockets" 2>/dev/null; then
+    rm -rf "$STORAGE"; mkdir -p "$STORAGE"; rm -f build/wsport.txt build/ws.log
+    python3 tools/ws_page_server.py build/wsport.txt tests/page_test.vdt --log build/ws.log &
+    wspid=$!
+    i=0; while [ ! -s build/wsport.txt ] && [ $i -lt 50 ]; do sleep 0.1; i=$((i+1)); done
+    python3 - "$STORAGE/neotel.cfg" "ws://127.0.0.1:$(cat build/wsport.txt)" <<'EOF2'
+import sys, struct
+srv = sys.argv[2].encode().ljust(40, b'\0')
+open(sys.argv[1], 'wb').write(b'NT' + bytes([2, 0, 0, 0, 255]) + srv + bytes([0]))
+EOF2
+    STORAGE_KEEP=1 run "" --cycles 120000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+        --poke-at "15000000:$KI=31" --poke-at "18000000:$KI=0D" \
+        --dump-ram-when "$NB:$PAGE_LEN:$OUT/ws.bin"
+    kill $wspid 2>/dev/null; wait $wspid 2>/dev/null
+    if [ -f "$OUT/ws.bin" ] && page_has "$OUT/ws.bin" "PAGE DE TEST NEOTEL" && grep -q "WebSocket ws://127.0.0.1" build/modem.log; then
+        echo "PASS ws (ATDT ws:// : page recue par WebSocket)"
+    else
+        echo "FAIL ws (voir build/modem.log, build/ws.log)"; fail=1
+    fi
+else
+    echo "SKIP ws (module python3 websockets absent)"
+fi
+
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------
 run "--serve" --cycles 80000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
     --poke-at "15000000:$KI=1B" --type-keys '40000000:PRINT 6*7\n' \
