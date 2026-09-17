@@ -27,7 +27,8 @@ unsigned char tick_10ms(void);
 /** Delai actif d'environ ms millisecondes (6,25 MHz). */
 void __fastcall__ neo_delay_ms(unsigned int ms);
 
-/** Bip systeme (8,3). */
+/** Bip Videotex (BEL) : tonalite 8,7 sur le canal 0. Choix de NeoTel (la
+ *  STUM ne specifie ni frequence ni duree) : 1 kHz, 100 ms, carre, volume 60 %. */
 void neo_beep(void);
 
 #endif /* NEO_TIME_H */

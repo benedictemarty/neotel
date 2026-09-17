@@ -3,6 +3,18 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [0.4.3] — 2026-09-17
+
+### Modifié
+- Pile C ramenée de 1 Ko à **512 octets** (`$FA00-$FBFF`) : avec
+  `--static-locals` elle ne porte que les paramètres ; usage mesuré sur les
+  dumps RAM des tests = 34 octets. La RAM programme monte à `$F9FF` (marge
+  BSS : ~1,4 Ko). `tests/run.sh` vérifie à chaque exécution que la moitié
+  basse de la pile reste vierge (`PASS stack`).
+- `BEL` (Videotex et 80 colonnes) et bip du splash : tonalité 1 kHz / 100 ms
+  / carré / 60 % par 8,7 au lieu du jingle système 8,3 (choix de NeoTel, la
+  STUM ne fixe ni fréquence ni durée). Vérifié dans le WAV de Phosphoneo.
+
 ## [0.4.2] — 2026-09-17
 
 ### Ajouté
