@@ -14,7 +14,7 @@
 
 #define SETTINGS_MAGIC0 'N'
 #define SETTINGS_MAGIC1 'T'
-#define SETTINGS_VERSION 2
+#define SETTINGS_VERSION 3
 #define SETTINGS_SERVER_MAX 40
 
 typedef struct {
@@ -26,6 +26,7 @@ typedef struct {
     unsigned char server_idx;       /* 0..NUM_SERVERS-1, 255 = saisie libre */
     char          server[SETTINGS_SERVER_MAX];   /* saisie libre (nul-terminee) */
     unsigned char rec_index;        /* dernier enregistrement neoNN.vdt (0 = aucun) */
+    unsigned char sound;            /* 1 = bips (BEL, splash) actifs (v3) */
 } settings_t;
 
 extern settings_t g_settings;

@@ -17,9 +17,9 @@ canal), VRAM 320 × 240, palette, compteurs de blits.
 | `test_atmodem` | 28 | machine à états AT (repris d'OricTel) |
 | `test_ui` | 11 | helpers de menus, bornes de saisie (repris) |
 | `test_keyboard` | 61 | traduction firmware → Minitel, flèches vs CTRL, hotkeys F1-F10, injection, émission SEP/CSI, aiguillages |
-| `test_display` | 46 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear` |
+| `test_display` | 48 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear`, bip soumis au réglage son |
 | `test_drcs` | 40 | DRCS Minitel 2 (STUM 2 §2.2-2.5) : en-têtes, transfert (vecteur = exemple §2.3.5), B1 anticipé, excédent, C0 = fond, sortie US, associations, mapping 2/0 et 7/F, rangée 00, SS2, profil 1B, `CSI 6n`, rendu 8 × 9, effacement par `vtx_init` |
-| `test_settings` | 9 | `neotel.cfg` : défauts, aller-retour, magie/version (v1 acceptée), bornes, écriture refusée |
+| `test_settings` | 11 | `neotel.cfg` : défauts, aller-retour, magie/version (v1 et v2 acceptées), bornes, écriture refusée |
 | `test_record` | 225 | enregistrement / relecture `.vdt` (`record.c`) sur le disque en mémoire du stub (3,4/5/8/9 par canal) : noms `neoNN.vdt`, blocs de 64, vidage à l'arrêt, relecture octet par octet jusqu'à la fin, fichier absent / vide, création refusée, exclusion enregistrement/relecture |
 | `test_teleinfo` | 87 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
 | `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |

@@ -28,6 +28,7 @@ static void settings_defaults(void)
     g_settings.look = DISPLAY_LOOK_COLOR;
     g_settings.ident = 0;
     g_settings.server_idx = 0;
+    g_settings.sound = 1;
 }
 
 unsigned char settings_load(void)
@@ -45,13 +46,16 @@ unsigned char settings_load(void)
         settings_defaults();
         return 0;
     }
-    /* Version 1 (v0.3.0-v0.4.3) : sans compteur d'enregistrement */
+    /* Version 1 (v0.3.0-v0.4.3) : sans compteur d'enregistrement ;
+     * version 2 (v0.5.0-v0.6.1) : sans reglage du son */
     if (g_settings.version < 2) g_settings.rec_index = 0;
+    if (g_settings.version < 3) g_settings.sound = 1;
     g_settings.version = SETTINGS_VERSION;
     /* Bornes : un fichier corrompu ne doit pas sortir des valeurs admises */
     if (g_settings.model > TERM_MINITEL_2) g_settings.model = TERM_MINITEL_1B;
     if (g_settings.look > DISPLAY_LOOK_GREY) g_settings.look = DISPLAY_LOOK_COLOR;
     if (g_settings.rec_index > 99) g_settings.rec_index = 0;
+    if (g_settings.sound > 1) g_settings.sound = 1;
     g_settings.ident = g_settings.ident ? 1 : 0;
     g_settings.server[SETTINGS_SERVER_MAX - 1] = 0;
     return 1;

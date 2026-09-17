@@ -12,6 +12,7 @@
 
 #include <string.h>
 #include "display.h"
+#include "settings.h"
 #include "fonts.h"
 #include "neo_gfx.h"
 #include "neo_time.h"
@@ -541,6 +542,7 @@ void display_status(const char* msg)
 
 void display_beep(void)
 {
+    if (!g_settings.sound) return;      /* menu 7 : son coupe */
     neo_beep();
 }
 

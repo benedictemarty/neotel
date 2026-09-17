@@ -32,7 +32,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.6.1"
+#define NEOTEL_VERSION "v0.6.2"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -235,7 +235,8 @@ static unsigned char select_mode(vtx_context_t* ctx)
             if (g_settings.rec_index) record_make_name(item + 11, g_settings.rec_index);
             ui_menu_item(ctx, 19, item);
         }
-        ui_print(ctx, 21, 10, "ESC Quitter (NeoBASIC)", VTX_WHITE);
+        ui_menu_item(ctx, 21, g_settings.sound ? "7 - Son: ON" : "7 - Son: OFF");
+        ui_print(ctx, 23, 10, "ESC Quitter (NeoBASIC)", VTX_WHITE);
         display_render_all(ctx);
 
         keyboard_flush();
@@ -263,6 +264,12 @@ static unsigned char select_mode(vtx_context_t* ctx)
                 g_ident_enabled ^= 1;
                 g_settings.ident = g_ident_enabled;
                 settings_save();
+                break;
+            }
+            if (key == '7') {
+                g_settings.sound ^= 1;
+                settings_save();
+                if (g_settings.sound) display_beep();   /* confirmation audible */
                 break;
             }
         }
