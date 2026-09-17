@@ -41,6 +41,21 @@ static void put9(unsigned char* line, unsigned int pos, unsigned int v)
     line[b + 1] |= (unsigned char)(w & 0xFF);
 }
 
+/* Format 40 colonnes : 18 bits (pixels doubles) = deux creneaux de 9 bits */
+static const unsigned char dbl_nibble[16] = {
+    0x00, 0x03, 0x0C, 0x0F, 0x30, 0x33, 0x3C, 0x3F,
+    0xC0, 0xC3, 0xCC, 0xCF, 0xF0, 0xF3, 0xFC, 0xFF,
+};
+static void put18(unsigned char* line, unsigned int pos, unsigned int v)
+{
+    unsigned char g = (unsigned char)(v >> 1);
+    unsigned int d = ((unsigned int)dbl_nibble[g >> 4] << 8) | dbl_nibble[g & 15];
+    unsigned int a = d >> 7;                         /* D15..D7 */
+    unsigned int b = ((d & 0x7F) << 2) | ((v & 1) ? 3 : 0);   /* D6..D0, 2 pixels */
+    put9(line, pos, a);
+    put9(line, pos + 9, b);
+}
+
 #endif /* TEST_HOST */
 
 #ifndef TEST_HOST
@@ -92,7 +107,9 @@ void display80_compose_row(ti_context_t* ctx, unsigned char row)
             if ((attr & TI_ATTR_UNDERLINE) && l == D80_CELL_H - 1) v = 0x1FF;
             if (col == cursor_col && l == D80_CELL_H - 1) v ^= 0x1FF;
             if (inv) v ^= 0x1FF;
-            if (v) put9(line, pos, v);      /* 40 col. : pas de 18, glyphe non double */
+            if (v) {
+                if (ncols == 40) put18(line, pos, v); else put9(line, pos, v);
+            }
         }
     }
   }

@@ -3,6 +3,14 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
+## [0.4.2] — 2026-09-17
+
+### Ajouté
+- Format 40 colonnes du mode Mixte (STUM 2 `CSI < 3 h`) : **pixels doublés**
+  (cellules de 18 pixels = deux créneaux de 9 bits), en assembleur et dans
+  l'oracle hôte ; curseur sur 18 pixels. Scénario cible `mixte40` (capture ==
+  oracle, référence `tests/ref/mixte40.ppm`), page `tests/page_mixte40.vdt`.
+
 ## [0.4.1] — 2026-09-17
 
 ### Ajouté

@@ -145,6 +145,25 @@ if [ "$mode" = ref ]; then cp "$OUT/mixte.ppm" "$REF/mixte.ppm"; echo "REF  mixt
 elif [ -f "$REF/mixte.ppm" ] && cmp -s "$OUT/mixte.ppm" "$REF/mixte.ppm"; then echo "PASS mixte-ref"
 elif [ -f "$REF/mixte.ppm" ]; then echo "FAIL mixte-ref (capture != tests/ref/mixte.ppm)"; fail=1; fi
 
+# --- 2c'. format 40 colonnes du mode Mixte (STUM 2, pixels doubles) --------
+tests/host/render_page --m2 --mixte tests/page_mixte40.vdt "$OUT/mixte40_gold0.ppm" "$OUT/mixte40_gold1.ppm"
+run "--serve --page tests/page_mixte40.vdt" --cycles 50000000 \
+    --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" --poke-at "15000000:$KI=33" \
+    --poke-at "18000000:$KI=31" --poke-at "21000000:$KI=31" \
+    --screenshot-at "49000000:$OUT/mixte40.ppm"
+python3 - "$OUT/mixte40.ppm" "$OUT/mixte40_gold0.ppm" "$OUT/mixte40_gold1.ppm" <<'EOF2'
+import sys
+def load(p):
+    d = open(p, 'rb').read().split(b'\n', 3); return d[3]
+cap, g0, g1 = load(sys.argv[1]), load(sys.argv[2]), load(sys.argv[3])
+sys.exit(0 if (cap == g0 or cap == g1) else 1)
+EOF2
+if [ $? -eq 0 ]; then echo "PASS mixte40 (40 colonnes : capture == oracle hote)"
+else echo "FAIL mixte40 (voir $OUT/mixte40.ppm et $OUT/mixte40_gold0.ppm)"; fail=1; fi
+if [ "$mode" = ref ]; then cp "$OUT/mixte40.ppm" "$REF/mixte40.ppm"; echo "REF  mixte40"
+elif [ -f "$REF/mixte40.ppm" ] && cmp -s "$OUT/mixte40.ppm" "$REF/mixte40.ppm"; then echo "PASS mixte40-ref"
+elif [ -f "$REF/mixte40.ppm" ]; then echo "FAIL mixte40-ref"; fail=1; fi
+
 # --- 2d. mode Mixte : ESC ESC quitte, retour au mode video 0 et au menu -----
 run "--serve --page tests/page_mixte.vdt --guard 0.02" --cycles 120000000 $KEYS \
     --poke-at "45000000:$KI=1B" --poke-at "52000000:$KI=1B" \

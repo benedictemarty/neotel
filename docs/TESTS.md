@@ -49,6 +49,7 @@ adresses lues dans `build/neotel.lbl`.
    capture 720 × 350 identique à `render_page --mixte` (asm == C) et à
    `tests/ref/mixte.ppm` ; ESC ESC en 80 colonnes raccroche et revient au
    mode vidéo 0.
+4d. **mixte40** / **mixte40-ref** : format 40 colonnes (pixels doublés).
 4b. **drcs** / **drcs-ref** : profil Minitel 2 choisi au menu (`3`), page
    `tests/page_drcs.vdt` (formes G'1 dont l'exemple de la STUM, formes G'0,
    souligné, retour au jeu de base) : capture == `render_page --m2`, et

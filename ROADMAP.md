@@ -53,8 +53,9 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] Jeux DEC / complémentaire (annexes 3.12-3.13) et extinction du curseur
       `CSI < 1 h|l` — v0.4.1.
 - [x] Fumée sur les vrais serveurs (`make test-servers`) — v0.4.1.
-- [ ] Écarts : 40 colonnes sans doublement des pixels ; passage à la ligne
-      après la 80ᵉ colonne = hypothèse ; traits de balayage DEC approximés.
+- [x] 40 colonnes avec pixels doublés — v0.4.2.
+- [ ] Écarts : passage à la ligne après la 80ᵉ colonne = hypothèse ; traits
+      de balayage DEC approximés. BSS à ~940 octets de la pile C : surveiller.
 
 ## Idées
 - Enregistrement des pages reçues (.vdt) sur la carte SD, relecture.

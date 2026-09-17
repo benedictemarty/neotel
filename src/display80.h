@@ -12,8 +12,7 @@
  * (14e ligne pleine), clignotement (cellule vide une phase sur deux, phase
  * inversee si inverse), surintensite (double frappe : glyphe OU glyphe >> 1,
  * comme le mode MDA du firmware ; un plan 1 bpp n'a pas d'intensite).
- * Format 40 colonnes (STUM 2) : cellules de 18 pixels, glyphe 8 pixels non
- * double (approximation, un Minitel 2 double les pixels).
+ * Format 40 colonnes (STUM 2) : cellules de 18 pixels, pixels doubles.
  * Rangee 00 : memes glyphes, sans attribut. Curseur : tiret clignotant sur
  * la 14e ligne (p. 161).
  *
