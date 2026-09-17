@@ -28,10 +28,11 @@
 #include "settings.h"
 #include "teleinfo.h"
 #include "display80.h"
+#include "record.h"
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.4.3"
+#define NEOTEL_VERSION "v0.5.0"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -80,6 +81,8 @@ unsigned char g_dbg_hangups;    /* sessions quittees par ESC (persistant) */
 #define ST_ESCAPE     11
 #define ST_HUNGUP     12   /* session quittee, modem raccroche */
 #define ST_MIXTE      13   /* session en mode Mixte (80 colonnes) */
+#define ST_REPLAY     14   /* relecture d'un fichier .vdt */
+#define ST_REPLAY_END 15   /* relecture terminee, attente d'une touche */
 
 /* Routage serie choisi (SERIAL_ROUTE_*) */
 static unsigned char s_route = SERIAL_ROUTE_AUTO;
@@ -170,6 +173,7 @@ static void splash_screen(vtx_context_t* ctx)
 #define MODE_MODEM  0
 #define MODE_WIFI   2
 #define MODE_QUIT   3
+#define MODE_REPLAY 4
 
 /* Ecran de la liaison serie : rappel du montage, presence du modem USB. */
 static void interface_page(vtx_context_t* ctx)
@@ -225,6 +229,12 @@ static unsigned char select_mode(vtx_context_t* ctx)
         ui_menu_item(ctx, 17, g_ident_enabled
                               ? "5 - Identification: ON"
                               : "5 - Identification: OFF");
+        {
+            static char item[28];
+            strcpy(item, "6 - Relire un .vdt");
+            if (g_settings.rec_index) record_make_name(item + 11, g_settings.rec_index);
+            ui_menu_item(ctx, 19, item);
+        }
         ui_print(ctx, 21, 10, "ESC Quitter (NeoBASIC)", VTX_WHITE);
         display_render_all(ctx);
 
@@ -233,6 +243,7 @@ static unsigned char select_mode(vtx_context_t* ctx)
             key = keyboard_scan();
             if (key == '1') return MODE_MODEM;
             if (key == '2') return MODE_WIFI;
+            if (key == '6') return MODE_REPLAY;
             if (key == KEY_LOCAL_ESCAPE) return MODE_QUIT;
             if (key == '3') {
                 term_set_model(g_term_model == TERM_MINITEL_2
@@ -340,10 +351,16 @@ static unsigned char select_server(vtx_context_t* ctx)
  * =================================================================== */
 
 #define WIFI_MAX 8
-static char wifi_ssid[WIFI_MAX][33];
-static char wifi_sec[WIFI_MAX];
+/* Ces tampons ne servent qu'a la page Config WiFi (hors session) : ils
+ * logent dans vtx.drcs, que vtx_init() remet a zero avant chaque session
+ * (meme economie de RAM que le contexte 80 colonnes dans vtx.screen). */
+typedef struct { char ssid[WIFI_MAX][33]; char sec[WIFI_MAX]; char pass[40]; } wifi_bufs_t;
+#define wifi_bufs (*(wifi_bufs_t*)&vtx.drcs[0][0][0])
+#define wifi_ssid (wifi_bufs.ssid)
+#define wifi_sec  (wifi_bufs.sec)
+#define wifi_pass (wifi_bufs.pass)
+typedef char wifi_fits_in_drcs[(sizeof(wifi_bufs_t) <= sizeof(((vtx_context_t*)0)->drcs)) ? 1 : -1];
 static unsigned char wifi_count;
-static char wifi_pass[40];
 
 static unsigned char wifi_scan(void)
 {
@@ -650,7 +667,10 @@ static void status_bar_draw(void)
     display_status_text(28, speed, VTX_WHITE, 0);
     display_status_text(33, (display_get_look() == DISPLAY_LOOK_GREY)
                             ? "GRIS" : "COUL", VTX_WHITE, 0);
-    display_status_text(38, "F1", VTX_GREEN, 0);
+    /* Colonnes 38-39 : "F1" (aide), ou "RE" inverse rouge pendant un
+     * enregistrement (CTRL+O) */
+    if (record_active()) display_status_text(38, "RE", VTX_RED, 1);
+    else display_status_text(38, "F1", VTX_GREEN, 0);
     display_status_show();
 }
 
@@ -800,6 +820,35 @@ static unsigned char session_escape_page(vtx_context_t* ctx)
     return 0;
 }
 
+/* ===================================================================
+ *  Relecture d'un fichier .vdt (menu 6) : le fichier est ouvert ici puis
+ *  rejoue par la boucle de session elle-meme (g_replay = 1), qui lit les
+ *  octets dans record.c a la place de la liaison. ESC (confirme) termine.
+ * =================================================================== */
+static unsigned char g_replay;
+static char          rec_name[RECORD_NAME_MAX];
+
+static unsigned char replay_prompt(void)
+{
+    unsigned char n;
+
+    vtx_clear_page(&vtx);
+    ui_print(&vtx, 8, 3, "Fichier a relire (ENVOI = dernier)", VTX_WHITE);
+    display_render_all(&vtx);
+    n = ui_text_input(&vtx, 10, 3, rec_name, sizeof rec_name, 0);
+    if (n == 0xFF) return 0;
+    if (n == 0) {
+        if (!g_settings.rec_index) return 0;
+        record_make_name(rec_name, g_settings.rec_index);
+    }
+    if (replay_open(rec_name)) return 1;
+    ui_print(&vtx, 12, 3, "Fichier introuvable", VTX_RED);
+    display_render_all(&vtx);
+    keyboard_flush();
+    while (keyboard_scan() == KEY_NONE) { }
+    return 0;
+}
+
 int main(void)
 {
     unsigned char byte;
@@ -847,6 +896,13 @@ int main(void)
                 wifi_config_page(&vtx);
                 continue;
             }
+            if (mode == MODE_REPLAY) {
+                if (replay_prompt()) break;
+                vtx_init(&vtx);
+                vtx.cur_visible = 0;
+                status_bar_init();
+                continue;
+            }
             if (mode == MODE_QUIT) {
                 g_dbg_state = ST_EXIT;
                 display_status_clear();
@@ -855,7 +911,13 @@ int main(void)
             break;
         }
 
+        g_replay = (mode == MODE_REPLAY);
         vtx_clear_page(&vtx);
+        if (g_replay) {
+            status_server = rec_name;
+            status_bar_draw();
+            neo_delay_ms(100);
+        } else {
         srv_idx = select_server(&vtx);
         vtx_clear_page(&vtx);
         status_server = (srv_idx == 255) ? custom_server : server_names[srv_idx];
@@ -883,11 +945,12 @@ int main(void)
             at_hangup();
             continue;
         }
+        }   /* !g_replay */
     }
 
     /* Session : curseur visible par defaut (le serveur le pilote par CON/COFF). */
     vtx.cur_visible = 1;
-    g_dbg_state = ST_SESSION;
+    g_dbg_state = g_replay ? ST_REPLAY : ST_SESSION;
     connected = 0;
     idle_counter = 0;
     carrier_pending = 0;
@@ -904,9 +967,14 @@ int main(void)
     for (;;) {
         /* 1. Drainer la reception */
         got_data = 0;
-        while (serial_poll()) {
-            byte = serial_recv();
-            if (at_carrier_watch(byte)) {
+        while (g_replay ? replay_pending() : serial_poll()) {
+            if (g_replay) {
+                byte = replay_next();
+            } else {
+                byte = serial_recv();
+                record_byte(byte);
+            }
+            if (!g_replay && at_carrier_watch(byte)) {
                 carrier_pending = 1;
                 carrier_idle = 0;
             } else if (carrier_pending && byte != 0x0D && byte != 0x0A) {
@@ -925,6 +993,24 @@ int main(void)
         } else if (key == KEY_LOCAL_CLEAR) {
             vtx_clear_page(&vtx);
             vtx.full_refresh = 1;
+        } else if (key == KEY_LOCAL_RECORD && !g_replay) {
+            const char* msg;
+            if (record_active()) {
+                record_stop();
+                msg = "Enregistrement termine";
+            } else {
+                record_make_name(rec_name, (unsigned char)(g_settings.rec_index + 1));
+                if (record_start(rec_name)) {
+                    g_settings.rec_index = (unsigned char)(rec_name[3] - '0') * 10
+                                         + (unsigned char)(rec_name[4] - '0');
+                    settings_save();
+                    msg = "Enregistrement (CTRL+O = fin)";
+                } else {
+                    msg = "Enregistrement impossible";
+                }
+            }
+            if (g_screen80) display80_status(&ti, msg);
+            else { display_status(msg); status_bar_draw(); }
         } else if (key == KEY_LOCAL_RESET && !g_screen80) {
             serial_init(s_route);
             display_status("Liaison serie reinitialisee");
@@ -932,8 +1018,11 @@ int main(void)
             if (session_escape_page(&vtx)) {
                 break;
             }
-        } else if (key != KEY_NONE) {
+        } else if (key != KEY_NONE && !g_replay) {
             keyboard_process(&vtx, key);
+        }
+        if (g_replay && g_dbg_state == ST_REPLAY && !replay_pending()) {
+            g_dbg_state = ST_REPLAY_END;        /* fichier entierement rejoue */
         }
         if (g_screen80 && key == KEY_TOGGLE_RENDER) {
             /* pas de barre de statut ni de palette en mode 1 : sans effet */
@@ -955,6 +1044,7 @@ int main(void)
                 carrier_idle = 0;
                 connected = 0;
                 at_carrier_reset();
+                record_stop();
                 if (g_screen80) mixte_leave();
                 r = carrier_lost_page(&vtx);
                 if (r == 2) {
@@ -1015,8 +1105,10 @@ int main(void)
     }
 
     /* Sortie de session par ESC : raccrocher proprement, puis menu. */
+    record_stop();
     if (g_screen80) mixte_leave();
-    at_hangup();
+    if (g_replay) { replay_close(); g_replay = 0; }
+    else at_hangup();
     keyboard_flush();
     g_dbg_state = ST_HUNGUP;
     ++g_dbg_hangups;

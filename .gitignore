@@ -16,6 +16,7 @@ tests/host/test_drcs
 storage/
 tests/host/test_settings
 tests/host/test_teleinfo
+tests/host/test_record
 tests/host/fuzz_teleinfo
 tests/host/crash-*
 tests/host/leak-*

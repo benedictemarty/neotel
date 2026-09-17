@@ -8,7 +8,8 @@ supposée**. Chaque couche a un test qui la falsifierait ; `make test` doit
 
 Compilés avec `-DTEST_HOST` contre **`neo_stub.c`**, un Neo6502 logiciel :
 bloc `$FF00` dispatché en C (timer, clavier scripté, état HID, UART en
-mémoire, présence CDC), VRAM 320 × 240, palette, compteurs de blits.
+mémoire, présence CDC, fichier `neotel.cfg` et disque en mémoire par
+canal), VRAM 320 × 240, palette, compteurs de blits.
 
 | Test | Assertions | Couvre |
 |---|---|---|
@@ -18,7 +19,8 @@ mémoire, présence CDC), VRAM 320 × 240, palette, compteurs de blits.
 | `test_keyboard` | 61 | traduction firmware → Minitel, flèches vs CTRL, hotkeys F1-F10, injection, émission SEP/CSI, aiguillages |
 | `test_display` | 46 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear` |
 | `test_drcs` | 40 | DRCS Minitel 2 (STUM 2 §2.2-2.5) : en-têtes, transfert (vecteur = exemple §2.3.5), B1 anticipé, excédent, C0 = fond, sortie US, associations, mapping 2/0 et 7/F, rangée 00, SS2, profil 1B, `CSI 6n`, rendu 8 × 9, effacement par `vtx_init` |
-| `test_settings` | 7 | `neotel.cfg` : défauts, aller-retour, magie/version, bornes, écriture refusée |
+| `test_settings` | 9 | `neotel.cfg` : défauts, aller-retour, magie/version (v1 acceptée), bornes, écriture refusée |
+| `test_record` | 225 | enregistrement / relecture `.vdt` (`record.c`) sur le disque en mémoire du stub (3,4/5/8/9 par canal) : noms `neoNN.vdt`, blocs de 64, vidage à l'arrêt, relecture octet par octet jusqu'à la fin, fichier absent / vide, création refusée, exclusion enregistrement/relecture |
 | `test_teleinfo` | 87 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
 | `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |
 
@@ -65,8 +67,15 @@ adresses lues dans `build/neotel.lbl`.
 6b. **settings-save / settings-load** : `3` au menu écrit `neotel.cfg`
    (profil = 1) dans le stockage du scénario ; relancé sur le même stockage,
    NeoTel démarre en Minitel 2 (`g_term_model` lu dans le dump RAM).
-6c. **stack** : sur le dump de `mixte-exit`, `$FA00-$FAFF` (moitié basse de
-   la pile C) doit être vierge : marge d'au moins 256 octets.
+6c. **stack** : sur le dump de `mixte-exit`, `$FB00-$FB7F` (moitié basse de
+   la pile C de 256 octets) doit être vierge : marge d'au moins 128 octets.
+6d. **record / replay** : le faux modem (`--on-rx`) n'envoie la page qu'au
+   premier octet tapé ; `CTRL+O` (0x0F injecté), ENVOI, `CTRL+O` : le
+   fichier `neo01.vdt` du stockage est la copie exacte de
+   `tests/page_test.vdt`. Puis, sur le même stockage, menu `6` + ENVOI :
+   dump RAM quand `g_dbg_state` = `ST_REPLAY_END` (0x0F, fichier rejoué),
+   la page doit y être décodée. NB : `--dump-ram-when` et `--poke-at`
+   lisent les valeurs en **hexadécimal**.
 7. **exit** : ESC au menu → NeoBASIC répond (`PRINT 6*7` → `42`).
 8. **neo** : fumée dans l'émulateur officiel `neo` (splash affiché).
 

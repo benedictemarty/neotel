@@ -24,7 +24,8 @@ toute modification.
 - Phosphoneo (`~/Phosphoneo/build/phosphoneo`) : oracle déterministe
   (`--cycles`, `--poke-at`, `--dump-ram-when`, `--screenshot-at`, `--api-log`,
   `NEO_CDC_TTY`). `neo` (`~/Neo6502firmware/bin/neo`) : jeu et fumée.
-- Faux modem : `tools/fake_modem.py` (pty, Hayes, TCP réel ou `--serve`).
+- Faux modem : `tools/fake_modem.py` (pty, Hayes, TCP réel ou `--serve`,
+  `--on-rx`, `--delay`, `--nc`, `--guard`).
 
 ## Pièges connus
 - Les flèches arrivent avec les codes de CTRL+A/D/S/W : `keyboard.c` lit
@@ -38,3 +39,12 @@ toute modification.
 - Phosphoneo va plus vite que le temps réel : garde Hayes du faux modem
   réduite dans les tests (`--guard 0.02`).
 - `keyboard_flush` ne purge pas `keyboard_inject` (touche de test).
+- `--poke-at` et `--dump-ram-when` de Phosphoneo lisent les valeurs en
+  **hexadécimal** (« 15 » = 0x15) ; `--dump-ram-when` arrête l'émulation à
+  la première occurrence (ne pas le combiner avec une action ultérieure).
+- Sa vitesse dépend de la machine hôte (jusqu'à ~100× le temps réel à
+  vide) : un test ne doit jamais dépendre d'un délai mural du faux modem
+  (`--on-rx` déclenche la page sur un octet tapé).
+- RAM : ~330 o de marge BSS en v0.5.0. Les gros tampons transitoires se
+  logent dans `vtx` (écran 80 col. dans `vtx.screen`, page Wi-Fi dans
+  `vtx.drcs`) ; toute division en C tire `mod.o`/`shelp.o` de la libc.

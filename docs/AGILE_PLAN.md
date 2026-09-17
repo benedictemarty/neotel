@@ -69,7 +69,18 @@ Rétrospective : le premier rendu C coûtait 400 000 cycles par rangée (rangée
 de mesurer) ; l'assembleur ramène à 67 000. La RAM a débordé de 671 octets :
 le contexte 80 colonnes partage désormais la mémoire de l'écran Videotex.
 
-## Sprint 5 — v0.5 (à planifier)
+## Sprint 5 — v0.5.0 (2026-09-17) — TERMINÉ
+| User story | État |
+|---|---|
+| US-20 Je peux enregistrer une page reçue sur la carte (`CTRL+O`) et la relire hors ligne (menu `6`) | fait (`record.c`, 225 tests hôte, scénarios `record` / `replay`) |
+
+Rétrospective : la première version dupliquait la boucle de session pour la
+relecture (+790 o de code) et faisait déborder la RAM de 504 octets ; la
+relecture passe finalement par la boucle de session (source commutée), les
+tampons Wi-Fi partagent `vtx.drcs` et la pile C descend à 256 octets. Les
+valeurs de `--dump-ram-when` sont en hexadécimal : « 15 » valait 0x15.
+
+## Sprint 6 — v0.6 (à planifier)
 - Validation sur carte Neo6502 réelle avec PicoWiFiModemUSB (US-13).
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
   budget de rendu sous flux 115200 (US-14).

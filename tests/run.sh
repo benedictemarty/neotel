@@ -33,7 +33,8 @@ SCREEN_OFF=$(tests/host/render_page --screen-offset)
 PAGE_LEN=$(printf '%X' $(wc -c < tests/page_test.vdt))    # octets de la page (hexa, < 256)
 
 # Etats de g_dbg_state (main.c)
-ST_MENU=3; ST_SESSION=6; ST_CARRIER=8; ST_EXIT=10; ST_HUNGUP=12
+# (valeurs en hexadecimal : Phosphoneo lit ADDR:VAL en hexa)
+ST_MENU=3; ST_SESSION=6; ST_CARRIER=8; ST_EXIT=0A; ST_HUNGUP=0C; ST_REPLAY_END=0F
 
 # Touches : splash (espace), interface (espace), menu '1', serveur '1'
 KEYS="--poke-at 9000000:$KI=20 --poke-at 12000000:$KI=20 --poke-at 15000000:$KI=31 --poke-at 18000000:$KI=31"
@@ -173,12 +174,12 @@ if [ -f "$OUT/mixte_hungup.bin" ] && grep -q "commande b'ATH'" build/modem.log; 
 else
     echo "FAIL mixte-exit"; fail=1
 fi
-# Pile C ($FA00-$FBFF) : la moitie basse doit rester vierge (marge >= 256 o)
+# Pile C ($FB00-$FBFF) : la moitie basse doit rester vierge (marge >= 128 o)
 if python3 -c "
-import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFA00:0xFB00]) else 1)"; then
-    echo "PASS stack (pile C : au moins 256 octets de marge)"
+import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFB00:0xFB80]) else 1)"; then
+    echo "PASS stack (pile C : au moins 128 octets de marge)"
 else
-    echo "FAIL stack (pile C descendue sous \$FB00)"; fail=1
+    echo "FAIL stack (pile C descendue sous \$FB80)"; fail=1
 fi
 
 # --- 3. ESC ESC en session -> raccrochage, retour au menu ------------------
@@ -217,6 +218,30 @@ if [ -f "$OUT/settings.bin" ] && [ "$(od -An -tu1 -j$((0x$TM)) -N1 "$OUT/setting
     echo "PASS settings-load (profil Minitel 2 restaure au demarrage)"
 else
     echo "FAIL settings-load"; fail=1
+fi
+
+# --- 4c. enregistrement (CTRL+O) puis relecture (menu 6) d'une page .vdt ----
+# La page ne part qu'au premier octet tape (--on-rx) : CTRL+O arme
+# l'enregistrement, ENVOI declenche la page, CTRL+O arrete ; le fichier
+# neo01.vdt doit etre la copie exacte de la page.
+rm -rf "$STORAGE"
+run "--serve --page tests/page_test.vdt --on-rx --guard 0.02" --cycles 120000000 $KEYS \
+    --poke-at "30000000:$KI=0F" --poke-at "40000000:$KI=0D" --poke-at "100000000:$KI=0F"
+if [ -f "$STORAGE/neo01.vdt" ] && cmp -s "$STORAGE/neo01.vdt" tests/page_test.vdt; then
+    echo "PASS record (CTRL+O : neo01.vdt == page recue)"
+else
+    echo "FAIL record ($STORAGE/neo01.vdt ; voir build/modem.log)"; fail=1
+fi
+# Relecture sur le meme stockage : menu '6', ENVOI (= dernier enregistrement) ;
+# g_dbg_state passe a ST_REPLAY_END quand tout le fichier a ete rejoue.
+rm -f "$OUT/replay.bin"
+STORAGE_KEEP=1 run "--serve" --cycles 60000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "15000000:$KI=36" --poke-at "18000000:$KI=0D" \
+    --dump-ram-when "$ST:$ST_REPLAY_END:$OUT/replay.bin"
+if [ -f "$OUT/replay.bin" ] && page_has "$OUT/replay.bin" "PAGE DE TEST NEOTEL"; then
+    echo "PASS replay (menu 6 : neo01.vdt rejoue, page decodee)"
+else
+    echo "FAIL replay (voir $OUT/phos.log)"; fail=1
 fi
 
 # --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------

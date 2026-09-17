@@ -41,13 +41,17 @@ unsigned char settings_load(void)
     neo_call(NEO_G_FILE, NEO_F_LOAD_FILE);
     if (NEO_ERR || g_settings.magic0 != SETTINGS_MAGIC0 ||
         g_settings.magic1 != SETTINGS_MAGIC1 ||
-        g_settings.version != SETTINGS_VERSION) {
+        g_settings.version > SETTINGS_VERSION) {
         settings_defaults();
         return 0;
     }
+    /* Version 1 (v0.3.0-v0.4.3) : sans compteur d'enregistrement */
+    if (g_settings.version < 2) g_settings.rec_index = 0;
+    g_settings.version = SETTINGS_VERSION;
     /* Bornes : un fichier corrompu ne doit pas sortir des valeurs admises */
     if (g_settings.model > TERM_MINITEL_2) g_settings.model = TERM_MINITEL_1B;
     if (g_settings.look > DISPLAY_LOOK_GREY) g_settings.look = DISPLAY_LOOK_COLOR;
+    if (g_settings.rec_index > 99) g_settings.rec_index = 0;
     g_settings.ident = g_settings.ident ? 1 : 0;
     g_settings.server[SETTINGS_SERVER_MAX - 1] = 0;
     return 1;

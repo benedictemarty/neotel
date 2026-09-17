@@ -17,6 +17,11 @@ Options :
                        integre envoie une page de test ("PAGE DE TEST NEOTEL")
   --page FICHIER       page Videotex (.vdt) a envoyer a la place de la page integree
   --nc SECONDES        en mode --serve : NO CARRIER SECONDES apres le CONNECT
+  --delay SECONDES     en mode --serve : la page part SECONDES apres le CONNECT
+  --on-rx              en mode --serve : la page part au premier octet envoye
+                       par le terminal apres le CONNECT (independant de la
+                       vitesse de l'emulateur : le test arme un enregistrement,
+                       puis tape une touche)
   --echo-server        en mode --serve : renvoie a l'ecran ce que le terminal tape
   --guard SECONDES     garde de silence Hayes autour de "+++" (1 s ; les tests
                        sous emulateur, plus rapide que le temps reel, la reduisent)
@@ -52,6 +57,8 @@ serve = False
 page_file = None
 nc_after = None
 echo_server = False
+page_delay = 0.0
+page_on_rx = False
 guard = 1.0
 while args:
     a = args.pop(0)
@@ -65,6 +72,10 @@ while args:
         nc_after = float(args.pop(0))
     elif a == "--echo-server":
         echo_server = True
+    elif a == "--delay":
+        page_delay = float(args.pop(0))
+    elif a == "--on-rx":
+        page_on_rx = True
     elif a == "--guard":
         guard = float(args.pop(0))
     else:
@@ -104,6 +115,7 @@ buf = b""
 online = False          # mode donnees (apres CONNECT)
 sock = None             # socket TCP en mode reseau
 served = False          # connexion "servie" localement
+page_pending = False    # page differee (--delay) a envoyer
 echo = True             # ATE1
 t_conn = None
 sent_nc = False
@@ -128,7 +140,7 @@ def hangup(notify):
 
 
 def command(line):
-    global echo, online, sock, served, t_conn, sent_nc
+    global echo, online, sock, served, t_conn, sent_nc, page_pending
     u = line.upper()
     log("commande %r" % line)
     if u in (b"AT", b"ATZ", b"AT&W", b"ATC1") or u.startswith(b"AT$SSID=") or u.startswith(b"AT$PASS="):
@@ -155,8 +167,11 @@ def command(line):
             t_conn = time.time()
             sent_nc = False
             w(b"\r\nCONNECT\r\n")
-            w(page_bytes())
-            log("serveur integre : page envoyee")
+            if page_delay > 0 or page_on_rx:
+                page_pending = True
+            else:
+                w(page_bytes())
+                log("serveur integre : page envoyee")
         else:
             host, _, port = target.rpartition(":")
             try:
@@ -192,6 +207,11 @@ try:
                 os.write(master, chunk)
                 log("<< %d octets serveur %r" % (len(chunk), chunk[:60]))
 
+        if served and page_pending and not page_on_rx and t_conn and now - t_conn >= page_delay:
+            page_pending = False
+            w(page_bytes())
+            log("serveur integre : page envoyee (apres %.2f s)" % page_delay)
+
         if served and nc_after is not None and not sent_nc and t_conn and now - t_conn > nc_after:
             sent_nc = True
             hangup(True)
@@ -222,6 +242,10 @@ try:
                     plus_count = 0
                 continue
             plus_count = 0
+            if served and page_pending and page_on_rx:
+                page_pending = False
+                w(page_bytes())
+                log("serveur integre : page envoyee (apres reception de %r)" % data[:8])
             if sock:
                 try:
                     sock.sendall(data)
