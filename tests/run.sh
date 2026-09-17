@@ -173,6 +173,13 @@ if [ -f "$OUT/mixte_hungup.bin" ] && grep -q "commande b'ATH'" build/modem.log; 
 else
     echo "FAIL mixte-exit"; fail=1
 fi
+# Pile C ($FA00-$FBFF) : la moitie basse doit rester vierge (marge >= 256 o)
+if python3 -c "
+import sys; d=open('$OUT/mixte_hungup.bin','rb').read(); sys.exit(0 if not any(d[0xFA00:0xFB00]) else 1)"; then
+    echo "PASS stack (pile C : au moins 256 octets de marge)"
+else
+    echo "FAIL stack (pile C descendue sous \$FB00)"; fail=1
+fi
 
 # --- 3. ESC ESC en session -> raccrochage, retour au menu ------------------
 # NB : Phosphoneo va plus vite que le temps reel ; la garde de silence Hayes

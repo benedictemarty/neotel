@@ -63,6 +63,7 @@ void neo_host_dispatch(void);      /* le harnais "execute" la commande */
 
 /* Son */
 #define NEO_F_SND_BEEP     3
+#define NEO_F_SND_QUEUE_EXT 7   /* P0 canal, P1-2 Hz, P3-4 duree cs, P5-6 glissando, P7 type, P8 ($FF0C) volume % */
 
 /* UExt / UART (routage AUTO -> modem USB CDC si present) */
 #define NEO_F_UART_FORMAT  15   /* P0-3 bauds, P4 protocole (0 = 8N1) */
