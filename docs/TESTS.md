@@ -65,6 +65,8 @@ adresses lues dans `build/neotel.lbl`.
 6b. **settings-save / settings-load** : `3` au menu écrit `neotel.cfg`
    (profil = 1) dans le stockage du scénario ; relancé sur le même stockage,
    NeoTel démarre en Minitel 2 (`g_term_model` lu dans le dump RAM).
+6c. **stack** : sur le dump de `mixte-exit`, `$FA00-$FAFF` (moitié basse de
+   la pile C) doit être vierge : marge d'au moins 256 octets.
 7. **exit** : ESC au menu → NeoBASIC répond (`PRINT 6*7` → `42`).
 8. **neo** : fumée dans l'émulateur officiel `neo` (splash affiché).
 
