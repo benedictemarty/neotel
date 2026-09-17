@@ -30,6 +30,7 @@ static const char* const en1[] = {
 static const char* const fr2[] = {
     "En session :",
     "F1-F9 Sommaire..Connexion/Fin",
+    "<- Retour  -> Suite  Suppr Annul.",
     "CTRL+O enregistrer/arreter",
     "F10 couleur/gris  CTRL+L effacer",
     "CTRL+F reinit.  ESC ESC menu",
@@ -40,6 +41,7 @@ static const char* const fr2[] = {
 static const char* const en2[] = {
     "In a session:",
     "F1-F9 Index..Connect/End",
+    "<- Back  -> Next  Del Cancel",
     "CTRL+O start/stop recording",
     "F10 colour/grey  CTRL+L clear",
     "CTRL+F reset  ESC ESC menu",
@@ -80,8 +82,9 @@ void help_show(vtx_context_t* ctx)
         if (key == KEY_LOCAL_ESCAPE) return;
         if ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_SOMMAIRE) return;
         if (key == 'L' || key == 'l') { g_settings.lang ^= 1; settings_save(); }
-        else if (key == 'P' || key == 'p') { if (page) --page; }
-        else if (key == ' ' || key == 0x0D || key == 'N' || key == 'n' ||
+        else if (key == 'P' || key == 'p' || key == KEY_ARROW_LEFT ||
+                 ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_RETOUR)) { if (page) --page; }
+        else if (key == ' ' || key == 0x0D || key == 'N' || key == 'n' || key == KEY_ARROW_RIGHT ||
                  ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_SUITE)) {
             if (page + 1 < HELP_PAGES) ++page; else return;
         }

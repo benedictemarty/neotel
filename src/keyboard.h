@@ -15,9 +15,10 @@
  * Les F-touches sont programmees par l'API 2,4 (hotkeys) pour emettre un
  * octet prive $81-$8A dans la file clavier.
  *
- * Raccourcis conserves d'OricTel : Entree = Envoi, Retour arriere = Correction,
- * CTRL+A Annulation, CTRL+R Retour, CTRL+E Repetition, CTRL+G Guide,
- * CTRL+S Sommaire, CTRL+N Suite, CTRL+C Connexion/Fin, CTRL+L effacer la
+ * Raccourcis (v0.8.1) : Entree = Envoi, Retour arriere = Correction,
+ * Suppr / CTRL+A Annulation, fleche gauche Retour, fleche droite Suite
+ * (hors mode curseur PRO3, ou elles emettent CSI), CTRL+R Repetition,
+ * CTRL+G Guide, CTRL+S Sommaire, CTRL+C Connexion/Fin, CTRL+L effacer la
  * page, CTRL+F reinitialiser la liaison serie, CTRL+D aspect, CTRL+O
  * enregistrer / arreter (.vdt), ESC = sortie locale. Les fleches arrivent avec les memes codes que CTRL+A/D/S/W
  * (console du firmware) : elles sont distinguees par l'etat de la touche

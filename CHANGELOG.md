@@ -3,6 +3,19 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.8.1] — 2026-09-17
+
+### Modifié
+- **Raccourcis clavier Minitel** (demande du PO, essais sur carte) : `Suppr`
+  (et DEL $7F) = **Annulation** (au lieu de Correction), `CTRL+R` =
+  **Répétition** (au lieu de Retour), **`←` = Retour** et **`→` = Suite** hors
+  mode curseur (en mode curseur PRO3 ou en 80 colonnes, les flèches émettent
+  toujours CSI). `CTRL+E` et `CTRL+N` ne sont plus attribués. Inchangés :
+  `CTRL+S` Sommaire, `CTRL+A` Annulation, `CTRL+G` Guide, `Retour arrière`
+  Correction, `Entrée` Envoi, `CTRL+C` Connexion/Fin, F1-F9. L'aide (`H`)
+  accepte `←`/`→` pour tourner les pages et rappelle ces touches ; manuel
+  et `test_keyboard` mis à jour.
+
 ## [0.8.0] — 2026-09-17
 
 ### Ajouté

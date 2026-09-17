@@ -175,18 +175,17 @@ void display80_blink_toggle(ti_context_t* ctx)
     }
 }
 
-void display80_status(ti_context_t* ctx, const char* msg)
+void display80_status(ti_context_t* ctx, const char* msg, ti_cell_t* save)
 {
     /* Composer la rangee 00 a partir du message, sans toucher aux cellules */
-    ti_cell_t save[TI_COLS];
     unsigned char c;
-    memcpy(save, &ctx->screen[0][0], sizeof save);
+    memcpy(save, &ctx->screen[0][0], TI_COLS * sizeof(ti_cell_t));
     for (c = 0; c < TI_COLS; ++c) {
         ctx->screen[0][c].ch = (*msg) ? (unsigned char)*msg++ : ' ';
         ctx->screen[0][c].attr = 0;
     }
     render_row(ctx, 0);
-    memcpy(&ctx->screen[0][0], save, sizeof save);
+    memcpy(&ctx->screen[0][0], save, TI_COLS * sizeof(ti_cell_t));
 }
 
 void display80_status_clear(ti_context_t* ctx)

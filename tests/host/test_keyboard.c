@@ -31,14 +31,14 @@ int main(void)
     /* --- traduction pure --- */
     CHECK(keyboard_translate(0x0D, 0) == (KEY_FUNC_FLAG | KEY_ENVOI), "Entree = Envoi");
     CHECK(keyboard_translate(0x08, 0) == (KEY_FUNC_FLAG | KEY_CORRECTION), "Backspace = Correction");
-    CHECK(keyboard_translate(0x1A, 0) == (KEY_FUNC_FLAG | KEY_CORRECTION), "Suppr = Correction");
+    CHECK(keyboard_translate(0x1A, 0) == (KEY_FUNC_FLAG | KEY_ANNULATION), "Suppr = Annulation");
     CHECK(keyboard_translate(0x1B, 0) == KEY_LOCAL_ESCAPE, "ESC = sortie locale");
     CHECK(keyboard_translate(0x01, 0) == (KEY_FUNC_FLAG | KEY_ANNULATION), "CTRL+A = Annulation");
     CHECK(keyboard_translate(0x03, 0) == (KEY_FUNC_FLAG | KEY_CONNEXION), "CTRL+C = Connexion/Fin");
-    CHECK(keyboard_translate(0x05, 0) == (KEY_FUNC_FLAG | KEY_REPETITION), "CTRL+E = Repetition");
+    CHECK(keyboard_translate(0x05, 0) == KEY_NONE, "CTRL+E : plus attribue");
     CHECK(keyboard_translate(0x07, 0) == (KEY_FUNC_FLAG | KEY_GUIDE), "CTRL+G = Guide");
-    CHECK(keyboard_translate(0x0E, 0) == (KEY_FUNC_FLAG | KEY_SUITE), "CTRL+N = Suite");
-    CHECK(keyboard_translate(0x12, 0) == (KEY_FUNC_FLAG | KEY_RETOUR), "CTRL+R = Retour");
+    CHECK(keyboard_translate(0x0E, 0) == KEY_NONE, "CTRL+N : plus attribue");
+    CHECK(keyboard_translate(0x12, 0) == (KEY_FUNC_FLAG | KEY_REPETITION), "CTRL+R = Repetition");
     CHECK(keyboard_translate(0x13, 0) == (KEY_FUNC_FLAG | KEY_SOMMAIRE), "CTRL+S = Sommaire");
     CHECK(keyboard_translate(0x04, 0) == KEY_TOGGLE_RENDER, "CTRL+D = aspect");
     CHECK(keyboard_translate(0x0C, 0) == KEY_LOCAL_CLEAR, "CTRL+L = effacer");
@@ -46,7 +46,7 @@ int main(void)
     CHECK(keyboard_translate(0x09, 0) == KEY_NONE, "TAB ignore");
     CHECK(keyboard_translate(0x17, 0) == KEY_NONE, "CTRL+W sans fleche : ignore");
     CHECK(keyboard_translate('a', 0) == 'a' && keyboard_translate('Z', 0) == 'Z', "ASCII passe tel quel");
-    CHECK(keyboard_translate(0x7E, 0) == 0x7E && keyboard_translate(0x7F, 0) == (KEY_FUNC_FLAG | KEY_CORRECTION), "bornes ASCII");
+    CHECK(keyboard_translate(0x7E, 0) == 0x7E && keyboard_translate(0x7F, 0) == (KEY_FUNC_FLAG | KEY_ANNULATION), "bornes ASCII (DEL = Annulation)");
     CHECK(keyboard_translate(0, 0) == KEY_NONE, "0 = rien");
 
     /* hotkeys */
@@ -96,15 +96,20 @@ int main(void)
     CHECK(host_tx_len == 2 && host_tx[0] == 0x13 && host_tx[1] == 0x41, "Envoi : SEP $41 vers le modem");
     keyboard_process(&ctx, 'A');
     CHECK(host_tx_len == 3 && host_tx[2] == 'A' && echon == 0, "ASCII vers le modem, pas d'echo");
+    keyboard_process(&ctx, KEY_ARROW_UP);
+    CHECK(host_tx_len == 3, "fleche haut hors mode curseur : rien");
     keyboard_process(&ctx, KEY_ARROW_LEFT);
-    CHECK(host_tx_len == 3, "fleche hors mode curseur : rien");
+    CHECK(host_tx_len == 5 && host_tx[3] == SEP && host_tx[4] == KEY_RETOUR, "fleche gauche hors curseur : Retour");
+    keyboard_process(&ctx, KEY_ARROW_RIGHT);
+    CHECK(host_tx_len == 7 && host_tx[5] == SEP && host_tx[6] == KEY_SUITE, "fleche droite hors curseur : Suite");
+    host_tx_reset();
     ctx.kbd_cursor = 1;
     keyboard_process(&ctx, KEY_ARROW_LEFT);
-    CHECK(host_tx_len == 6 && host_tx[3] == 0x1B && host_tx[4] == 0x5B && host_tx[5] == 0x44, "fleche gauche : CSI D");
+    CHECK(host_tx_len == 3 && host_tx[0] == 0x1B && host_tx[1] == 0x5B && host_tx[2] == 0x44, "fleche gauche : CSI D");
     keyboard_process(&ctx, KEY_ARROW_UP);
-    CHECK(host_tx_len == 9 && host_tx[8] == 0x41, "fleche haut : CSI A");
+    CHECK(host_tx_len == 6 && host_tx[5] == 0x41, "fleche haut : CSI A");
     keyboard_process(&ctx, KEY_NONE);
-    CHECK(host_tx_len == 9, "KEY_NONE : rien");
+    CHECK(host_tx_len == 6, "KEY_NONE : rien");
     ctx.aiguillages = AIG_KBD_TO_SCR;
     host_tx_reset(); echon = 0;
     keyboard_process(&ctx, 'B');

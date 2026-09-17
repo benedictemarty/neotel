@@ -33,7 +33,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.8.0"
+#define NEOTEL_VERSION "v0.8.1"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -56,7 +56,11 @@ vtx_context_t vtx;                  /* non statique : lu dans les dumps RAM des 
  * retour au mode Videotex refait vtx_init. La RAM du Neo6502 ne permet pas
  * les deux ecrans cote a cote (BSS a 375 octets de la pile C sinon). */
 #define ti (*(ti_context_t*)&vtx.screen[0][0])
-typedef char ti_fits_in_vtx_screen[(sizeof(ti_context_t) <= sizeof(((vtx_context_t*)0)->screen)) ? 1 : -1];
+/* Tampon de sauvegarde de la rangee 00 pour display80_status : juste derriere
+ * le contexte, toujours dans vtx.screen (verifie a la compilation). */
+#define ti_save ((ti_cell_t*)((ti_context_t*)&vtx.screen[0][0] + 1))
+typedef char ti_fits_in_vtx_screen[(sizeof(ti_context_t) + TI_COLS * sizeof(ti_cell_t)
+                                    <= sizeof(((vtx_context_t*)0)->screen)) ? 1 : -1];
 unsigned char g_screen80;           /* 1 = ecran 80 colonnes actif (mode 1) */
 
 /* Phase de clignotement (lue par display.c) : bascule toutes les 500 ms */
@@ -815,7 +819,7 @@ static unsigned char session_escape_page(vtx_context_t* ctx)
     unsigned char key;
 
     g_dbg_state = ST_ESCAPE;
-    if (g_screen80) display80_status(&ti, "ESC: quitter? ESC=menu autre=reprendre");
+    if (g_screen80) display80_status(&ti, "ESC: quitter? ESC=menu autre=reprendre", ti_save);
     else display_status("ESC: quitter? ESC=menu autre=reprendre");
 
     keyboard_flush();
@@ -1095,7 +1099,7 @@ int main(void)
                     msg = "Enregistrement impossible";
                 }
             }
-            if (g_screen80) display80_status(&ti, msg);
+            if (g_screen80) display80_status(&ti, msg, ti_save);
             else { display_status(msg); status_bar_draw(); }
         } else if (key == KEY_LOCAL_RESET && !g_screen80) {
             serial_init(s_route);
