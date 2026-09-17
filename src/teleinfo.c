@@ -151,10 +151,18 @@ static void put_cell(ti_context_t* ctx, unsigned char row, unsigned char col,
 /* Caractere visualisable sur les rangees 01-24. */
 static void put_char(ti_context_t* ctx, unsigned char ch)
 {
-    ti_cell_t* rowp = (ROW(ctx, ctx->cur_y) + (0));
+    ti_cell_t* rowp;
     unsigned char attr = ctx->attr | TI_SET_ATTR(ctx->shift ? ctx->g1_set : ctx->g0_set);
 
-    if (ctx->cur_x >= ctx->cols) ctx->cur_x = ctx->cols - 1;
+    /* Auto-wrap differe (ISO 6429) : apres la 80e ecriture, cur_x vaut cols
+     * (etat "en attente") ; c'est le caractere suivant qui passe a la ligne,
+     * pas la 80e ecriture. Evite une rangee sautee quand le serveur envoie
+     * un CR apres avoir rempli la 80e colonne. La STUM ne decrit pas ce cas
+     * (comportement ISO 6429, coherent avec les CSI de deplacement qui
+     * s'arretent au bord droit, p. 168). Tout deplacement explicite du
+     * curseur le ramene a une valeur < cols et annule l'attente.  */
+    if (ctx->cur_x >= ctx->cols) new_line(ctx);
+    rowp = (ROW(ctx, ctx->cur_y) + (0));
     if (ctx->insert) {
         /* SM4 (p. 167) : decalage a droite, limite a la rangee, le dernier
          * caractere est perdu */
@@ -162,12 +170,7 @@ static void put_char(ti_context_t* ctx, unsigned char ch)
                 sizeof(ti_cell_t) * (ctx->cols - 1 - ctx->cur_x));
     }
     put_cell(ctx, ctx->cur_y, ctx->cur_x, ch, attr);
-    ++ctx->cur_x;
-    /* Hypothese (non ecrit dans la STUM 1B) : en fin de rangee, le caractere
-     * suivant s'ecrit en colonne 1 de la rangee suivante (rouleau). */
-    if (ctx->cur_x >= ctx->cols) {
-        new_line(ctx);
-    }
+    ++ctx->cur_x;              /* peut atteindre cols : passage a la ligne differe */
 }
 
 /* Symbole d'erreur : pave plein avec les attributs courants (p. 169-170). */
@@ -312,7 +315,7 @@ static void report_cursor(const ti_context_t* ctx)
     if (v >= 10) serial_send((unsigned char)('0' + v / 10));
     serial_send((unsigned char)('0' + v % 10));
     serial_send(';');
-    v = (unsigned char)(ctx->cur_x + 1);
+    v = (ctx->cur_x < ctx->cols) ? (unsigned char)(ctx->cur_x + 1) : ctx->cols;
     if (v >= 10) serial_send((unsigned char)('0' + v / 10));
     serial_send((unsigned char)('0' + v % 10));
     serial_send('R');

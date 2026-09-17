@@ -3,7 +3,27 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.7.1] — 2026-09-17
+## [0.7.2] — 2026-09-17
+
+### Modifié
+- **Passage à la ligne différé (auto-wrap ISO 6429)** en 80 colonnes
+  (`teleinfo.c`) : après la 80ᵉ écriture d'une rangée, le curseur reste au
+  bord droit (`cur_x = cols`, état en attente) ; c'est le **caractère
+  suivant** qui passe à la ligne, non la 80ᵉ écriture. Une rangée remplie
+  puis un `CR` ne saute donc plus une rangée (l'auto-wrap immédiat avançait
+  déjà d'une rangée). Tout déplacement explicite du curseur ramène `cur_x`
+  à une valeur `< cols` et annule l'attente ; le curseur n'est pas dessiné
+  pendant l'attente (colonne 80 hors écran), la demande de position (`CSI
+  6n`) borne la colonne à 80. La STUM 1B/2 ne décrit pas ce cas ; ce
+  comportement est celui de l'ISO 6429 (mode que ce moteur implémente),
+  cohérent avec les `CSI` de déplacement qui « s'arrêtent au bord droit »
+  (p. 168) — l'ancien code le marquait « hypothèse ». Non vérifié sur un
+  Minitel physique.
+- `test_teleinfo` : 4 cas d'auto-wrap différé (rangée pleine + CR sans
+  rangée sautée, 81ᵉ caractère, `CSI D`). Référence visuelle `mixte.ppm`
+  régénérée (le rendu 80 colonnes ne saute plus la rangée après la règle).
+
+
 
 ### Ajouté
 - **Suppression d'un enregistrement** depuis le menu `6` : la touche `Suppr`

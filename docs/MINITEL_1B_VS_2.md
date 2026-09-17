@@ -59,6 +59,17 @@ La vitesse programmée n'a pas d'effet physique : la liaison réelle est le
 modem USB (ou l'UART UEXT à 115200). Elle est mémorisée et affichée dans
 la barre de statut, ce qui permet de voir ce qu'un serveur demande.
 
+## Passage à la ligne en 80 colonnes (auto-wrap)
+
+La STUM 1B/2 ne décrit pas ce qui se passe quand un caractère est écrit alors
+que la rangée de 80 colonnes est pleine. NeoTel applique le comportement
+**ISO 6429** (le standard que le mode Téléinformatique implémente) : *auto-wrap
+différé*. Après la 80ᵉ écriture, le curseur reste au bord droit ; le passage à
+la ligne n'a lieu qu'à l'écriture du caractère suivant. C'est cohérent avec les
+séquences `CSI` de déplacement du curseur qui « s'arrêtent au bord droit de
+l'écran » (STUM 1B p. 168), et cela évite qu'une rangée exactement remplie
+suivie d'un `CR` ne saute une rangée. **Non vérifié sur un Minitel physique.**
+
 ## Ce qui n'est PAS (encore) émulé du Minitel 2
 
 - **DRCS, écarts connus** : la 10ᵉ rangée des formes est fusionnée (OU)
