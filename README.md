@@ -55,7 +55,7 @@ make run               # émulateur neo + faux modem (ATDT hôte:port = vraie co
 make run-phos          # idem sous Phosphoneo (SDL)
 make run MODEM=--serve # page de test locale, sans réseau
 make test              # tests hôte (gcc) + tests cible (Phosphoneo headless)
-make test-host         # 757 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série, enregistrement
+make test-host         # 761 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série, enregistrement
 make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, enregistrement/relecture, WebSocket, sortie, neo
 make test-servers      # fumée sur les vrais serveurs PAVI 3617 / MiniPavi / wss://3617.fr (réseau)
 make ref               # régénère tests/ref/*.ppm après un changement visuel voulu

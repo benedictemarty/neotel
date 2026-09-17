@@ -29,10 +29,11 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
      [MINITEL_1B_VS_2.md](MINITEL_1B_VS_2.md)) ;
    - `4` Aspect : **couleur** ↔ **gris (1B mono)** ;
    - `5` Identification ENQROM : OFF (défaut) ↔ ON ;
-   - `6` Relire un `.vdt` : nom du fichier (ENVOI seul = dernier
-     enregistrement `neoNN.vdt`, ESC annule). La page est rejouée comme si
-     le serveur l'envoyait (mode Mixte compris), sans liaison ; la barre de
-     statut affiche le nom ; `ESC ESC` revient au menu ;
+   - `6` Relire un `.vdt` : NeoTel **liste les enregistrements** `neoNN.vdt`
+     de la carte, chacun choisi par une lettre (`A`, `B`…) ; `ENVOI` rejoue
+     le dernier, `ESC` annule. Sans enregistrement, on saisit un nom. La page
+     est rejouée comme si le serveur l'envoyait (mode Mixte compris), sans
+     liaison ; la barre de statut affiche le nom ; `ESC ESC` revient au menu ;
    - `7` Son : ON (défaut) ↔ OFF (BEL des serveurs et bip du splash) ;
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
