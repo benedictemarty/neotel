@@ -59,6 +59,13 @@ La vitesse programmée n'a pas d'effet physique : la liaison réelle est le
 modem USB (ou l'UART UEXT à 115200). Elle est mémorisée et affichée dans
 la barre de statut, ce qui permet de voir ce qu'un serveur demande.
 
+## Jeu spécial DEC (80 colonnes)
+
+Le jeu « DEC special graphics » (STUM 2 annexe 3.13, invoqué par `ESC ( 0` en
+Minitel 2) est rendu complètement, **y compris les cinq traits de balayage**
+(codes 6/F-7/3 = scan 1, 3, 5, 7, 9), chacun à sa hauteur dans la cellule —
+utile aux tracés de courbes hérités des terminaux VT.
+
 ## Passage à la ligne en 80 colonnes (auto-wrap)
 
 La STUM 1B/2 ne décrit pas ce qui se passe quand un caractère est écrit alors

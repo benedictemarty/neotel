@@ -50,11 +50,16 @@ COMP = {0x40: '@', 0x41: 'à', 0x42: 'â', 0x43: 'ä', 0x44: 'é', 0x45: 'è', 0
         0x68: '÷', 0x69: ' ', 0x6A: '↑', 0x6B: '→', 0x6C: '↓', 0x6D: '←', 0x6E: '+', 0x6F: ' ',
         0x70: ' ', 0x71: ' ', 0x72: ' ', 0x73: ' ', 0x74: '│', 0x75: '│', 0x76: '─', 0x77: '─',
         0x78: '│', 0x79: 'Œ', 0x7A: 'œ', 0x7B: 'ß', 0x7C: '~', 0x7D: '£', 0x7E: '·'}
-# Jeu DEC (STUM 2 annexe 3.13 p. 93 = jeu "special graphics" DEC) : les traits de
-# balayage 6/F-7/3 sont tous rendus par le trait horizontal median.
+# Jeu DEC (STUM 2 annexe 3.13 p. 93 = jeu "special graphics" DEC). Les cinq
+# traits de balayage 6/F-7/3 (scan 1, 3, 5, 7, 9 d'une cellule DEC de 10 lignes)
+# sont des traits horizontaux a des hauteurs distinctes ; on les place dans la
+# cellule 8x14 aux lignes 1, 4, 7, 10, 13 (scan 5 = trait median comme "─").
+def hbar(row):
+    return bytes([0xFF if r == row else 0x00 for r in range(14)])
+DEC_RAW = {0x6F: hbar(1), 0x70: hbar(4), 0x71: hbar(7), 0x72: hbar(10), 0x73: hbar(13)}
 DEC = {0x5F: ' ', 0x60: ' ', 0x61: ' ', 0x62: ' ', 0x63: ' ', 0x64: ' ', 0x65: ' ',
        0x66: '°', 0x67: '±', 0x68: ' ', 0x69: ' ', 0x6A: '┘', 0x6B: '┐', 0x6C: '┌', 0x6D: '└',
-       0x6E: '┼', 0x6F: '─', 0x70: '─', 0x71: '─', 0x72: '─', 0x73: '─', 0x74: '├', 0x75: '┤',
+       0x6E: '┼', 0x74: '├', 0x75: '┤',
        0x76: '┴', 0x77: '┬', 0x78: '│', 0x79: '≤', 0x7A: '≥', 0x7B: ' ', 0x7C: '≠', 0x7D: '£',
        0x7E: '·'}
 
@@ -87,6 +92,14 @@ for code, c in COMP.items():
     comp_idx[code - 0x20] = 0 if c == ' ' else (code - 0x20 if c == chr(code) else extra_index(c))
 for code, c in DEC.items():
     dec_idx[code - 0x20] = 0 if c == ' ' else (code - 0x20 if c == chr(code) else extra_index(c))
+# Traits de balayage DEC : glyphes bruts (une ligne horizontale chacun)
+raw_extra = {}
+for code, g in DEC_RAW.items():
+    key = bytes(g)
+    if key not in raw_extra:
+        raw_extra[key] = len(rows)
+        rows.append((g, "scan DEC $%02X" % code))
+    dec_idx[code - 0x20] = raw_extra[key]
 out.append("const unsigned char font80[FONT80_COUNT * FONT80_H] = {")
 for g, com in rows:
     out.append("    " + ",".join("0x%02X" % b for b in g) + ", /* " + com + " */")
