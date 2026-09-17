@@ -17,8 +17,8 @@
 #define FONT80_FR_BASE  96      /* index des 11 glyphes francais */
 #define FONT80_FR_COUNT 11
 #define FONT80_BLOCK    (FONT80_FR_BASE + FONT80_FR_COUNT)   /* pave plein */
-#define FONT80_EXTRA    57      /* glyphes des jeux complementaire et DEC (generateur) */
-#define FONT80_COUNT    (FONT80_BLOCK + 1 + FONT80_EXTRA)   /* = 165, voir font80.c */
+#define FONT80_EXTRA    62      /* glyphes des jeux complementaire et DEC + 5 traits de balayage DEC (generateur) */
+#define FONT80_COUNT    (FONT80_BLOCK + 1 + FONT80_EXTRA)   /* = 170, voir font80.c */
 
 /* Jeux de caracteres du mode Mixte / Teleinformatique (STUM 2 par. 3.2.2) */
 #define TI_SET_US    0          /* americain (ASCII), defaut G0 */

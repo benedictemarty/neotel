@@ -83,6 +83,8 @@ adresses lues dans `build/neotel.lbl`.
    `ws://127.0.0.1:PORT` comme dernier serveur ; menu `1` + ENVOI → le faux
    modem (sans `--serve`) ouvre le WebSocket, la page est décodée. SKIP sans
    le module `websockets`.
+6e-bis. **dec** : `tests/page_dec.vdt` (profil Minitel 2, mode Mixte) affiche
+   les cinq traits de balayage DEC et un cadre ; capture cible == oracle hôte.
 6f. **reclist** : trois `.vdt` déposés sur le stockage ; menu `6` les liste
    (3,17/3,18/3,19), la lettre `B` rejoue le second (page DRCS, `G1 BASE`).
 6g. **recdel** : menu `6`, `Suppr` puis `B` efface `neo02.vdt` ; `neo01`

@@ -32,7 +32,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.7.2"
+#define NEOTEL_VERSION "v0.7.3"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -292,9 +292,6 @@ static const char* server_names[] = {
 #define NUM_SERVERS 3
 #define KEY_OTHER_SERVER ('1' + NUM_SERVERS)
 
-/* Buffer pour saisie libre du serveur */
-static char custom_server[40];
-
 /* Menu de selection serveur. Retourne 0-1 pour les predefinis, 255 pour
  * saisie libre. */
 static unsigned char select_server(vtx_context_t* ctx)
@@ -334,18 +331,15 @@ static unsigned char select_server(vtx_context_t* ctx)
             return key - '1';
         }
         if ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_ENVOI) {
-            if (g_settings.server_idx == 255 && g_settings.server[0]) {
-                strcpy(custom_server, g_settings.server);
-                return 255;
-            }
+            if (g_settings.server_idx == 255 && g_settings.server[0]) return 255;
             if (g_settings.server_idx < NUM_SERVERS) return g_settings.server_idx;
         }
         if (key == KEY_OTHER_SERVER) {
             unsigned char row = 10 + NUM_SERVERS * 2 + 2;
             ui_print(ctx, row, 3, "Serveur  > ", VTX_WHITE);
             display_render_all(ctx);
-            n = ui_text_input(ctx, row, 14, custom_server,
-                              sizeof(custom_server), 0);
+            n = ui_text_input(ctx, row, 14, g_settings.server,
+                              SETTINGS_SERVER_MAX, 0);
             if (n != 0xFF && n > 0) return 255;
             {
                 unsigned char c;
@@ -552,7 +546,7 @@ static unsigned char modem_connect(vtx_context_t* ctx, unsigned char server_idx)
     at_wait_ip(15000);
 
     {
-        const char* srv = (server_idx == 255) ? custom_server : servers[server_idx];
+        const char* srv = (server_idx == 255) ? g_settings.server : servers[server_idx];
 
         vtx_clear_page(ctx);
         ui_print(ctx, 10, 5, "ATDT ", VTX_WHITE);
@@ -1006,14 +1000,11 @@ int main(void)
         } else {
         srv_idx = select_server(&vtx);
         vtx_clear_page(&vtx);
-        status_server = (srv_idx == 255) ? custom_server : server_names[srv_idx];
+        status_server = (srv_idx == 255) ? g_settings.server : server_names[srv_idx];
         status_bar_draw();
-        /* Memoriser le serveur choisi */
+        /* Memoriser le serveur choisi (la saisie libre est deja dans
+         * g_settings.server, ecrite par select_server) */
         g_settings.server_idx = srv_idx;
-        if (srv_idx == 255) {
-            strncpy(g_settings.server, custom_server, SETTINGS_SERVER_MAX - 1);
-            g_settings.server[SETTINGS_SERVER_MAX - 1] = 0;
-        }
         settings_save();
 
         (void)mode;

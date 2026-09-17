@@ -3,7 +3,25 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty <bmarty@mailo.com>.
 
-## [0.7.2] — 2026-09-17
+## [0.7.3] — 2026-09-17
+
+### Modifié
+- **Traits de balayage du jeu spécial DEC** (STUM 2 annexe 3.13, codes
+  6/F-7/3) rendus exactement : les cinq lignes horizontales (scan 1, 3, 5, 7,
+  9 d'une cellule DEC) sont désormais cinq glyphes distincts à des hauteurs
+  différentes (lignes 1, 4, 7, 10, 13 de la cellule 8×14) au lieu d'être
+  toutes ramenées au trait médian. Plus une « approximation » (ROADMAP).
+  `tools/gen_font80.py` gagne 5 glyphes bruts (`FONT80_EXTRA` 57 → 62) ;
+  scénario cible **dec** (`tests/page_dec.vdt`, capture == oracle hôte) ;
+  référence `mixte.ppm` régénérée (la ligne DEC de la page de test).
+
+### Interne
+- `custom_server[40]` supprimé : la saisie libre du serveur écrit directement
+  dans `g_settings.server` (déjà persistant) et la barre de statut y pointe.
+  Marge BSS regagnée (~150 o) puis en partie réutilisée par les glyphes DEC ;
+  marge finale ~110 octets.
+
+
 
 ### Modifié
 - **Passage à la ligne différé (auto-wrap ISO 6429)** en 80 colonnes

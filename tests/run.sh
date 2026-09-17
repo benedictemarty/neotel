@@ -165,6 +165,23 @@ if [ "$mode" = ref ]; then cp "$OUT/mixte40.ppm" "$REF/mixte40.ppm"; echo "REF  
 elif [ -f "$REF/mixte40.ppm" ] && cmp -s "$OUT/mixte40.ppm" "$REF/mixte40.ppm"; then echo "PASS mixte40-ref"
 elif [ -f "$REF/mixte40.ppm" ]; then echo "FAIL mixte40-ref"; fail=1; fi
 
+# --- 2c''. jeu special DEC : les 5 traits de balayage a hauteurs distinctes
+tests/host/render_page --m2 --mixte tests/page_dec.vdt "$OUT/dec_gold0.ppm" "$OUT/dec_gold1.ppm"
+run "--serve --page tests/page_dec.vdt" --cycles 60000000 \
+    --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" --poke-at "15000000:$KI=33" \
+    --poke-at "18000000:$KI=31" --poke-at "21000000:$KI=31" \
+    --screenshot-at "59000000:$OUT/dec.ppm"
+python3 - "$OUT/dec.ppm" "$OUT/dec_gold0.ppm" "$OUT/dec_gold1.ppm" <<'EOF2'
+import sys
+def load(p):
+    d = open(p, 'rb').read().split(b'\n', 3)
+    return d[1], d[3]
+(sz, cap), (_, g0), (_, g1) = load(sys.argv[1]), load(sys.argv[2]), load(sys.argv[3])
+sys.exit(0 if (sz == b'720 350' and (cap == g0 or cap == g1)) else 1)
+EOF2
+if [ $? -eq 0 ]; then echo "PASS dec (traits de balayage DEC : capture == oracle hote)"
+else echo "FAIL dec (capture != oracle, voir $OUT/dec.ppm)"; fail=1; fi
+
 # --- 2d. mode Mixte : ESC ESC quitte, retour au mode video 0 et au menu -----
 run "--serve --page tests/page_mixte.vdt --guard 0.02" --cycles 120000000 $KEYS \
     --poke-at "45000000:$KI=1B" --poke-at "52000000:$KI=1B" \
