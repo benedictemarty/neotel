@@ -147,17 +147,16 @@ unsigned char keyboard_translate(unsigned char ch, unsigned char arrow_hid)
         case 0x0D:  /* Entree = Envoi */
             return KEY_FUNC_FLAG | KEY_ENVOI;
         case 0x08:  /* Retour arriere (CC_BACKSPACE) = Correction */
-        case 0x1A:  /* Suppr (CC_DELETE) = Correction */
-        case 0x7F:
             return KEY_FUNC_FLAG | KEY_CORRECTION;
+        case 0x1A:  /* Suppr (CC_DELETE) = Annulation (v0.8.1) */
+        case 0x7F:
+            return KEY_FUNC_FLAG | KEY_ANNULATION;
         case 0x1B:  /* ESC = sortie locale */
             return KEY_LOCAL_ESCAPE;
         case 0x01:  return KEY_FUNC_FLAG | KEY_ANNULATION;   /* CTRL+A */
         case 0x03:  return KEY_FUNC_FLAG | KEY_CONNEXION;    /* CTRL+C */
-        case 0x05:  return KEY_FUNC_FLAG | KEY_REPETITION;   /* CTRL+E */
         case 0x07:  return KEY_FUNC_FLAG | KEY_GUIDE;        /* CTRL+G */
-        case 0x0E:  return KEY_FUNC_FLAG | KEY_SUITE;        /* CTRL+N */
-        case 0x12:  return KEY_FUNC_FLAG | KEY_RETOUR;       /* CTRL+R */
+        case 0x12:  return KEY_FUNC_FLAG | KEY_REPETITION;   /* CTRL+R (v0.8.1) */
         case 0x13:  return KEY_FUNC_FLAG | KEY_SOMMAIRE;     /* CTRL+S */
         case 0x04:  return KEY_TOGGLE_RENDER;                /* CTRL+D */
         case 0x0C:  return KEY_LOCAL_CLEAR;                  /* CTRL+L */
@@ -211,11 +210,18 @@ void keyboard_process(vtx_context_t* ctx, unsigned char key)
         return;
     }
 
-    /* Fleches : actives uniquement en mode curseur (PRO3 START $59 $43),
-     * comme sur un Minitel 1B reel. Sequences CSI CUB/CUF/CUU/CUD. */
+    /* Fleches : en mode curseur (PRO3 START $59 $43) ou etendu, sequences
+     * CSI CUB/CUF/CUU/CUD comme sur un Minitel 1B reel. Sinon (v0.8.1),
+     * gauche = Retour et droite = Suite (touches de navigation Minitel),
+     * haut/bas ignorees. */
     if (key == KEY_ARROW_LEFT || key == KEY_ARROW_RIGHT ||
         key == KEY_ARROW_UP || key == KEY_ARROW_DOWN) {
-        if (ctx->kbd_cursor || s_extended) {
+        if (!ctx->kbd_cursor && !s_extended) {
+            if (key == KEY_ARROW_LEFT)       key = KEY_FUNC_FLAG | KEY_RETOUR;
+            else if (key == KEY_ARROW_RIGHT) key = KEY_FUNC_FLAG | KEY_SUITE;
+            else return;
+            /* emise ci-dessous comme touche fonction (SEP + code) */
+        } else {
             kbd_emit(ctx, 0x1B);
             kbd_emit(ctx, 0x5B);
             switch (key) {
@@ -224,8 +230,8 @@ void keyboard_process(vtx_context_t* ctx, unsigned char key)
                 case KEY_ARROW_UP:    kbd_emit(ctx, 0x41); break;
                 default:              kbd_emit(ctx, 0x42); break;
             }
+            return;
         }
-        return;
     }
 
     /* Code C0 brut du clavier etendu (KEY_FUNC_FLAG | 0x20 | code) */

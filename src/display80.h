@@ -52,8 +52,11 @@ unsigned char display80_dirty_pending(ti_context_t* ctx);
 void display80_blink_toggle(ti_context_t* ctx);
 
 /** Message local (question ESC) sur la rangee 00, sans toucher aux cellules ;
- *  display80_status_clear() la re-rend depuis les cellules. */
-void display80_status(ti_context_t* ctx, const char* msg);
+ *  display80_status_clear() la re-rend depuis les cellules. `save` = tampon
+ *  de TI_COLS cellules fourni par l'appelant (la rangee 00 y est mise de cote
+ *  le temps du rendu) : main.c le loge dans vtx.screen, derriere le contexte,
+ *  pour ne pas payer 160 octets de BSS (v0.8.1). */
+void display80_status(ti_context_t* ctx, const char* msg, ti_cell_t* save);
 void display80_status_clear(ti_context_t* ctx);
 
 /** Compose une rangee dans le tampon (expose pour les tests). */

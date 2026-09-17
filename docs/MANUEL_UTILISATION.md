@@ -82,15 +82,15 @@ se fait par le serveur (`PRO2 MIXTE 2`, `CSI ? {`) ou par `ESC ESC`.
 | Touche | Minitel | Code émis |
 |---|---|---|
 | `F1` / `CTRL+S` | Sommaire | SEP $46 |
-| `F2` / `CTRL+A` | Annulation | SEP $45 |
-| `F3` / `CTRL+R` | Retour | SEP $42 |
-| `F4` / `CTRL+E` | Répétition | SEP $43 |
+| `F2` / `CTRL+A` / `Suppr` | Annulation | SEP $45 |
+| `F3` / `←` | Retour | SEP $42 |
+| `F4` / `CTRL+R` | Répétition | SEP $43 |
 | `F5` / `CTRL+G` | Guide | SEP $44 |
-| `F6` / `Retour arrière` / `Suppr` | Correction | SEP $47 |
-| `F7` / `CTRL+N` | Suite | SEP $48 |
+| `F6` / `Retour arrière` | Correction | SEP $47 |
+| `F7` / `→` | Suite | SEP $48 |
 | `F8` / `Entrée` | Envoi | SEP $41 |
 | `F9` / `CTRL+C` | Connexion/Fin | SEP $49 |
-| Flèches | curseur (si le serveur a activé le mode curseur, PRO3) | CSI A/B/C/D |
+| Flèches en mode curseur (activé par le serveur, PRO3) | curseur | CSI A/B/C/D |
 | lettres, chiffres, ponctuation | texte | ASCII 7 bits |
 
 Touches locales (rien n'est envoyé) : `F10` / `CTRL+D` aspect couleur/gris,
