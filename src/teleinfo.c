@@ -11,6 +11,7 @@
 #include "teleinfo.h"
 #include "serial.h"
 #include "terminal.h"
+#include "font80.h"
 
 ti_context_t* ti_current;
 
@@ -62,7 +63,9 @@ static void reset_screen(ti_context_t* ctx, unsigned char cols, unsigned char ro
     ctx->cur_x = 0;
     ctx->cur_y = 1;
     ctx->attr = 0;
-    ctx->french = 0;
+    ctx->shift = 0;
+    ctx->g0_set = TI_SET_US;
+    ctx->g1_set = TI_SET_FR;
     ctx->roll = 1;
     ctx->insert = 0;
     ctx->cur_visible = 1;
@@ -149,7 +152,7 @@ static void put_cell(ti_context_t* ctx, unsigned char row, unsigned char col,
 static void put_char(ti_context_t* ctx, unsigned char ch)
 {
     ti_cell_t* rowp = (ROW(ctx, ctx->cur_y) + (0));
-    unsigned char attr = ctx->attr | (ctx->french ? TI_ATTR_FRENCH : 0);
+    unsigned char attr = ctx->attr | TI_SET_ATTR(ctx->shift ? ctx->g1_set : ctx->g0_set);
 
     if (ctx->cur_x >= ctx->cols) ctx->cur_x = ctx->cols - 1;
     if (ctx->insert) {
@@ -170,11 +173,9 @@ static void put_char(ti_context_t* ctx, unsigned char ch)
 /* Symbole d'erreur : pave plein avec les attributs courants (p. 169-170). */
 static void put_error(ti_context_t* ctx)
 {
-    unsigned char save = ctx->french;
     ctx->attr |= TI_ATTR_ERROR;
     put_char(ctx, 0x7F);
     ctx->attr &= (unsigned char)~TI_ATTR_ERROR;
-    ctx->french = save;
 }
 
 /* ===================================================================
@@ -348,6 +349,11 @@ static void process_csi(ti_context_t* ctx, unsigned char byte)
             ctx->roll = 0;
         } else if (ctx->csi_priv == '<' && p1 == 4 && byte == 'l') {
             ctx->roll = 1;
+        } else if (ctx->csi_priv == '<' && p1 == 1 && (byte == 'h' || byte == 'l')
+                   && g_term_model == TERM_MINITEL_2) {
+            /* STUM 2 par. 3.3 : CSI 3/C 3/1 6/8 extinction, 6/C allumage du
+             * curseur (un Minitel 1B ne peut pas eteindre son curseur, p. 161) */
+            ctx->cur_visible = (byte == 'l') ? 1 : 0;
         } else if (ctx->csi_priv == '?' && byte == '{' && ctx->csi_len == 0) {
             ctx->req_videotex = 1;
         }
@@ -382,6 +388,25 @@ static void process_csi(ti_context_t* ctx, unsigned char byte)
  *  Sequences ESC (p. 166, 168-169)
  * =================================================================== */
 
+/* Suite de ESC 2/8 / ESC 2/9 (STUM 2 par. 3.2.2) : 4/2 americain, 5/2
+ * francais, 3/0 DEC et 3/3 complementaire (ces deux derniers : Minitel 2).
+ * Autre valeur : sequence ISO 2022 non definie, filtree (STUM 1B p. 169). */
+static void designate_set(ti_context_t* ctx, unsigned char byte)
+{
+    unsigned char set = 0xFF;
+    switch (byte) {
+        case 0x42: set = TI_SET_US; break;
+        case 0x52: set = TI_SET_FR; break;
+        case 0x30: if (g_term_model == TERM_MINITEL_2) set = TI_SET_DEC; break;
+        case 0x33: if (g_term_model == TERM_MINITEL_2) set = TI_SET_COMP; break;
+        default: break;
+    }
+    if (set != 0xFF) {
+        if (ctx->state == TI_STATE_ESC_G0) ctx->g0_set = set; else ctx->g1_set = set;
+    }
+    ctx->state = TI_STATE_NORMAL;
+}
+
 static void process_esc(ti_context_t* ctx, unsigned char byte)
 {
     ctx->state = TI_STATE_NORMAL;
@@ -396,20 +421,26 @@ static void process_esc(ti_context_t* ctx, unsigned char byte)
         case 0x4D: reverse_index(ctx); break;           /* RI */
         case 0x37:  /* ESC 7 : memorise position, attributs, jeu */
             ctx->sav_valid = 1; ctx->sav_x = ctx->cur_x; ctx->sav_y = ctx->cur_y;
-            ctx->sav_attr = ctx->attr; ctx->sav_french = ctx->french;
+            ctx->sav_attr = ctx->attr; ctx->sav_shift = ctx->shift;
             break;
         case 0x38:  /* ESC 8 : restitution (sinon (1,1), sans attribut, americain) */
             if (ctx->sav_valid) {
                 ctx->cur_x = ctx->sav_x; ctx->cur_y = ctx->sav_y;
-                ctx->attr = ctx->sav_attr; ctx->french = ctx->sav_french;
+                ctx->attr = ctx->sav_attr; ctx->shift = ctx->sav_shift;
             } else {
-                ctx->cur_x = 0; ctx->cur_y = 1; ctx->attr = 0; ctx->french = 0;
+                ctx->cur_x = 0; ctx->cur_y = 1; ctx->attr = 0; ctx->shift = 0;
             }
             if (ctx->cur_x >= ctx->cols) ctx->cur_x = ctx->cols - 1;
             break;
         case 0x63:  /* ESC c : etat initial, rangee 00 comprise, 80 colonnes */
             reset_screen(ctx, 80, 1);
             ctx->req_format = 1;
+            break;
+        case 0x28:  /* ESC 2/8 F : designation du jeu G0 (STUM 2 par. 3.2.2) */
+            ctx->state = TI_STATE_ESC_G0;
+            break;
+        case 0x29:  /* ESC 2/9 F : designation du jeu G1 */
+            ctx->state = TI_STATE_ESC_G1;
             break;
         default:    /* ESC Fs / Fe inconnus : filtres */
             break;
@@ -425,7 +456,7 @@ static void row0_enter(ti_context_t* ctx, unsigned char col)
 {
     if (!ctx->r0_active) {          /* nouvel acces : memoriser le contexte */
         ctx->r0_x = ctx->cur_x; ctx->r0_y = ctx->cur_y;
-        ctx->r0_attr = ctx->attr; ctx->r0_french = ctx->french;
+        ctx->r0_attr = ctx->attr; ctx->r0_shift = ctx->shift;
         ctx->r0_so = 0;
         ctx->r0_active = 1;
     }
@@ -436,7 +467,7 @@ static void row0_enter(ti_context_t* ctx, unsigned char col)
 static void row0_leave(ti_context_t* ctx)
 {
     ctx->cur_x = ctx->r0_x; ctx->cur_y = ctx->r0_y;
-    ctx->attr = ctx->r0_attr; ctx->french = ctx->r0_french;
+    ctx->attr = ctx->r0_attr; ctx->shift = ctx->r0_shift;
     ctx->r0_active = 0;
     ctx->state = TI_STATE_NORMAL;
 }
@@ -532,8 +563,8 @@ void ti_process(ti_context_t* ctx, unsigned char byte)
             }
             case 0x0A: case 0x0B: case 0x0C: line_feed(ctx); break;
             case 0x0D: new_line(ctx); break;
-            case 0x0E: ctx->french = 1; break;
-            case 0x0F: ctx->french = 0; break;
+            case 0x0E: ctx->shift = 1; break;      /* SO : G1 */
+            case 0x0F: ctx->shift = 0; break;      /* SI : G0 */
             case 0x18: case 0x1A: put_error(ctx); break;
             case 0x1B: ctx->state = TI_STATE_ESC; break;
             case 0x1F: ctx->state = TI_STATE_US; break;
@@ -545,6 +576,8 @@ void ti_process(ti_context_t* ctx, unsigned char byte)
     switch (ctx->state) {
         case TI_STATE_ESC: process_esc(ctx, byte); return;
         case TI_STATE_CSI: process_csi(ctx, byte); return;
+        case TI_STATE_ESC_G0:
+        case TI_STATE_ESC_G1: designate_set(ctx, byte); return;
         default: break;
     }
     if (byte == 0x7F) return;                   /* DEL : non visualisable */

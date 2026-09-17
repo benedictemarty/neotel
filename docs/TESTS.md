@@ -19,7 +19,7 @@ mémoire, présence CDC), VRAM 320 × 240, palette, compteurs de blits.
 | `test_display` | 46 | géométrie 8 × 9, glyphes centrés, mosaïques (blocs, séparées, `$60`), inversion, souligné, masquage, flash, doubles largeur/hauteur/taille, clip colonne 39, budget 1 ligne, plages dirty, `full_refresh`, curseur, statut, palettes, G2, `display_clear` |
 | `test_drcs` | 40 | DRCS Minitel 2 (STUM 2 §2.2-2.5) : en-têtes, transfert (vecteur = exemple §2.3.5), B1 anticipé, excédent, C0 = fond, sortie US, associations, mapping 2/0 et 7/F, rangée 00, SS2, profil 1B, `CSI 6n`, rendu 8 × 9, effacement par `vtx_init` |
 | `test_settings` | 7 | `neotel.cfg` : défauts, aller-retour, magie/version, bornes, écriture refusée |
-| `test_teleinfo` | 79 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
+| `test_teleinfo` | 87 | écran 80 colonnes : décodeur ISO 6429 (STUM 1B p. 160-170, STUM 2 §3), rangée 00, formats, rendu 1 bpp (pixels, attributs, curseur, 40 colonnes), mode 1 refusé |
 | `test_terminal` | 25 | profils 1B/M2, identification, PRO2 PROG, intégration décodeur, `serial.c` (routage, format, RX/TX, CDC absent, firmware amont) |
 
 `render_page` (même Makefile) est l'**oracle** : il rend une page `.vdt`
@@ -66,6 +66,14 @@ adresses lues dans `build/neotel.lbl`.
 
 Durée : ~9 s. Les scénarios sont déterministes côté 65C02 ; seul le faux
 modem est asynchrone (il répond en quelques ms, bien avant les timeouts).
+
+## Serveurs réels (`make test-servers`, hors `make test`)
+
+`tests/test_servers.sh` : session complète sur **PAVI 3617** puis **MiniPavi**
+par le faux modem (relais TCP réel), 1,5 G cycles chacune (Phosphoneo va
+~6 fois plus vite que le temps réel : ~10 s), succès si > 200 octets reçus
+et une page allumée. SKIP si le serveur est injoignable. Vérifié le
+2026-09-17 : les deux pages d'accueil s'affichent correctement.
 
 ## Ce qui n'est pas testé
 

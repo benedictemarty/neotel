@@ -17,8 +17,9 @@ acquittement `SEP $70` ; `PRO2 MIXTE 2` ou `CSI ? {` reviennent au Videotex
 les 4 attributs (clignotement, souligné, inverse, surintensité), jeux
 américain / français (SO/SI), clavier étendu. Propre au **Minitel 2**
 (STUM 2 §3.3/3.4, émulé dans les deux profils faute de raison de les
-distinguer, sauf `CSI 6 n` réservé au M2) : formats 40 / 80 colonnes
-(`CSI < 3 h` / `CSI ? 3 l`), mode page / rouleau (`CSI < 4 h|l`). Sur le
+distinguer, sauf `CSI 6 n`, `CSI < 1 h|l` (curseur) et les jeux DEC /
+complémentaire réservés au M2) : formats 40 / 80 colonnes (`CSI < 3 h` /
+`CSI ? 3 l`), mode page / rouleau (`CSI < 4 h|l`). Sur le
 firmware amont (pas de mode 1), le passage en mode Mixte est refusé avec
 un message.
 
@@ -62,10 +63,10 @@ la barre de statut, ce qui permet de voir ce qu'un serveur demande.
   règle générale de NeoTel (rangées doublées), la « 1ʳᵉ ligne triplée » du
   §2.3.6 n'ayant pas de place en 18 lignes. L'interruption par la rangée 00
   (§2.3.4) est gérée depuis la v0.2.1.
-- **Jeux DEC et complémentaire** du mode Mixte du Minitel 2 (STUM 2 §3.1,
-  annexes 3.12-3.13, `ESC 2/8 3/0`, `ESC 2/8 3/3`) : non implémentés (les
-  associations américain / français par SO/SI et `ESC 2/8 4/2|5/2` du 1B
-  sont celles émulées).
+- **Jeux DEC et complémentaire** (Minitel 2, STUM 2 annexes 3.12-3.13) :
+  émulés depuis la v0.4.1 avec des approximations (traits de balayage DEC
+  6/F-7/3 rendus par le trait médian, 6/1 du complémentaire par `+`, 7/4-7/8
+  par des filets).
 - **Retournement de modem**, prise péripherique à 9600 bauds : sans objet
   avec un modem Hayes sur USB.
 

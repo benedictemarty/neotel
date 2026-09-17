@@ -26,8 +26,12 @@
 #define TI_ATTR_UNDERLINE 0x02  /* souligne (4 / 24) */
 #define TI_ATTR_BLINK     0x04  /* clignotant (5 / 25) */
 #define TI_ATTR_INVERSE   0x08  /* inversion de fond (7 / 27) */
-#define TI_ATTR_FRENCH    0x10  /* cellule ecrite dans le jeu francais (SO) */
+#define TI_ATTR_SET0      0x10  /* jeu de la cellule, bit 0 (TI_SET_* de font80.h) */
 #define TI_ATTR_ERROR     0x20  /* symbole d'erreur (pave plein, CAN / SUB) */
+#define TI_ATTR_SET1      0x40  /* jeu de la cellule, bit 1 */
+#define TI_ATTR_FRENCH    TI_ATTR_SET0  /* jeu francais = TI_SET_FR (1) */
+#define TI_ATTR_SET(a)    ((unsigned char)((((a) & TI_ATTR_SET0) ? 1 : 0) | (((a) & TI_ATTR_SET1) ? 2 : 0)))
+#define TI_SET_ATTR(s)    ((unsigned char)((((s) & 1) ? TI_ATTR_SET0 : 0) | (((s) & 2) ? TI_ATTR_SET1 : 0)))
 
 /* Etats du decodeur */
 #define TI_STATE_NORMAL   0
@@ -39,6 +43,8 @@
 #define TI_STATE_ROW0_REP 6     /* rangee 00 : REP + nombre */
 #define TI_STATE_US       7     /* US recu (attente de 4/0) */
 #define TI_STATE_US_COL   8     /* US 4/0 recu : colonne */
+#define TI_STATE_ESC_G0   9     /* ESC 2/8 : designation du jeu G0 (STUM 2 par. 3.2.2) */
+#define TI_STATE_ESC_G1   10    /* ESC 2/9 : designation du jeu G1 */
 
 typedef struct {
     unsigned char ch;           /* code 0x20-0x7F */
@@ -53,7 +59,9 @@ typedef struct {
     unsigned char cur_x;        /* 0..79 */
     unsigned char cur_y;        /* 1..24 (0 = rangee 00 quand row0 actif) */
     unsigned char attr;         /* attributs courants (TI_ATTR_BOLD..INVERSE) */
-    unsigned char french;       /* 1 = jeu francais (SO), 0 = americain (SI) */
+    unsigned char shift;        /* 1 = G1 invoque (SO), 0 = G0 (SI) */
+    unsigned char g0_set;       /* jeu associe a G0 (TI_SET_*, defaut americain) */
+    unsigned char g1_set;       /* jeu associe a G1 (defaut francais) */
     unsigned char roll;         /* 1 = mode rouleau (defaut), 0 = mode page */
     unsigned char cols;         /* 80 (defaut) ou 40 (STUM 2 CSI 3/C 3/3 6/8) */
     unsigned char insert;       /* SM4 : insertion de caracteres */
@@ -66,11 +74,11 @@ typedef struct {
     unsigned char csi_priv;     /* caractere intermediaire ('?' ou '<'), 0 sinon */
 
     /* Contexte ESC 7 / ESC 8 */
-    unsigned char sav_valid, sav_x, sav_y, sav_attr, sav_french;
+    unsigned char sav_valid, sav_x, sav_y, sav_attr, sav_shift;
 
     /* Rangee 00 : position/attributs/jeu restitues au LF */
     unsigned char r0_active;    /* 1 = en rangee 00 (contexte memorise) */
-    unsigned char r0_x, r0_y, r0_attr, r0_french, r0_so;
+    unsigned char r0_x, r0_y, r0_attr, r0_shift, r0_so;
     unsigned char r0_col;       /* colonne courante en rangee 00 */
 
     /* Demandes vers l'hote (main.c les lit et les remet a 0) */

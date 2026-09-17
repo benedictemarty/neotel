@@ -43,7 +43,7 @@ int main(void)
 
     term_set_model(TERM_MINITEL_1B);
     ti_init(&ctx);
-    CHECK(ctx.cols == 80 && ctx.cur_x == 0 && ctx.cur_y == 1 && ctx.roll == 1 && ctx.french == 0 &&
+    CHECK(ctx.cols == 80 && ctx.cur_x == 0 && ctx.cur_y == 1 && ctx.roll == 1 && ctx.shift == 0 &&
           ctx.attr == 0 && ctx.cur_visible == 1 && ch_at(1, 0) == ' ', "init : 80 col, (1,1), rouleau, americain");
 
     /* --- ecriture, jeux --- */
@@ -156,7 +156,7 @@ int main(void)
     /* --- contexte ESC 7 / ESC 8, ESC c --- */
     ti_init(&ctx);
     feed("\x1B[5;6H\x1B[4m\x0E\x1B" "7\x1B[1;1H\x1B[0m\x0F\x1B" "8");
-    CHECK(ctx.cur_y == 5 && ctx.cur_x == 5 && ctx.attr == TI_ATTR_UNDERLINE && ctx.french == 1, "ESC 7 / ESC 8");
+    CHECK(ctx.cur_y == 5 && ctx.cur_x == 5 && ctx.attr == TI_ATTR_UNDERLINE && ctx.shift == 1, "ESC 7 / ESC 8");
     ti_init(&ctx);
     feed("\x1B" "8");
     CHECK(ctx.cur_y == 1 && ctx.cur_x == 0 && ctx.attr == 0, "ESC 8 sans memorisation : (1,1), sans attribut");
@@ -176,7 +176,7 @@ int main(void)
     CHECK(ch_at(0, 2) == 'I' && ch_at(0, 5) == 'O' && at_at(0, 2) == 0, "US 4/0 4/3 : rangee 00 colonne 3, sans attribut");
     CHECK(ch_at(0, 6) == ' ' && ch_at(0, 7) == 'e' && ch_at(0, 8) == 'e' && ch_at(0, 10) == 'e',
           "rangee 00 : ESC+1 avale, SO -> espace, SS2 accent, REP");
-    CHECK(ctx.state == TI_STATE_NORMAL && ctx.cur_y == 7 && ctx.cur_x == 2 && ctx.attr == TI_ATTR_INVERSE && ctx.french == 1,
+    CHECK(ctx.state == TI_STATE_NORMAL && ctx.cur_y == 7 && ctx.cur_x == 2 && ctx.attr == TI_ATTR_INVERSE && ctx.shift == 1,
           "LF : retour avec position, attributs et jeu");
     feed("\x1F\x40\x41" "a\x1F\x40\x50" "b\x0A");
     CHECK(ch_at(0, 0) == 'a' && ch_at(0, 15) == 'b' && ctx.cur_y == 7, "nouvel acces US dans la rangee 00");
@@ -194,6 +194,32 @@ int main(void)
     term_set_model(TERM_MINITEL_1B);
     feed("\x1B[6n");
     CHECK(host_tx_len == 0, "CSI 6 n : sans reponse sur 1B");
+
+    /* --- jeux complementaire / DEC (STUM 2 annexes 3.12 / 3.13), curseur --- */
+    term_set_model(TERM_MINITEL_2);
+    ti_init(&ctx);
+    feed("\x1B(3\x41\x1B)0\x0E\x6A\x0F\x1B(BA\x1B(R#\x1B)R\x0E#\x0F");
+    CHECK(TI_ATTR_SET(at_at(1, 0)) == TI_SET_COMP && ch_at(1, 0) == 0x41, "ESC ( 3 : G0 = complementaire (4/1 = a grave)");
+    CHECK(TI_ATTR_SET(at_at(1, 1)) == TI_SET_DEC && ch_at(1, 1) == 0x6A, "ESC ) 0 puis SO : G1 = DEC (6/A = coin)");
+    CHECK(TI_ATTR_SET(at_at(1, 2)) == TI_SET_US && TI_ATTR_SET(at_at(1, 3)) == TI_SET_FR && TI_ATTR_SET(at_at(1, 4)) == TI_SET_FR,
+          "ESC ( B / ESC ( R / ESC ) R : americain, francais");
+    display80_compose_row(&ctx, 1);
+    {
+        const unsigned char* g = &font80[font80_comp_index[0x41 - 0x20] * FONT80_H];
+        const unsigned char* d = &font80[font80_dec_index[0x6A - 0x20] * FONT80_H];
+        ok = 1;
+        for (i = 0; i < 8; ++i) { if (px(i, 6) != ((g[6] >> (7 - i)) & 1)) ok = 0; if (px(9 + i, 6) != ((d[6] >> (7 - i)) & 1)) ok = 0; }
+        CHECK(ok && g != &font80[('A' - 0x20) * FONT80_H], "rendu : glyphes du jeu complementaire et DEC");
+    }
+    CHECK(font80_offset[FONT80_COUNT - 1] == (FONT80_COUNT - 1) * FONT80_H, "font80 : FONT80_COUNT coherent avec le generateur");
+    feed("\x1B[<1h");
+    CHECK(ctx.cur_visible == 0, "CSI < 1 h : curseur eteint (Minitel 2)");
+    feed("\x1B[<1l");
+    CHECK(ctx.cur_visible == 1, "CSI < 1 l : curseur allume");
+    term_set_model(TERM_MINITEL_1B);
+    ti_init(&ctx);
+    feed("\x1B(3A\x1B[<1hB");
+    CHECK(TI_ATTR_SET(at_at(1, 0)) == TI_SET_US && ctx.cur_visible == 1 && ch_at(1, 1) == 'B', "1B : jeu DEC/complementaire et extinction du curseur ignores");
 
     /* --- formats 40 / 80 (STUM 2) --- */
     ti_init(&ctx);

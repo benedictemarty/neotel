@@ -24,7 +24,7 @@ fail=0
 
 [ -x "$PHOS" ] || { echo "SKIP: Phosphoneo absent ($PHOS)"; exit 0; }
 [ -f build/neotel.neo ] || { echo "FAIL: build/neotel.neo absent (make)"; exit 1; }
-[ -x tests/host/render_page ] || make -C tests/host render_page >/dev/null
+make -C tests/host render_page >/dev/null 2>&1 || { echo "FAIL: render_page (oracle hote) ne compile pas"; exit 1; }
 
 sym() { grep " \._$1\$" build/neotel.lbl | awk '{print $2}' | sed 's/^00//'; }
 KI=$(sym keyboard_inject); ST=$(sym g_dbg_state); VTX=$(sym vtx); NB=$(sym g_vtx_bytes); HU=$(sym g_dbg_hangups); TM=$(sym g_term_model)
@@ -121,11 +121,14 @@ if [ "$mode" = ref ]; then cp "$OUT/drcs.ppm" "$REF/drcs.ppm"; echo "REF  drcs"
 elif [ -f "$REF/drcs.ppm" ] && cmp -s "$OUT/drcs.ppm" "$REF/drcs.ppm"; then echo "PASS drcs-ref"
 elif [ -f "$REF/drcs.ppm" ]; then echo "FAIL drcs-ref (capture != tests/ref/drcs.ppm)"; fail=1; fi
 
-# --- 2c. mode Mixte 80 colonnes (STUM 1B partie 3) == oracle hote -----------
+# --- 2c. mode Mixte 80 colonnes (STUM 1B partie 3, profil Minitel 2) == oracle
+#         hote (jeux DEC et complementaire de la STUM 2 inclus) -------------
 # PRO2 MIXTE 1 dans le flux : passage en mode video 1 (720x350), ecran ISO
 # 6429 compose en assembleur ; comparaison bit a bit avec le rendu C de l'hote.
-tests/host/render_page --mixte tests/page_mixte.vdt "$OUT/mixte_gold0.ppm" "$OUT/mixte_gold1.ppm"
-run "--serve --page tests/page_mixte.vdt" --cycles 60000000 $KEYS \
+tests/host/render_page --m2 --mixte tests/page_mixte.vdt "$OUT/mixte_gold0.ppm" "$OUT/mixte_gold1.ppm"
+run "--serve --page tests/page_mixte.vdt" --cycles 60000000 \
+    --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" --poke-at "15000000:$KI=33" \
+    --poke-at "18000000:$KI=31" --poke-at "21000000:$KI=31" \
     --screenshot-at "59000000:$OUT/mixte.ppm"
 python3 - "$OUT/mixte.ppm" "$OUT/mixte_gold0.ppm" "$OUT/mixte_gold1.ppm" <<'EOF2'
 import sys

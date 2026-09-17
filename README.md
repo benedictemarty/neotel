@@ -29,7 +29,8 @@ profil Minitel 2 (identification, vitesses PRO2 PROG jusqu'à 9600, **jeux
 DRCS téléchargeables** conformes à la STUM 2, demande de position curseur), réglages persistants sur la carte, **mode Mixte / Téléinformatique 80 colonnes** (ISO 6429, mode Hercules du fork), menus,
 connexion AT, page de configuration Wi-Fi du Pico, perte de porteuse,
 retour à NeoBASIC. Vérifié dans les émulateurs Phosphoneo et `neo` avec un
-faux modem ; **non exécuté sur une carte Neo6502 physique** (aucune
+faux modem, et **sur les vrais serveurs PAVI 3617 et MiniPavi** (`make
+test-servers`) ; **non exécuté sur une carte Neo6502 physique** (aucune
 disponible) — voir [ROADMAP.md](ROADMAP.md).
 
 Les écarts connus (DRCS, 80 colonnes, jeux DEC du Minitel 2) sont détaillés dans
@@ -53,9 +54,10 @@ make run               # émulateur neo + faux modem (ATDT hôte:port = vraie co
 make run-phos          # idem sous Phosphoneo (SDL)
 make run MODEM=--serve # page de test locale, sans réseau
 make test              # tests hôte (gcc) + tests cible (Phosphoneo headless)
-make test-host         # 518 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
+make test-host         # 526 assertions : décodeur, modem AT, UI, clavier, affichage, profil/série
 make test-emu          # menus → session, page/DRCS/80 col. cible == oracle hôte, ESC ESC, NO CARRIER, réglages, sortie, neo
-make ref               # régénère tests/ref/page.ppm après un changement visuel voulu
+make test-servers      # fumée sur les vrais serveurs PAVI 3617 / MiniPavi (réseau)
+make ref               # régénère tests/ref/*.ppm après un changement visuel voulu
 ```
 
 Sur le Neo6502 : copier `build/neotel.neo` sur la carte SD/clé USB et
