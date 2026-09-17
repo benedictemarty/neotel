@@ -43,7 +43,7 @@ logique de session sont ceux d'OricTel.
 ## Carte mémoire (cfg/neo6502.cfg)
 
 ```
-$0000-$00FF  page zero (cc65 + 17 octets de display_asm.s)
+$0000-$00FF  page zero (cc65 + display_asm.s + display80_asm.s)
 $0100-$01FF  pile 65C02
 $0800-       STARTUP, CODE (~41 Ko en v0.4.2), RODATA (polices 8x9 et 8x14,
              tables : ~4,7 Ko), DATA
