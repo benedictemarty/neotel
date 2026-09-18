@@ -17,10 +17,20 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
 
 ## Écrans
 
+Tous les écrans locaux suivent la même charte (v0.9.1) : bandeau bleu en
+haut avec le titre en double hauteur et une information à droite (version,
+profil, numéro de page), filets mosaïques, items `[touche] libellé ....
+valeur`, item courant sur fond bleu, pied de page avec les touches utiles.
+Dans les menus, les **flèches** haut/bas déplacent l'item courant, `ENVOI`,
+`Entrée`, `Suite` ou `→` le valident ; les **chiffres** agissent toujours
+directement.
+
 1. **Splash** : titre, version, auteur, licence. Une touche ou 5 s.
-2. **Liaison série** : modem USB CDC détecté (API routée vers lui) ou UART
-   UEXT. Une touche.
-3. **Menu principal** :
+2. **Liaison série** : carte verte « modem USB CDC détecté » (API routée
+   vers lui) ou jaune « UART UEXT ». Une touche.
+3. **Menu principal** (la valeur courante de chaque réglage est affichée
+   sur la ligne de l'item : dernier serveur, profil, aspect, dernier
+   enregistrement…) :
    - `1` Modem AT → choix du serveur → connexion → session ;
    - `2` Config Wi-Fi du PicoWiFiModemUSB : scan (`AT$SCAN`), choix du
      réseau, mot de passe (masqué), association, attente d'IP, sauvegarde
@@ -37,13 +47,15 @@ En sortant (ESC au menu principal), NeoTel recharge NeoBASIC.
      est rejouée comme si le serveur l'envoyait (mode Mixte compris), sans
      liaison ; la barre de statut affiche le nom ; `ESC ESC` revient au menu ;
    - `7` Son : ON (défaut) ↔ OFF (BEL des serveurs et bip du splash) ;
-   - `H` : **aide** en français ou en anglais (2 pages ; `Espace` page
-     suivante, `P` précédente, `L` change la langue, `ESC` revient au menu) ;
+   - `H` : **aide** en français ou en anglais (2 pages touche / action ;
+     `Espace`/`→` page suivante, `P`/`←` précédente, `L` change la langue,
+     `ESC` revient au menu) ;
    - `ESC` : retour à NeoBASIC.
 4. **Serveur** : `1` PAVI 3617 (`pavi.3617.fr:3617`), `2` MiniPavi
    (`go.minipavi.fr:516`), `3` 3617.fr en WebSocket (`wss://3617.fr/ws`),
    `4` saisie libre `hôte:port` ou `ws://…` / `wss://…` (Envoi valide,
-   Annulation/ESC annule), `ENVOI` = dernier serveur utilisé. Les cibles
+   Annulation/ESC annule). L'item courant à l'ouverture est le **dernier
+   serveur utilisé** : `ENVOI` le recompose ; `ESC` revient au menu. Les cibles
    WebSocket sont relayées par le faux modem sur PC (module python3
    `websockets`) ; sur un PicoWiFiModemUSB réel, ce n'est **pas vérifié**
    (pas de commande AT WebSocket connue : le modem répondra sans doute

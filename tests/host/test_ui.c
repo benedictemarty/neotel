@@ -106,6 +106,54 @@ int main(void)
               "masque '*' a l'ecran, vrai texte conserve dans buf");
     }
 
+    /* --- charte v0.9.1 : bandeau, items, navigation --- */
+    {
+        unsigned char sel = 0;
+        memset(&ctx, 0, sizeof ctx);
+        ui_header(&ctx, "NEOTEL", "v9");
+        CHECK(ctx.screen[1][0].bg == VTX_BLUE && ctx.screen[2][39].bg == VTX_BLUE,
+              "ui_header: bandeau bleu sur les rangees 1-2");
+        CHECK(ctx.screen[2][2].ch == 'N' && (ctx.screen[2][2].flags >> SIZE_SHIFT) == SIZE_DOUBLE_HEIGHT,
+              "ui_header: titre double hauteur en (2,2)");
+        CHECK(ctx.screen[2][36].ch == 'v' && ctx.screen[2][37].ch == '9' && ctx.screen[2][36].fg == VTX_YELLOW,
+              "ui_header: texte de droite aligne en colonne 37");
+        CHECK(ctx.screen[3][0].charset == CHARSET_G1 && ctx.screen[3][39].ch == 0x60 && ctx.dirty[3],
+              "ui_header: filet mosaique en rangee 3");
+        ui_banner(&ctx, "AB", NULL, 1);
+        CHECK(ctx.screen[2][2].ch == 'A' && ctx.screen[2][4].ch == 'B' &&
+              (ctx.screen[2][2].flags >> SIZE_SHIFT) == SIZE_DOUBLE_SIZE,
+              "ui_banner: double taille, une lettre toutes les 2 colonnes");
+
+        ui_item(&ctx, 7, '3', "Terminal", "Minitel 2", 0);
+        CHECK(ctx.screen[7][2].ch == '[' && ctx.screen[7][3].ch == '3' && ctx.screen[7][3].fg == VTX_CYAN,
+              "ui_item: [3] avec la touche en cyan");
+        CHECK(ctx.screen[7][6].ch == 'T' && ctx.screen[7][6].fg == VTX_YELLOW, "ui_item: libelle jaune en colonne 6");
+        CHECK(ctx.screen[7][16].ch == '.' && ctx.screen[7][20].ch == '.' && ctx.screen[7][21].ch == ' ',
+              "ui_item: points de conduite jusqu'a la colonne 20");
+        CHECK(ctx.screen[7][22].ch == 'M' && ctx.screen[7][22].fg == VTX_WHITE, "ui_item: valeur blanche en colonne 22");
+        CHECK(ctx.screen[7][0].bg == VTX_BLACK && ctx.screen[7][20].bg == VTX_BLACK, "ui_item: non selectionne, fond noir");
+        ui_item(&ctx, 7, '3', "Terminal", "Minitel 2", 1);
+        CHECK(ctx.screen[7][1].bg == VTX_BLUE && ctx.screen[7][38].bg == VTX_BLUE && ctx.screen[7][0].bg == VTX_BLACK,
+              "ui_item: selectionne, fond bleu des colonnes 1 a 38");
+        CHECK(ctx.screen[7][6].fg == VTX_WHITE && ctx.screen[7][3].fg == VTX_WHITE, "ui_item: selectionne, encre blanche");
+        ui_item(&ctx, 8, '5', "Identification", NULL, 0);
+        CHECK(ctx.screen[8][21].ch == ' ' && ctx.screen[8][22].ch == ' ', "ui_item: sans valeur, pas de points");
+
+        ui_footer(&ctx, "H aide", "ESC");
+        CHECK(ctx.screen[22][0].charset == CHARSET_G1 && ctx.screen[23][2].ch == 'H' &&
+              ctx.screen[23][2].fg == VTX_GREEN && ctx.screen[23][37].ch == 'C',
+              "ui_footer: filet, texte gauche vert, droite alignee");
+
+        CHECK(ui_nav(KEY_ARROW_DOWN, &sel, 3) == 1 && sel == 1, "ui_nav: bas -> 1");
+        CHECK(ui_nav(KEY_ARROW_DOWN, &sel, 3) == 1 && sel == 2, "ui_nav: bas -> 2");
+        CHECK(ui_nav(KEY_ARROW_DOWN, &sel, 3) == 1 && sel == 0, "ui_nav: bas -> boucle a 0");
+        CHECK(ui_nav(KEY_ARROW_UP, &sel, 3) == 1 && sel == 2, "ui_nav: haut -> boucle a 2");
+        CHECK(ui_nav(KEY_FUNC_FLAG | KEY_ENVOI, &sel, 3) == 2, "ui_nav: ENVOI valide");
+        CHECK(ui_nav(KEY_FUNC_FLAG | KEY_SUITE, &sel, 3) == 2, "ui_nav: Suite valide");
+        CHECK(ui_nav(KEY_ARROW_RIGHT, &sel, 3) == 2, "ui_nav: fleche droite valide");
+        CHECK(ui_nav('x', &sel, 3) == 0 && sel == 2, "ui_nav: autre touche ignoree");
+    }
+
     printf("\n=== Resultats: %d/%d passes ===\n", pass, run);
     return (pass == run) ? 0 : 1;
 }

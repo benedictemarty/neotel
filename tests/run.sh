@@ -355,6 +355,19 @@ else
     echo "FAIL recdel (voir $STORAGE)"; fail=1
 fi
 
+# --- 4g'. navigation du menu aux fleches (charte v0.9.1) : bas, bas, ENVOI
+# bascule l'item 3 (Terminal) -> neotel.cfg : model = 1 (Minitel 2). Les
+# fleches sont injectees comme codes KEY_* ($F7 = bas) : keyboard_scan les
+# rend tels quels au-dela de $F0.
+rm -rf "$STORAGE"; mkdir -p "$STORAGE"
+run "--serve" --cycles 30000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
+    --poke-at "15000000:$KI=F7" --poke-at "17000000:$KI=F7" --poke-at "19000000:$KI=0D"
+if [ -f "$STORAGE/neotel.cfg" ] && [ "$(od -An -tu1 -j3 -N1 "$STORAGE/neotel.cfg" | tr -d ' ')" = 1 ]; then
+    echo "PASS menunav (fleches + ENVOI : item 3 bascule, Minitel 2 sauve)"
+else
+    echo "FAIL menunav ($STORAGE/neotel.cfg)"; fail=1
+fi
+
 # --- 4h. ecran d'aide bilingue (menu H) : "AIDE NEOTEL" affiche, bascule EN --
 rm -rf "$STORAGE"; mkdir -p "$STORAGE"
 run "--serve" --cycles 40000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \

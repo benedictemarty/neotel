@@ -3,6 +3,34 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.9.1] — 2026-09-18
+
+### Ajouté
+- **Charte des écrans locaux** (`ui.c` : `ui_header`/`ui_banner`, `ui_rule`,
+  `ui_fill`, `ui_item`, `ui_footer`, `ui_print_right`, `ui_nav`) : bandeau
+  bleu avec titre en double hauteur (double taille au splash) et information
+  à droite, filets mosaïques, items `[touche] libellé .... valeur` avec
+  l'item courant sur fond bleu, pied de page. Tout le décor est dessiné par
+  routines (pas de chaîne de décor en RODATA).
+- **Navigation aux flèches** dans le menu principal et le menu serveur
+  (haut/bas, `ENVOI`/`Entrée`/`Suite`/`→` valident ; chiffres toujours
+  actifs ; l'item courant est mémorisé). Le menu affiche la **valeur
+  courante** de chaque réglage (dernier serveur, profil, aspect,
+  identification, dernier enregistrement, son). Menu serveur : item
+  courant = dernier serveur, `ESC` revient au menu (nouveau).
+- Écran « Liaison série » en carte d'état verte / jaune ; splash et aide sur
+  la même charte ; l'aide devient un tableau **touche / action** (menu ;
+  session et enregistrements), FR / EN.
+- Tests : `test_ui` 33 (bandeau, item, pied, navigation), scénario cible
+  **menunav** ; `keyboard_scan` rend tel quel un code injecté ≥ `$F0`
+  (flèches de test).
+
+### Modifié
+- Coût : ~1,6 Ko de code et de textes ; **marge BSS : 215 octets** (1,8 Ko
+  après la v0.9.0). Les écrans restants (WiFi, enregistrements, échecs)
+  demanderont une nouvelle économie de RAM (statiques de `main.c`,
+  `status_cells`).
+
 ## [0.9.0] — 2026-09-18
 
 ### Modifié

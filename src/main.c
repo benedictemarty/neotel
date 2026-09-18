@@ -33,7 +33,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.0"
+#define NEOTEL_VERSION "v0.9.1"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -98,58 +98,33 @@ static unsigned char s_route = SERIAL_ROUTE_AUTO;
  * =================================================================== */
 static void splash_screen(vtx_context_t* ctx)
 {
-    unsigned char i, c;
+    unsigned char i;
     const char* p;
     unsigned int waited;
 
     g_dbg_state = ST_SPLASH;
     ctx->cur_visible = 0;           /* pas de curseur sur les ecrans locaux */
 
-    /* Titre en double hauteur (lignes 4-5, centre) */
-    {
-        static const char title[] = "NeoTel";
-        for (i = 0; title[i]; ++i) {
-            c = 17 + i;
-            ctx->screen[5][c].ch = title[i];
-            ctx->screen[5][c].fg = VTX_CYAN;
-            ctx->screen[5][c].flags = SIZE_DOUBLE_HEIGHT << SIZE_SHIFT;
-        }
-        ctx->dirty[4] = 1;
-        ctx->dirty[5] = 1;
-    }
-
-    ui_print(ctx, 7, 2, "Minitel 1B / Minitel 2 pour Neo6502", VTX_WHITE);
-    ui_print(ctx, 8, 17, NEOTEL_VERSION, VTX_WHITE);
-
-    for (c = 5; c < 35; ++c) {
-        ctx->screen[10][c].ch = 0x60;
-        ctx->screen[10][c].charset = CHARSET_G1;
-        ctx->screen[10][c].fg = VTX_YELLOW;
-    }
-    ctx->dirty[10] = 1;
-
-    ui_print(ctx, 13, 10, "par Benedicte Marty", VTX_WHITE);
-    ui_print(ctx, 15, 12, "Licence EUPL 1.2", VTX_YELLOW);
-    ui_print(ctx, 18, 6, "d'apres OricTel (Oric 1/Atmos)", VTX_GREEN);
-
-    for (c = 5; c < 35; ++c) {
-        ctx->screen[20][c].ch = 0x60;
-        ctx->screen[20][c].charset = CHARSET_G1;
-        ctx->screen[20][c].fg = VTX_YELLOW;
-    }
-    ctx->dirty[20] = 1;
+    ui_banner(ctx, "NEOTEL", NEOTEL_VERSION, 1);
+    ui_print(ctx, 6, 2, "Terminal Minitel 1B / Minitel 2", VTX_WHITE);
+    ui_print(ctx, 7, 2, "pour Neo6502", VTX_WHITE);
+    ui_rule(ctx, 9, VTX_YELLOW);
+    ui_print(ctx, 11, 2, "par Benedicte Marty", VTX_WHITE);
+    ui_print(ctx, 12, 2, "Licence EUPL 1.2", VTX_YELLOW);
+    ui_print(ctx, 14, 2, "d'apres OricTel (Oric 1/Atmos)", VTX_GREEN);
+    ui_rule(ctx, 16, VTX_YELLOW);
 
     p = "Appuyez sur une touche...";
     for (i = 0; p[i]; ++i) {
-        ctx->screen[22][7 + i].ch = p[i];
-        ctx->screen[22][7 + i].fg = VTX_WHITE;
-        ctx->screen[22][7 + i].flags = ATTR_FLASH;
+        ctx->screen[19][7 + i].ch = p[i];
+        ctx->screen[19][7 + i].fg = VTX_WHITE;
+        ctx->screen[19][7 + i].flags = ATTR_FLASH;
     }
-    ctx->dirty[22] = 1;
+    ctx->dirty[19] = 1;
+    ui_footer(ctx, "H aide au menu", "ESC quitter");
 
     display_render_all(ctx);
     display_beep();
-
     /* Attendre une touche ou ~5 secondes (clignotement anime) */
     waited = 0;
     tick_reset();
@@ -183,29 +158,30 @@ static void splash_screen(vtx_context_t* ctx)
 /* Ecran de la liaison serie : rappel du montage, presence du modem USB. */
 static void interface_page(vtx_context_t* ctx)
 {
+    unsigned char st = serial_cdc_status();
+
     g_dbg_state = ST_INTERFACE;
     vtx_clear_page(ctx);
+    ui_header(ctx, "LIAISON SERIE", NEOTEL_VERSION);
 
-    ui_print(ctx, 6, 10, "Liaison serie:", VTX_WHITE);
-    switch (serial_cdc_status()) {
-    case SERIAL_CDC_PRESENT:
-        ui_print(ctx, 9, 6, "Modem USB CDC detecte (port hote)", VTX_GREEN);
-        ui_print(ctx, 10, 6, "API UART routee vers le modem", VTX_CYAN);
-        break;
-    case SERIAL_CDC_ABSENT:
-        ui_print(ctx, 9, 6, "Pas de modem USB CDC detecte:", VTX_YELLOW);
-        ui_print(ctx, 10, 6, "UART de l'UEXT (115200 8N1)", VTX_CYAN);
-        ui_print(ctx, 12, 3, "Brancher le PicoWiFiModemUSB sur le", VTX_WHITE);
-        ui_print(ctx, 13, 3, "port USB hote, puis CTRL+F en session.", VTX_WHITE);
-        break;
-    default:
-        ui_print(ctx, 9, 6, "Firmware amont (pas de groupe 14):", VTX_YELLOW);
-        ui_print(ctx, 10, 6, "UART de l'UEXT (115200 8N1)", VTX_CYAN);
-        ui_print(ctx, 12, 3, "Le modem USB demande le firmware", VTX_WHITE);
-        ui_print(ctx, 13, 3, "bmarty (Neo6502firmware, F-90/F-93).", VTX_WHITE);
-        break;
+    /* Carte d'etat : bandeau vert (modem USB) ou jaune (UART UEXT) */
+    ui_fill(ctx, 6, st == SERIAL_CDC_PRESENT ? VTX_GREEN : VTX_YELLOW);
+    if (st == SERIAL_CDC_PRESENT) {
+        ui_print(ctx, 6, 2, "MODEM USB CDC detecte (port hote)", VTX_BLACK);
+        ui_print(ctx, 8, 2, "API UART routee vers le modem", VTX_CYAN);
+    } else {
+        ui_print(ctx, 6, 2, "UART de l'UEXT  115200 8N1", VTX_BLACK);
+        if (st == SERIAL_CDC_ABSENT) {
+            ui_print(ctx, 8, 2, "Pas de modem USB CDC detecte.", VTX_WHITE);
+            ui_print(ctx, 10, 2, "Brancher le PicoWiFiModemUSB sur le", VTX_WHITE);
+            ui_print(ctx, 11, 2, "port USB hote, puis CTRL+F en session.", VTX_WHITE);
+        } else {
+            ui_print(ctx, 8, 2, "Firmware amont : pas de groupe 14.", VTX_WHITE);
+            ui_print(ctx, 10, 2, "Le modem USB demande le firmware", VTX_WHITE);
+            ui_print(ctx, 11, 2, "bmarty (Neo6502firmware, F-90/F-93).", VTX_WHITE);
+        }
     }
-    ui_print(ctx, 18, 8, "[une touche] pour continuer", VTX_WHITE);
+    ui_footer(ctx, "une touche : continuer", NULL);
     display_render_all(ctx);
 
     keyboard_flush();
@@ -213,78 +189,6 @@ static void interface_page(vtx_context_t* ctx)
         /* attente d'un appui */
     }
 }
-
-/* Menu principal. Retourne MODE_MODEM, MODE_WIFI ou MODE_QUIT (ESC). */
-static unsigned char select_mode(vtx_context_t* ctx)
-{
-    unsigned char key;
-
-    g_dbg_state = ST_MENU;
-    for (;;) {
-        vtx_clear_page(ctx);
-        ui_print(ctx, 6, 10, "Mode de connexion:", VTX_WHITE);
-        ui_menu_item(ctx, 9, "1 - Modem AT");
-        ui_menu_item(ctx, 11, "2 - Config WiFi");
-        ui_menu_item(ctx, 13, (g_term_model == TERM_MINITEL_2)
-                              ? "3 - Terminal: Minitel 2"
-                              : "3 - Terminal: Minitel 1B");
-        ui_menu_item(ctx, 15, (display_get_look() == DISPLAY_LOOK_GREY)
-                              ? "4 - Aspect: gris (1B mono)"
-                              : "4 - Aspect: couleur");
-        ui_menu_item(ctx, 17, g_ident_enabled
-                              ? "5 - Identification: ON"
-                              : "5 - Identification: OFF");
-        {
-            /* Libelle compose du menu 6 : tampon transitoire dans vtx.drcs
-             * (inutilise au menu ; vtx_init le remet a zero avant la session) */
-            char* item = (char*)&vtx.drcs[0][0][0];
-            strcpy(item, "6 - Relire un .vdt");
-            if (g_settings.rec_index) record_make_name(item + 11, g_settings.rec_index);
-            ui_menu_item(ctx, 19, item);
-        }
-        ui_menu_item(ctx, 21, g_settings.sound ? "7 - Son: ON" : "7 - Son: OFF");
-        ui_print(ctx, 22, 10, "H - Aide / Help", VTX_GREEN);
-        ui_print(ctx, 23, 10, "ESC Quitter (NeoBASIC)", VTX_WHITE);
-        display_render_all(ctx);
-
-        keyboard_flush();
-        for (;;) {
-            key = keyboard_scan();
-            if (key == '1') return MODE_MODEM;
-            if (key == '2') return MODE_WIFI;
-            if (key == '6') return MODE_REPLAY;
-            if (key == KEY_LOCAL_ESCAPE) return MODE_QUIT;
-            if (key == '3') {
-                term_set_model(g_term_model == TERM_MINITEL_2
-                               ? TERM_MINITEL_1B : TERM_MINITEL_2);
-                g_settings.model = g_term_model;
-                settings_save();
-                break;
-            }
-            if (key == '4' || key == KEY_TOGGLE_RENDER) {
-                display_set_look(display_get_look() == DISPLAY_LOOK_GREY
-                                 ? DISPLAY_LOOK_COLOR : DISPLAY_LOOK_GREY);
-                g_settings.look = display_get_look();
-                settings_save();
-                break;
-            }
-            if (key == '5') {
-                g_ident_enabled ^= 1;
-                g_settings.ident = g_ident_enabled;
-                settings_save();
-                break;
-            }
-            if (key == '7') {
-                g_settings.sound ^= 1;
-                settings_save();
-                if (g_settings.sound) display_beep();   /* confirmation audible */
-                break;
-            }
-            if (key == 'H' || key == 'h') { help_show(ctx); break; }
-        }
-    }
-}
-
 /* Serveurs disponibles */
 /* Cibles ATDT : hote:port (TCP) ou ws:// / wss:// (WebSocket, relaye par
  * tools/fake_modem.py sur PC ; non verifie sur un PicoWiFiModemUSB). */
@@ -301,60 +205,152 @@ static const char* server_names[] = {
 #define NUM_SERVERS 3
 #define KEY_OTHER_SERVER ('1' + NUM_SERVERS)
 
-/* Menu de selection serveur. Retourne 0-1 pour les predefinis, 255 pour
- * saisie libre. */
+/* Menu principal. Retourne MODE_MODEM, MODE_WIFI ou MODE_QUIT (ESC). */
+#define MENU_ITEMS 7
+static const unsigned char menu_rows[MENU_ITEMS] = { 5, 7, 9, 11, 13, 15, 17 };
+static const char* const menu_labels[MENU_ITEMS] = {
+    "Modem AT", "Config WiFi", "Terminal", "Aspect", "Identification",
+    "Relire", "Son",
+};
+
+static const char* menu_value(unsigned char i)
+{
+    switch (i) {
+    case 0:
+        if (g_settings.server_idx == 255) return g_settings.server[0] ? g_settings.server : NULL;
+        return g_settings.server_idx < NUM_SERVERS ? server_names[g_settings.server_idx] : NULL;
+    case 2: return g_term_model == TERM_MINITEL_2 ? "Minitel 2" : "Minitel 1B";
+    case 3: return display_get_look() == DISPLAY_LOOK_GREY ? "gris (1B mono)" : "couleur";
+    case 4: return g_ident_enabled ? "ON" : "OFF";
+    case 5:
+        if (!g_settings.rec_index) return "un .vdt";
+        record_make_name((char*)&vtx.drcs[0][0][0], g_settings.rec_index);
+        return (const char*)&vtx.drcs[0][0][0];    /* tampon transitoire dans vtx.drcs */
+    case 6: return g_settings.sound ? "ON" : "OFF";
+    default: return NULL;
+    }
+}
+
+static void menu_draw_item(vtx_context_t* ctx, unsigned char i, unsigned char sel)
+{
+    ui_item(ctx, menu_rows[i], (char)('1' + i), menu_labels[i], menu_value(i), sel);
+}
+
+static unsigned char select_mode(vtx_context_t* ctx)
+{
+    static unsigned char sel;       /* item courant, conserve entre deux menus */
+    unsigned char key, i, act;
+
+    g_dbg_state = ST_MENU;
+    for (;;) {
+        vtx_clear_page(ctx);
+        ui_header(ctx, "NEOTEL", g_term_model == TERM_MINITEL_2 ? "Minitel 2" : "Minitel 1B");
+        for (i = 0; i < MENU_ITEMS; ++i) menu_draw_item(ctx, i, i == sel);
+        ui_print(ctx, 20, 2, "Fleches / chiffre, ENVOI valide", VTX_CYAN);
+        ui_footer(ctx, "H aide", "ESC quitter (NeoBASIC)");
+        display_render_all(ctx);
+
+        keyboard_flush();
+        for (;;) {
+            key = keyboard_scan();
+            if (key == KEY_NONE) continue;
+            if (key == KEY_LOCAL_ESCAPE) return MODE_QUIT;
+            if (key == 'H' || key == 'h') { help_show(ctx); break; }
+            if (key == KEY_TOGGLE_RENDER) { key = '4'; }
+            act = 0xFF;
+            if (key >= '1' && key < '1' + MENU_ITEMS) act = key - '1';
+            else {
+                unsigned char r = ui_nav(key, &sel, MENU_ITEMS);
+                if (r == 1) {
+                    for (i = 0; i < MENU_ITEMS; ++i) menu_draw_item(ctx, i, i == sel);
+                    display_render_all(ctx);
+                    continue;
+                }
+                if (r == 2) act = sel;
+            }
+            if (act == 0xFF) continue;
+            sel = act;
+            switch (act) {
+            case 0: return MODE_MODEM;
+            case 1: return MODE_WIFI;
+            case 5: return MODE_REPLAY;
+            case 2:
+                term_set_model(g_term_model == TERM_MINITEL_2
+                               ? TERM_MINITEL_1B : TERM_MINITEL_2);
+                g_settings.model = g_term_model;
+                break;
+            case 3:
+                display_set_look(display_get_look() == DISPLAY_LOOK_GREY
+                                 ? DISPLAY_LOOK_COLOR : DISPLAY_LOOK_GREY);
+                g_settings.look = display_get_look();
+                break;
+            case 4:
+                g_ident_enabled ^= 1;
+                g_settings.ident = g_ident_enabled;
+                break;
+            default:
+                g_settings.sound ^= 1;
+                if (g_settings.sound) display_beep();   /* confirmation audible */
+                break;
+            }
+            settings_save();
+            break;
+        }
+    }
+}
+
+/* Menu de selection serveur. Retourne 0-2 pour les predefinis, 255 pour
+ * saisie libre (g_settings.server), 0xFE sur ESC (retour au menu). */
+static void server_draw(vtx_context_t* ctx, unsigned char sel)
+{
+    unsigned char i;
+    for (i = 0; i < NUM_SERVERS; ++i) {
+        ui_item(ctx, (unsigned char)(5 + i * 2), (char)('1' + i), server_names[i],
+                servers[i], i == sel);
+    }
+    ui_item(ctx, 5 + NUM_SERVERS * 2, KEY_OTHER_SERVER, "Autre",
+            g_settings.server[0] ? g_settings.server : "host:port, ws://",
+            sel == NUM_SERVERS);
+}
+
 static unsigned char select_server(vtx_context_t* ctx)
 {
     unsigned char sel, n;
 
     g_dbg_state = ST_SERVER;
-    ui_print(ctx, 8, 5, "Serveur:", VTX_WHITE);
-    /* Dernier serveur (reglages sauves) : ENVOI le reprend */
-    ui_print(ctx, 20, 3, "ENVOI = dernier:", VTX_WHITE);
-    ui_print(ctx, 20, 20, (g_settings.server_idx == 255) ? g_settings.server
-                          : (g_settings.server_idx < NUM_SERVERS)
-                            ? server_names[g_settings.server_idx] : "?", VTX_GREEN);
-
-    for (sel = 0; sel < NUM_SERVERS; ++sel) {
-        unsigned char row = 10 + sel * 2;
-        ctx->screen[row][5].ch = '1' + sel;
-        ctx->screen[row][5].fg = VTX_CYAN;
-        ctx->screen[row][7].ch = '-';
-        ctx->screen[row][7].fg = VTX_WHITE;
-        ui_print(ctx, row, 9, server_names[sel], VTX_YELLOW);
-    }
-    {
-        unsigned char row = 10 + NUM_SERVERS * 2;
-        ctx->screen[row][5].ch = KEY_OTHER_SERVER;
-        ctx->screen[row][5].fg = VTX_CYAN;
-        ctx->screen[row][7].ch = '-';
-        ctx->screen[row][7].fg = VTX_WHITE;
-        ui_print(ctx, row, 9, "Autre (host:port, ws://)", VTX_YELLOW);
-    }
+    vtx_clear_page(ctx);
+    ui_header(ctx, "SERVEUR", NULL);
+    /* Item courant = dernier serveur (reglages sauves) : ENVOI le reprend */
+    sel = (g_settings.server_idx == 255) ? NUM_SERVERS
+        : (g_settings.server_idx < NUM_SERVERS) ? g_settings.server_idx : 0;
+    server_draw(ctx, sel);
+    ui_print(ctx, 16, 2, "Fleches / chiffre, ENVOI = compose", VTX_CYAN);
+    ui_footer(ctx, "4 saisir une adresse", "ESC retour");
     display_render_all(ctx);
 
     keyboard_flush();
     for (;;) {
         unsigned char key = keyboard_scan();
-        if (key >= '1' && key < '1' + NUM_SERVERS) {
-            return key - '1';
-        }
-        if ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_ENVOI) {
-            if (g_settings.server_idx == 255 && g_settings.server[0]) return 255;
-            if (g_settings.server_idx < NUM_SERVERS) return g_settings.server_idx;
+        unsigned char r;
+        if (key == KEY_NONE) continue;
+        if (key == KEY_LOCAL_ESCAPE) return 0xFE;
+        if (key >= '1' && key < '1' + NUM_SERVERS) return key - '1';
+        r = ui_nav(key, &sel, NUM_SERVERS + 1);
+        if (r == 1) { server_draw(ctx, sel); display_render_all(ctx); continue; }
+        if (r == 2) {
+            if (sel < NUM_SERVERS) return sel;
+            if (g_settings.server[0]) return 255;   /* "Autre" deja saisi */
+            key = KEY_OTHER_SERVER;
         }
         if (key == KEY_OTHER_SERVER) {
-            unsigned char row = 10 + NUM_SERVERS * 2 + 2;
-            ui_print(ctx, row, 3, "Serveur  > ", VTX_WHITE);
+            unsigned char row = 5 + NUM_SERVERS * 2 + 2;
+            ui_print(ctx, row, 2, "Adresse >", VTX_WHITE);
             display_render_all(ctx);
-            n = ui_text_input(ctx, row, 14, g_settings.server,
+            n = ui_text_input(ctx, row, 12, g_settings.server,
                               SETTINGS_SERVER_MAX, 0);
             if (n != 0xFF && n > 0) return 255;
-            {
-                unsigned char c;
-                for (c = 0; c < VTX_COLS; ++c) ctx->screen[row][c].ch = ' ';
-                ctx->dirty[row] = 1;
-            }
+            ui_fill(ctx, row, VTX_BLACK);
+            server_draw(ctx, sel);
             display_render_all(ctx);
         }
     }
@@ -622,7 +618,7 @@ static unsigned char connect_failed_page(vtx_context_t* ctx,
             vtx_clear_page(ctx);
             *srv_idx = select_server(ctx);
             vtx_clear_page(ctx);
-            return 1;
+            return (*srv_idx == 0xFE) ? 2 : 1;  /* ESC : menu */
         }
         if (key == '3') return 0;
     }
@@ -1008,6 +1004,7 @@ int main(void)
             neo_delay_ms(100);
         } else {
         srv_idx = select_server(&vtx);
+        if (srv_idx == 0xFE) continue;          /* ESC : retour au menu */
         vtx_clear_page(&vtx);
         status_server = (srv_idx == 255) ? g_settings.server : server_names[srv_idx];
         status_bar_draw();
