@@ -79,8 +79,8 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] Bandeau titre double hauteur, filets mosaïques, item courant sur fond
       bleu, valeurs des réglages en ligne, navigation flèches + ENVOI ;
       splash, menu, serveur, liaison série, aide sur la même charte.
-- [ ] Reste sur l'ancienne présentation : Config WiFi, liste des
-      enregistrements, pages d'échec de connexion / perte de porteuse.
+- [x] Config WiFi, liste des enregistrements, pages d'échec de connexion /
+      perte de porteuse (v0.9.3).
 
 ## v0.9.0 — Rendu par demi-rangées [TERMINÉ, 2026-09-18]
 - [x] Tampon de rangée 2 880 → 1 440 o, deux passes, un seul bloc asm ;
