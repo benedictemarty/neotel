@@ -187,11 +187,11 @@ void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
     const unsigned char* glyph;
 
     if (cell->flags & ATTR_INVERT) {
-        *fg = cell->bg;
-        *bg = cell->fg;
+        *fg = cell_bg(cell);
+        *bg = cell_fg(cell);
     } else {
-        *fg = cell->fg;
-        *bg = cell->bg;
+        *fg = cell_fg(cell);
+        *bg = cell_bg(cell);
     }
 
     /* Masque (concealed + masque global) et phase eteinte du clignotement :
@@ -561,8 +561,7 @@ void display_status_clear(void)
     for (c = 0; c < STATUS_COLS; ++c) {
         status_cells[c].ch = ' ';
         status_cells[c].charset = CHARSET_G0;
-        status_cells[c].fg = VTX_WHITE;
-        status_cells[c].bg = VTX_BLACK;
+        cell_set_colors(&status_cells[c], VTX_WHITE, VTX_BLACK);
         status_cells[c].flags = 0;
     }
 }
@@ -573,8 +572,8 @@ void display_status_text(unsigned char col, const char* s,
     for (; *s && col < STATUS_COLS; ++s, ++col) {
         status_cells[col].ch = (unsigned char)*s;
         status_cells[col].charset = CHARSET_G0;
-        status_cells[col].fg = inverse ? VTX_BLACK : ink;
-        status_cells[col].bg = inverse ? ink : VTX_BLACK;
+        if (inverse) cell_set_colors(&status_cells[col], VTX_BLACK, ink);
+        else         cell_set_colors(&status_cells[col], ink, VTX_BLACK);
         status_cells[col].flags = 0;
     }
 }
@@ -589,8 +588,7 @@ void display_status(const char* msg)
     unsigned char c;
     for (c = 0; c < STATUS_COLS; ++c) {
         status_cells[c].ch = ' ';
-        status_cells[c].fg = VTX_WHITE;
-        status_cells[c].bg = VTX_BLACK;
+        cell_set_colors(&status_cells[c], VTX_WHITE, VTX_BLACK);
         status_cells[c].charset = CHARSET_G0;
         status_cells[c].flags = 0;
     }

@@ -344,7 +344,7 @@ static void test_background_color(void)
     /* L'espace (delimiteur) applique l'attribut en attente */
     vtx_process(&ctx, 0x20);
     ASSERT_EQ("bg_color = BLUE", VTX_BLUE, ctx.bg_color);
-    ASSERT_EQ("cell bg = BLUE", VTX_BLUE, ctx.screen[1][0].bg);
+    ASSERT_EQ("cell bg = BLUE", VTX_BLUE, cell_bg(&ctx.screen[1][0]));
 
     /* STUM 1B : un caractere semi-graphique (G1) valide la couleur de fond
      * latente, sans espace (cartes du POKER de 3617.fr : fond blanc, encre
@@ -356,9 +356,9 @@ static void test_background_color(void)
             0x0E, 0x7E, 0x7E, 0x0F      /* SO mosaique mosaique SI */
         };
         send_bytes(&ctx, seq, sizeof seq);
-        ASSERT_EQ("G1 : cell bg = WHITE", VTX_WHITE, ctx.screen[3][3].bg);
-        ASSERT_EQ("G1 : cell fg = BLACK", VTX_BLACK, ctx.screen[3][3].fg);
-        ASSERT_EQ("G1 : 2e mosaique bg = WHITE", VTX_WHITE, ctx.screen[3][4].bg);
+        ASSERT_EQ("G1 : cell bg = WHITE", VTX_WHITE, cell_bg(&ctx.screen[3][3]));
+        ASSERT_EQ("G1 : cell fg = BLACK", VTX_BLACK, cell_fg(&ctx.screen[3][3]));
+        ASSERT_EQ("G1 : 2e mosaique bg = WHITE", VTX_WHITE, cell_bg(&ctx.screen[3][4]));
         ASSERT_EQ("G1 : bg_color = WHITE", VTX_WHITE, ctx.bg_color);
     }
     /* Le soulignement latent, lui, attend un espace explicite */
@@ -368,7 +368,7 @@ static void test_background_color(void)
             0x0E, 0x7E, 0x0F, 'A', ' ', 'B'
         };
         send_bytes(&ctx, seq, sizeof seq);
-        ASSERT_EQ("G1 : fond vert applique", VTX_GREEN, ctx.screen[4][3].bg);
+        ASSERT_EQ("G1 : fond vert applique", VTX_GREEN, cell_bg(&ctx.screen[4][3]));
         ASSERT_EQ("G1 : pas de souligne", 0, ctx.screen[4][3].flags & ATTR_UNDERLINE);
         ASSERT_EQ("A : pas encore souligne", 0, ctx.screen[4][4].flags & ATTR_UNDERLINE);
         ASSERT_EQ("B : souligne apres l'espace", ATTR_UNDERLINE, ctx.screen[4][6].flags & ATTR_UNDERLINE);
@@ -389,14 +389,14 @@ static void test_background_color(void)
             0x1F, 0x46, 0x4B, 'Z'                   /* col 10 : hors zone, noir */
         };
         send_bytes(&ctx, fill, sizeof fill);
-        ASSERT_EQ("remplissage blanc", VTX_WHITE, ctx.screen[6][8].bg);
+        ASSERT_EQ("remplissage blanc", VTX_WHITE, cell_bg(&ctx.screen[6][8]));
         send_bytes(&ctx, write_r, sizeof write_r);
-        ASSERT_EQ("R sur zone blanche : fond blanc", VTX_WHITE, ctx.screen[6][3].bg);
-        ASSERT_EQ("R : encre noire", VTX_BLACK, ctx.screen[6][3].fg);
+        ASSERT_EQ("R sur zone blanche : fond blanc", VTX_WHITE, cell_bg(&ctx.screen[6][3]));
+        ASSERT_EQ("R : encre noire", VTX_BLACK, cell_fg(&ctx.screen[6][3]));
         send_bytes(&ctx, moves, sizeof moves);
-        ASSERT_EQ("LF vers zone blanche : X fond blanc", VTX_WHITE, ctx.screen[6][5].bg);
-        ASSERT_EQ("BS vers zone blanche : Y fond blanc", VTX_WHITE, ctx.screen[6][8].bg);
-        ASSERT_EQ("hors zone : Z fond noir", VTX_BLACK, ctx.screen[6][10].bg);
+        ASSERT_EQ("LF vers zone blanche : X fond blanc", VTX_WHITE, cell_bg(&ctx.screen[6][5]));
+        ASSERT_EQ("BS vers zone blanche : Y fond blanc", VTX_WHITE, cell_bg(&ctx.screen[6][8]));
+        ASSERT_EQ("hors zone : Z fond noir", VTX_BLACK, cell_bg(&ctx.screen[6][10]));
     }
 }
 

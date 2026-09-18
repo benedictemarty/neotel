@@ -51,12 +51,13 @@ $0100-$01FF  pile 65C02
 $0800-       STARTUP, CODE (~42 Ko en v0.5.0), RODATA (polices 8x9 et 8x14,
              tables : ~4,7 Ko), DATA
              BSS (~12 Ko) : contexte Videotex (8 Ko dont 1 880 o de DRCS ;
-                   l'ecran 80 colonnes de 4 Ko loge dans vtx.screen, les
+                   cellules de 4 octets (ch, charset, color, flags) ;
+                   l'ecran 80 colonnes (~4,1 Ko) loge dans vtx.drcs + vtx.screen, les
                    tampons de la page Wi-Fi (312 o) dans vtx.drcs), tampon
                    de demi-rangee (1 440 o, v0.9.0 ; 2 880 avant), reglages,
                    tampon d'enregistrement (64 o). Plus de cache G1 depuis
                    v0.5.1 (mosaiques calculees a la volee).
-                   Fin ~ $F4B9 en v0.9.0 : ~1,8 Ko sous la pile C (64 o,
+                   Fin ~ $F6D9 en v0.9.2 : ~1,25 Ko sous la pile C (64 o,
                    $FBC0-$FBFF) ; `grep BSS build/neotel.map`
 $FBA0-$FBFF  pile C cc65 (96 o ; usage mesure 33 o session et relecture,
              locales statiques ; `PASS stack` dans tests/run.sh)
@@ -99,7 +100,8 @@ contenir que des `unsigned char` / `unsigned short` (même taille sur cc65).
   l'offset `y * 320` par décalages (la multiplication longue de la libc
   coûtait ~5 000 cycles par appel).
 - **`blit_run`** (assembleur) rend une course de cellules de taille
-  normale : lecture de la cellule (6 octets), inversion, masquage,
+  normale : lecture de la cellule (4 octets : `ch`, `charset`, `color` =
+  fond << 4 | encre, `flags` = attributs + taille ; v0.9.2), inversion, masquage,
   clignotement, glyphe G0 (adresse calculée), G1 (cache), G2 (appel C
   `font_get_g2`), souligné, puis 9 lignes : fond (8 `sta abs,x`) et encre
   sur les bits à 1. X = `bufcol*8` ≤ 152 : un seul bloc de lignes depuis

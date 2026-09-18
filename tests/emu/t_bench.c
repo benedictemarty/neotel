@@ -40,7 +40,7 @@ static void fill(unsigned char ch, unsigned char charset)
         for (c = 0; c < VTX_COLS; ++c) {
             ctx.screen[r][c].ch = ch;
             ctx.screen[r][c].charset = charset;
-            ctx.screen[r][c].fg = 7;
+            cell_set_fg(&ctx.screen[r][c], 7);
         }
 }
 

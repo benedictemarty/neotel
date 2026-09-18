@@ -63,7 +63,7 @@ page_has() {   # $1 = dump, $2 = texte
 import sys
 d = open(sys.argv[1], 'rb').read(); text = sys.argv[2]
 base = int(sys.argv[3], 16) + int(sys.argv[4])
-rows = [''.join(chr(d[base + (r * 40 + c) * 5]) for c in range(40)) for r in range(25)]
+rows = [''.join(chr(d[base + (r * 40 + c) * 4]) for c in range(40)) for r in range(25)]
 sys.exit(0 if any(text in row for row in rows) else 1)
 EOF
 }

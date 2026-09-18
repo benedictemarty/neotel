@@ -95,10 +95,17 @@
 typedef struct {
     unsigned char ch;           /* Code caractere */
     unsigned char charset;      /* CHARSET_G0, G1, G2 */
-    unsigned char fg;           /* Couleur encre (0-7) */
-    unsigned char bg;           /* Couleur fond (0-7) */
+    unsigned char color;        /* bits 0-3 : encre (0-7) ; bits 4-7 : fond (0-7) — v0.9.2 */
     unsigned char flags;        /* bits 0-4 : ATTR_* ; bits 5-6 : taille (cell_size) */
 } vtx_cell_t;
+
+/* Couleurs d'une cellule (encre / fond dans un seul octet : 4 octets par
+ * cellule, 25 x 40 = 1 000 octets de RAM gagnes en v0.9.2). */
+#define cell_fg(c)               (unsigned char)((c)->color & 0x0F)
+#define cell_bg(c)               (unsigned char)((c)->color >> 4)
+#define cell_set_colors(c, f, b) ((c)->color = (unsigned char)(((b) << 4) | (f)))
+#define cell_set_fg(c, f)        ((c)->color = (unsigned char)(((c)->color & 0xF0) | (f)))
+#define cell_set_bg(c, b)        ((c)->color = (unsigned char)(((c)->color & 0x0F) | ((b) << 4)))
 
 /* Contexte du decodeur Videotex */
 typedef struct {
