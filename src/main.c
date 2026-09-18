@@ -34,7 +34,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.2"
+#define NEOTEL_VERSION "v0.9.3"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -439,35 +439,25 @@ static void wifi_config_page(vtx_context_t* ctx)
     g_dbg_state = ST_WIFI;
     for (;;) {
         vtx_clear_page(ctx);
-        ui_print(ctx, 10, 9, "Scan WiFi en cours...", VTX_WHITE);
+        ui_header(ctx, "CONFIG WIFI", NULL);
+        ui_print(ctx, 10, 2, "Scan des reseaux en cours...", VTX_WHITE);
         display_render_all(ctx);
 
         if (wifi_scan() == 0) {
-            vtx_clear_page(ctx);
-            wifi_msg_wait(ctx, 10, 6, "Aucun reseau. Touche=retour");
+            ui_fill(ctx, 10, VTX_YELLOW);
+            ui_print(ctx, 10, 2, "Aucun reseau trouve", VTX_BLACK);
+            ui_footer(ctx, "une touche : retour", NULL);
+            wifi_msg_wait(ctx, 12, 2, "Le modem repond-il ? (ATI)");
             return;
         }
 
         vtx_clear_page(ctx);
-        ui_print(ctx, 2, 3, "Reseaux WiFi:", VTX_WHITE);
+        ui_header(ctx, "CONFIG WIFI", "reseaux");
         for (i = 0; i < wifi_count; ++i) {
-            unsigned char row = 4 + i;
-            unsigned char d;
-            ctx->screen[row][3].ch = '1' + i;
-            ui_set_fg(&ctx->screen[row][3], VTX_CYAN);
-            ctx->screen[row][5].ch = '-';
-            ui_set_fg(&ctx->screen[row][5], VTX_WHITE);
-            for (d = 0; wifi_ssid[i][d] && (7 + d) < VTX_COLS; ++d) {
-                ctx->screen[row][7 + d].ch = wifi_ssid[i][d];
-                ui_set_fg(&ctx->screen[row][7 + d], VTX_YELLOW);
-            }
-            if (wifi_sec[i] == 'S' && (7 + d + 1) < VTX_COLS) {
-                ctx->screen[row][7 + d + 1].ch = '*';
-                ui_set_fg(&ctx->screen[row][7 + d + 1], VTX_RED);
-            }
-            ctx->dirty[row] = 1;
+            ui_item(ctx, (unsigned char)(5 + i * 2), (char)('1' + i), wifi_ssid[i],
+                    wifi_sec[i] == 'S' ? "cle" : "ouvert", 0);
         }
-        ui_print(ctx, 22, 0, "Chiffre=choix F4=rescan ESC=retour", VTX_GREEN);
+        ui_footer(ctx, "chiffre choisit  F4 rescan", "ESC retour");
         display_render_all(ctx);
 
         sel = 0xFF;
@@ -492,13 +482,16 @@ static void wifi_config_page(vtx_context_t* ctx)
         wifi_pass[0] = 0;
         if (wifi_sec[sel] == 'S') {
             vtx_clear_page(ctx);
-            ui_print(ctx, 8, 3, "Mot de passe WiFi:", VTX_WHITE);
+            ui_header(ctx, "CONFIG WIFI", wifi_ssid[sel]);
+            ui_print(ctx, 8, 2, "Mot de passe :", VTX_WHITE);
+            ui_footer(ctx, "ENVOI valide", "ESC annule");
             display_render_all(ctx);
-            ui_text_input(ctx, 10, 3, wifi_pass, sizeof(wifi_pass), '*');
+            if (ui_text_input(ctx, 10, 2, wifi_pass, sizeof(wifi_pass), '*') == 0xFF) return;
         }
 
         vtx_clear_page(ctx);
-        ui_print(ctx, 10, 11, "Connexion WiFi...", VTX_WHITE);
+        ui_header(ctx, "CONFIG WIFI", wifi_ssid[sel]);
+        ui_print(ctx, 10, 2, "Association au reseau...", VTX_WHITE);
         display_render_all(ctx);
 
         at_send_kv("AT$SSID=", wifi_ssid[sel]);
@@ -511,10 +504,14 @@ static void wifi_config_page(vtx_context_t* ctx)
         if (at_wait_ip(20000)) {
             at_send("AT&W");
             at_wait_response("OK", 3000);
-            wifi_msg_wait(ctx, 18, 5, "Connecte! Config sauvee.");
+            ui_fill(ctx, 12, VTX_GREEN);
+            ui_print(ctx, 12, 2, "Connecte, configuration sauvee", VTX_BLACK);
         } else {
-            wifi_msg_wait(ctx, 18, 3, "Echec IP. Verifier mot de passe.");
+            ui_fill(ctx, 12, VTX_RED);
+            ui_print(ctx, 12, 2, "Pas d'adresse IP : verifier la cle", VTX_WHITE);
         }
+        ui_footer(ctx, "une touche : retour", NULL);
+        wifi_msg_wait(ctx, 14, 2, "");
         return;
     }
 }
@@ -606,13 +603,15 @@ static unsigned char connect_failed_page(vtx_context_t* ctx,
     unsigned char key;
 
     vtx_clear_page(ctx);
-    ui_print(ctx, 6, 11, "ECHEC DE CONNEXION", VTX_RED);
-    ui_print(ctx, 8,  3, "Pas de CONNECT: la ligne ne porte", VTX_WHITE);
-    ui_print(ctx, 9,  3, "aucun flux Videotex exploitable.", VTX_WHITE);
-    ui_menu_item(ctx, 12, "1 Reessayer");
-    ui_menu_item(ctx, 14, "2 Choisir un autre serveur");
-    ui_menu_item(ctx, 16, "3 Entrer quand meme");
-    ui_print(ctx, 20, 12, "ESC Retour au menu", VTX_WHITE);
+    ui_header(ctx, "CONNEXION", NULL);
+    ui_fill(ctx, 5, VTX_RED);
+    ui_print(ctx, 5, 2, "ECHEC DE CONNEXION", VTX_WHITE);
+    ui_print(ctx, 7, 2, "Pas de CONNECT : la ligne ne porte", VTX_WHITE);
+    ui_print(ctx, 8, 2, "aucun flux Videotex exploitable.", VTX_WHITE);
+    ui_item(ctx, 11, '1', "Reessayer", NULL, 0);
+    ui_item(ctx, 13, '2', "Choisir un autre serveur", NULL, 0);
+    ui_item(ctx, 15, '3', "Entrer quand meme", NULL, 0);
+    ui_footer(ctx, NULL, "ESC retour au menu");
     display_render_all(ctx);
     g_dbg_state = ST_FAILED;
 
@@ -638,12 +637,14 @@ static unsigned char carrier_lost_page(vtx_context_t* ctx)
     unsigned char key;
 
     vtx_clear_page(ctx);
-    ui_print(ctx, 6, 11, "PERTE DE PORTEUSE", VTX_RED);
-    ui_print(ctx, 8,  3, "Le modem a signale NO CARRIER:", VTX_WHITE);
-    ui_print(ctx, 9,  3, "la communication est terminee.", VTX_WHITE);
-    ui_menu_item(ctx, 12, "1 Reconnecter");
-    ui_menu_item(ctx, 14, "2 Rester en local");
-    ui_print(ctx, 18, 12, "ESC Retour au menu", VTX_WHITE);
+    ui_header(ctx, "CONNEXION", NULL);
+    ui_fill(ctx, 5, VTX_RED);
+    ui_print(ctx, 5, 2, "PERTE DE PORTEUSE", VTX_WHITE);
+    ui_print(ctx, 7, 2, "Le modem a signale NO CARRIER :", VTX_WHITE);
+    ui_print(ctx, 8, 2, "la communication est terminee.", VTX_WHITE);
+    ui_item(ctx, 11, '1', "Reconnecter", NULL, 0);
+    ui_item(ctx, 13, '2', "Rester en local", NULL, 0);
+    ui_footer(ctx, NULL, "ESC retour au menu");
     display_render_all(ctx);
     g_dbg_state = ST_CARRIER;       /* apres le rendu : l'ecran est lisible */
 
@@ -863,25 +864,27 @@ static unsigned char replay_idx[REPLAY_LIST_MAX];
  * choisi (1) ou renonce (0). */
 static unsigned char replay_prompt(void)
 {
-    unsigned char n, count, i, del, prow;
+    unsigned char n, count, i, del;
 
   for (;;) {                            /* recommence apres un effacement */
     vtx_clear_page(&vtx);
-    ui_print(&vtx, 3, 3, "Relire un enregistrement", VTX_CYAN);
+    ui_header(&vtx, "RELIRE", ".vdt");
     count = record_list(replay_idx, REPLAY_LIST_MAX);
 
     if (count == 0) {
-        ui_print(&vtx, 6, 3, "Aucun enregistrement. Nom du", VTX_WHITE);
-        ui_print(&vtx, 7, 3, "fichier (ENVOI = dernier) :", VTX_WHITE);
+        ui_print(&vtx, 6, 2, "Aucun enregistrement sur la carte.", VTX_WHITE);
+        ui_print(&vtx, 8, 2, "Nom du fichier (ENVOI = dernier) :", VTX_WHITE);
+        ui_footer(&vtx, "ENVOI valide", "ESC retour");
         display_render_all(&vtx);
-        n = ui_text_input(&vtx, 9, 3, rec_name, sizeof rec_name, 0);
+        n = ui_text_input(&vtx, 10, 2, rec_name, sizeof rec_name, 0);
         if (n == 0xFF) return 0;
         if (n == 0) {
             if (!g_settings.rec_index) return 0;
             record_make_name(rec_name, g_settings.rec_index);
         }
         if (replay_open(rec_name)) return 1;
-        ui_print(&vtx, 11, 3, "Fichier introuvable", VTX_RED);
+        ui_fill(&vtx, 12, VTX_RED);
+        ui_print(&vtx, 12, 2, "Fichier introuvable", VTX_WHITE);
         display_render_all(&vtx);
         keyboard_flush();
         while (keyboard_scan() == KEY_NONE) { }
@@ -889,17 +892,15 @@ static unsigned char replay_prompt(void)
     }
 
     for (i = 0; i < count; ++i) {
-        char line[24];
-        line[0] = (char)('A' + i);
-        line[1] = ' '; line[2] = '-'; line[3] = ' ';
-        record_make_name(line + 4, replay_idx[i]);
-        ui_print(&vtx, (unsigned char)(6 + i), 5, line, VTX_YELLOW);
+        /* nom compose dans vtx.drcs (libre au menu) */
+        char* name = (char*)&vtx.drcs[0][0][0];
+        record_make_name(name, replay_idx[i]);
+        ui_item(&vtx, (unsigned char)(5 + i), (char)('A' + i), name,
+                replay_idx[i] == g_settings.rec_index ? "dernier" : NULL, 0);
     }
     {
-    static const char help[] = "Lettre  ENVOI=dernier  Suppr";
-    prow = (unsigned char)(7 + count);
     del = 0;
-    ui_print(&vtx, prow, 3, help, VTX_WHITE);
+    ui_footer(&vtx, "lettre rejoue  ENVOI = dernier", "Suppr");
     display_render_all(&vtx);
 
     keyboard_flush();
@@ -908,7 +909,7 @@ static unsigned char replay_prompt(void)
         if (key == KEY_LOCAL_ESCAPE) {
             if (!del) return 0;
             del = 0;
-            ui_print(&vtx, prow, 3, help, VTX_WHITE);
+            ui_footer(&vtx, "lettre rejoue  ENVOI = dernier", "Suppr");
             display_render_all(&vtx);
             continue;
         }
@@ -918,10 +919,14 @@ static unsigned char replay_prompt(void)
             if (replay_open(rec_name)) return 1;
             continue;
         }
+        /* Suppr (Annulation depuis la v0.8.1), Retour arriere ou Correction */
         if (!del && (key == 0x08 || key == 0x7F ||
-            ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_CORRECTION))) {
+            ((key & KEY_FUNC_FLAG) && ((key & 0x7F) == KEY_CORRECTION ||
+                                       (key & 0x7F) == KEY_ANNULATION)))) {
             del = 1;
-            ui_print(&vtx, prow, 3, "SUPPR quelle lettre ?  ESC  ", VTX_RED);
+            ui_fill(&vtx, UI_ROW_FOOTER, VTX_RED);
+            ui_print(&vtx, UI_ROW_FOOTER, 2, "EFFACER : quelle lettre ?", VTX_WHITE);
+            ui_print_right(&vtx, UI_ROW_FOOTER, "ESC annule", VTX_WHITE);
             display_render_all(&vtx);
             continue;
         }
@@ -933,8 +938,8 @@ static unsigned char replay_prompt(void)
         }
         record_make_name(rec_name, replay_idx[key - 'A']);
         if (replay_open(rec_name)) return 1;
-        ui_print(&vtx, (unsigned char)(9 + count), 3,
-                 "Fichier introuvable", VTX_RED);
+        ui_fill(&vtx, 20, VTX_RED);
+        ui_print(&vtx, 20, 2, "Fichier introuvable", VTX_WHITE);
         display_render_all(&vtx);
     }
     }

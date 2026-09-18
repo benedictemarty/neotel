@@ -3,6 +3,21 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.9.3] — 2026-09-18
+
+### Ajouté
+- **Charte complète** : Config WiFi (liste des réseaux en items avec
+  « cle » / « ouvert », bandeaux de résultat vert / rouge, ESC pendant la
+  saisie de la clé annule), liste des enregistrements (items `[A] neoNN.vdt`
+  avec la mention « dernier », pied de page rouge en mode effacement),
+  pages d'échec de connexion et de perte de porteuse (bandeau rouge, items).
+  Plus aucun écran sur l'ancienne présentation.
+
+### Corrigé
+- Menu 6 : depuis la v0.8.1 `Suppr` émet Annulation ; l'effacement d'un
+  enregistrement ne se déclenchait plus qu'avec `Retour arrière` /
+  `Correction`. `Suppr` (Annulation) est de nouveau accepté.
+
 ## [0.9.2] — 2026-09-18
 
 ### Modifié

@@ -118,7 +118,7 @@ par le vrai chemin du firmware. La RAM est arrivée à 76 o de marge.
 |---|---|
 | US-27 Dégager de la RAM sans perdre le rendu pixel-exact | fait (v0.9.0 : tampon de demi-rangée, −1 440 o, marge ~1,8 Ko ; banc +11 à +33 %) |
 | US-29 Nouvelle économie de RAM pour finir la charte | fait (v0.9.2 : cellule 4 octets, −1 000 o ; marge 1 255 o) |
-| US-28 Les menus, le splash, la liaison série et l'aide ont une charte moderne (bandeaux, cadres, inverse, flèches) | fait (v0.9.1 : `ui_header/item/footer/nav`, `test_ui` 33, scénario `menunav`) ; restent WiFi, liste des enregistrements, pages d'échec |
+| US-28 Les menus, le splash, la liaison série et l'aide ont une charte moderne (bandeaux, cadres, inverse, flèches) | fait (v0.9.1 : `ui_header/item/footer/nav`, `test_ui` 33, scénario `menunav`) ; v0.9.3 : WiFi, liste des enregistrements, pages d'échec) |
 
 ## Sprint 10 — (à planifier)
 - Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
