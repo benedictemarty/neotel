@@ -3,6 +3,20 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.9.2] — 2026-09-18
+
+### Modifié
+- **Cellule Vidéotex de 5 à 4 octets** : encre et fond partagent l'octet
+  `color` (fond << 4 | encre ; accesseurs `cell_fg/cell_bg/cell_set_*`,
+  fonctions `ui_set_fg/ui_set_bg` pour les écrans locaux). −1 000 o de BSS,
+  code et vitesse inchangés (banc identique). Tables d'offsets au pas de 4,
+  `blit_run`/`scan_dblh` adaptés, `page_has` des tests au pas de 4.
+- Le contexte 80 colonnes (~4,1 Ko) ne tenant plus dans `vtx.screen`
+  (4 Ko), il est logé à partir de `vtx.drcs` (inutilisé en mode Mixte) et
+  continue dans `vtx.screen`, contiguïté et taille vérifiées à la
+  compilation (`offsetof`).
+- **Marge BSS : 215 o → 1 255 o.**
+
 ## [0.9.1] — 2026-09-18
 
 ### Ajouté

@@ -19,7 +19,7 @@ void ui_print(vtx_context_t* ctx, unsigned char row,
      * VTX_COLS deborderait sinon sur la ligne suivante (UB / corruption). */
     for (i = 0; s[i] && (col + i) < VTX_COLS; ++i) {
         ctx->screen[row][col + i].ch = s[i];
-        ctx->screen[row][col + i].fg = fg;
+        ui_set_fg(&ctx->screen[row][col + i], fg);
     }
     ctx->dirty[row] = 1;
 }
@@ -27,7 +27,7 @@ void ui_print(vtx_context_t* ctx, unsigned char row,
 void ui_menu_item(vtx_context_t* ctx, unsigned char row, const char* s)
 {
     ui_print(ctx, row, 12, s, VTX_YELLOW);
-    ctx->screen[row][12].fg = VTX_CYAN;
+    ui_set_fg(&ctx->screen[row][12], VTX_CYAN);
 }
 
 unsigned char ui_text_input(vtx_context_t* ctx, unsigned char row,
@@ -58,7 +58,7 @@ unsigned char ui_text_input(vtx_context_t* ctx, unsigned char row,
         } else if (key >= 0x20 && key < 0x7F && pos < maxlen) {
             buf[pos] = key;
             ctx->screen[row][col + pos].ch = mask ? mask : key;
-            ctx->screen[row][col + pos].fg = VTX_GREEN;
+            ui_set_fg(&ctx->screen[row][col + pos], VTX_GREEN);
             ctx->dirty[row] = 1;
             display_render_all(ctx);
             ++pos;
@@ -69,6 +69,9 @@ unsigned char ui_text_input(vtx_context_t* ctx, unsigned char row,
 /* ===================================================================
  *  Charte des ecrans locaux (v0.9.1)
  * =================================================================== */
+
+void ui_set_fg(vtx_cell_t* c, unsigned char fg) { cell_set_fg(c, fg); }
+void ui_set_bg(vtx_cell_t* c, unsigned char bg) { cell_set_bg(c, bg); }
 
 static unsigned char ui_len(const char* s)
 {
@@ -84,8 +87,7 @@ void ui_fill(vtx_context_t* ctx, unsigned char row, unsigned char bg)
     for (i = 0; i < VTX_COLS; ++i, ++c) {
         c->ch = ' ';
         c->charset = CHARSET_G0;
-        c->fg = VTX_WHITE;
-        c->bg = bg;
+        cell_set_colors(c, VTX_WHITE, bg);
         c->flags = 0;
     }
     ctx->dirty[row] = 1;
@@ -98,8 +100,7 @@ void ui_rule(vtx_context_t* ctx, unsigned char row, unsigned char fg)
     for (i = 0; i < VTX_COLS; ++i, ++c) {
         c->ch = 0x60;                   /* trait (mosaique) */
         c->charset = CHARSET_G1;
-        c->fg = fg;
-        c->bg = VTX_BLACK;
+        cell_set_colors(c, fg, VTX_BLACK);
         c->flags = 0;
     }
     ctx->dirty[row] = 1;
@@ -150,18 +151,18 @@ void ui_item(vtx_context_t* ctx, unsigned char row, char key,
     unsigned char i, n;
 
     ui_fill(ctx, row, VTX_BLACK);
-    for (i = 1; i < VTX_COLS - 1; ++i) c[i].bg = bg;
+    for (i = 1; i < VTX_COLS - 1; ++i) ui_set_bg(&c[i], bg);
 
     c[UI_ITEM_COL].ch = '[';
     c[UI_ITEM_COL + 1].ch = key;
-    c[UI_ITEM_COL + 1].fg = sel ? VTX_WHITE : VTX_CYAN;
+    ui_set_fg(&c[UI_ITEM_COL + 1], sel ? VTX_WHITE : VTX_CYAN);
     c[UI_ITEM_COL + 2].ch = ']';
     ui_print(ctx, row, UI_ITEM_COL + 4, label, sel ? VTX_WHITE : VTX_YELLOW);
     if (value) {
         n = (unsigned char)(UI_ITEM_COL + 4 + ui_len(label) + 1);
         for (i = n; i < UI_VALUE_COL - 1; ++i) {
             c[i].ch = '.';
-            c[i].fg = sel ? VTX_CYAN : VTX_BLUE;
+            ui_set_fg(&c[i], sel ? VTX_CYAN : VTX_BLUE);
         }
         ui_print(ctx, row, UI_VALUE_COL, value, VTX_WHITE);
     }

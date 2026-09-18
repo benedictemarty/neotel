@@ -47,6 +47,11 @@ unsigned char ui_text_input(vtx_context_t* ctx, unsigned char row,
 #define UI_ITEM_COL     2       /* '[' de l'item */
 #define UI_VALUE_COL    22      /* debut de la valeur d'un item */
 
+/* Couleurs d'une cellule par fonction (les macros cell_set_* de videotex.h
+ * inlinees par cc65 coutent ~50 octets par site ; ici ~10). */
+void ui_set_fg(vtx_cell_t* c, unsigned char fg);
+void ui_set_bg(vtx_cell_t* c, unsigned char bg);
+
 /* Rangee entiere : espaces G0 de fond bg (encre blanche). */
 void ui_fill(vtx_context_t* ctx, unsigned char row, unsigned char bg);
 

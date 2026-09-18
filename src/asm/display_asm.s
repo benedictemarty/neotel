@@ -5,8 +5,7 @@
 ;
 ; unsigned char __fastcall__ blit_run(void)
 ;   Rend une suite de cellules de TAILLE NORMALE dans le tampon de ligne, a
-;   partir de run_cells (vtx_cell_t*, 6 octets : ch, charset, fg, bg, flags,
-;   size) et de la colonne run_col, au plus run_count cellules. S'arrete a la
+;   partir de run_cells (vtx_cell_t*, 4 octets : ch, charset, color, flags) et de la colonne run_col, au plus run_count cellules. S'arrete a la
 ;   premiere cellule de taille non normale (double hauteur/largeur), rendue
 ;   par le C. Retourne le nombre de cellules rendues.
 ;   Gere : inversion, masquage (g_global_mask), clignotement (g_blink_phase),
@@ -36,7 +35,7 @@
 ROWBUF  = _display_rowbuf
 STRIDE  = 160               ; demi-rangee (HALF_W, display.h) : la colonne de
                             ; tampon est ccol mod 20, X = bufcol*8 < 160
-CELLS   = 5                 ; sizeof(vtx_cell_t) : size loge dans flags (bits 5-6)
+CELLS   = 4                 ; sizeof(vtx_cell_t) : ch, charset, color (fond<<4 | encre), flags
 
 ; --- attributs (videotex.h) ---
 ATTR_FLASH      = $01
@@ -206,7 +205,7 @@ _scan_dblh:
         lda  _run_cells+1
         sta  cellp+1
         ldx  #0
-        ldy  #4
+        ldy  #3
 @loop:  cpx  _run_count
         bcs  @none
         lda  (cellp),y      ; flags (bits 5-6 = taille)
@@ -241,20 +240,25 @@ _blit_run:
         lda  ccount
         cmp  _run_count
         bcs  @done0
-        ldy  #4
+        ldy  #3
         lda  (cellp),y      ; flags (bits 5-6 = taille)
         and  #$60
         beq  @cell
 @done0: jmp  @done          ; taille non normale : au C
 @cell:
-        ldy  #4
+        ldy  #3
         lda  (cellp),y      ; flags
         sta  cflags
         ldy  #2
-        lda  (cellp),y      ; fg
+        lda  (cellp),y      ; color : fond<<4 | encre
+        tax
+        and  #$0F
         sta  cfg
-        iny
-        lda  (cellp),y      ; bg
+        txa
+        lsr
+        lsr
+        lsr
+        lsr
         sta  cbg
         lda  cflags
         and  #ATTR_INVERT

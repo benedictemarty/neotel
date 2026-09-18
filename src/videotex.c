@@ -173,8 +173,7 @@ static void reset_cells(vtx_cell_t* cell, unsigned int count)
     if (count == 0) return;
     cell->ch = ' ';
     cell->charset = CHARSET_G0;
-    cell->fg = VTX_WHITE;
-    cell->bg = VTX_BLACK;
+    cell_set_colors(cell, VTX_WHITE, VTX_BLACK);
     cell->flags = 0;        /* size (bits 5-6) = SIZE_NORMAL */
     for (done = 1; done < count; ) {
         unsigned int n = count - done;
@@ -235,19 +234,19 @@ static void scroll_up(vtx_context_t* ctx);
 /* ===================================================================
  *  Adressage rapide des cellules
  *
- *  &ctx->screen[row][col] fait calculer a cc65 row * 200 puis col * 5 :
+ *  &ctx->screen[row][col] fait calculer a cc65 row * 160 puis col * 4 :
  *  deux multiplications 16 bits par des constantes qui ne sont pas des
  *  puissances de deux, payees A CHAQUE CARACTERE recu (put_char etait
  *  mesure a ~3 950 cycles/caractere, cf. make bench-render). Deux tables
  *  d'offsets les remplacent par de simples lectures indexees.
  *
- *  39 * 5 = 195 : les offsets de colonne tiennent dans un octet.
+ *  39 * 4 = 156 : les offsets de colonne tiennent dans un octet.
  * =================================================================== */
 static const unsigned int row_byte_offset[VTX_ROWS] = {
-    0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000, 4200, 4400, 4600, 4800
+    0, 160, 320, 480, 640, 800, 960, 1120, 1280, 1440, 1600, 1760, 1920, 2080, 2240, 2400, 2560, 2720, 2880, 3040, 3200, 3360, 3520, 3680, 3840
 };
 static const unsigned char col_byte_offset[VTX_COLS] = {
-    0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195
+    0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 148, 152, 156
 };
 
 /* Cellule (row, col) sans multiplication. row < VTX_ROWS et col < VTX_COLS
@@ -296,8 +295,7 @@ static void put_char(unsigned char ch, unsigned char cs)
     cell = CELL_AT(s_ctx, s_ctx->cur_y, s_ctx->cur_x);
     cell->ch = ch;
     cell->charset = cs;
-    cell->fg = s_ctx->fg_color;
-    cell->bg = s_ctx->bg_color;
+    cell_set_colors(cell, s_ctx->fg_color, s_ctx->bg_color);
     cell->flags = (unsigned char)(s_ctx->attr_flags | (s_ctx->attr_size << SIZE_SHIFT));
 
     /* Attributs de zone en attente (STUM 1B, codage des attributs definis
@@ -314,7 +312,7 @@ static void put_char(unsigned char ch, unsigned char cs)
             delim = 2;                          /* semi-graphique : fond seul */
         }
         if (delim) {
-            cell->bg = s_ctx->pending_bg;
+            cell_set_bg(cell, s_ctx->pending_bg);
             s_ctx->bg_color = s_ctx->pending_bg;
         }
         if (delim == 1) {
@@ -386,7 +384,7 @@ static void put_char(unsigned char ch, unsigned char cs)
 
 static void adopt_zone_bg(void)
 {
-    s_ctx->bg_color = CELL_AT(s_ctx, s_ctx->cur_y, s_ctx->cur_x)->bg;
+    s_ctx->bg_color = cell_bg(CELL_AT(s_ctx, s_ctx->cur_y, s_ctx->cur_x));
 }
 
 static void cursor_left(vtx_context_t* ctx)

@@ -17,6 +17,7 @@
  */
 
 #include <string.h>
+#include <stddef.h>
 #include "serial.h"
 #include "videotex.h"
 #include "display.h"
@@ -33,7 +34,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.1"
+#define NEOTEL_VERSION "v0.9.2"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -50,17 +51,23 @@
 vtx_context_t vtx;                  /* non statique : lu dans les dumps RAM des tests (build/neotel.lbl) */
 
 /* Ecran 80 colonnes (mode Mixte / Teleinformatique) et mode d'ecran courant.
- * Le contexte 80 colonnes (4 Ko) est LOGE dans vtx.screen (6 Ko), inutilise
- * en mode Mixte : les seuls octets qui vont encore au decodeur Videotex sont
- * les sequences Protocole (mixte_byte), qui n'ecrivent jamais l'ecran, et le
+ * Le contexte 80 colonnes (~4,1 Ko) est LOGE dans vtx, a partir de vtx.drcs
+ * (1 880 o, jeux telecharges : inutilises en mode Mixte) et en continuant
+ * dans vtx.screen (4 Ko), contigu (verifie a la compilation). En mode Mixte
+ * les seuls octets qui vont encore au decodeur Videotex sont les sequences
+ * Protocole (mixte_byte), qui n'ecrivent ni l'ecran ni les DRCS, et le
  * retour au mode Videotex refait vtx_init. La RAM du Neo6502 ne permet pas
- * les deux ecrans cote a cote (BSS a 375 octets de la pile C sinon). */
-#define ti (*(ti_context_t*)&vtx.screen[0][0])
+ * les deux ecrans cote a cote. (v0.9.2 : cellule Videotex de 4 octets, le
+ * contexte ne tenait plus dans screen seul.) */
+#define ti (*(ti_context_t*)&vtx.drcs[0][0][0])
 /* Tampon de sauvegarde de la rangee 00 pour display80_status : juste derriere
- * le contexte, toujours dans vtx.screen (verifie a la compilation). */
-#define ti_save ((ti_cell_t*)((ti_context_t*)&vtx.screen[0][0] + 1))
-typedef char ti_fits_in_vtx_screen[(sizeof(ti_context_t) + TI_COLS * sizeof(ti_cell_t)
-                                    <= sizeof(((vtx_context_t*)0)->screen)) ? 1 : -1];
+ * le contexte, toujours dans drcs + screen. */
+#define ti_save ((ti_cell_t*)((ti_context_t*)&vtx.drcs[0][0][0] + 1))
+#define VTX_DRCS_SCREEN_BYTES (sizeof(((vtx_context_t*)0)->drcs) + sizeof(((vtx_context_t*)0)->screen))
+typedef char ti_fits_in_vtx[(sizeof(ti_context_t) + TI_COLS * sizeof(ti_cell_t)
+                             <= VTX_DRCS_SCREEN_BYTES) ? 1 : -1];
+typedef char vtx_drcs_then_screen[(offsetof(vtx_context_t, screen)
+                                   == offsetof(vtx_context_t, drcs) + sizeof(((vtx_context_t*)0)->drcs)) ? 1 : -1];
 unsigned char g_screen80;           /* 1 = ecran 80 colonnes actif (mode 1) */
 
 /* Phase de clignotement (lue par display.c) : bascule toutes les 500 ms */
@@ -117,7 +124,7 @@ static void splash_screen(vtx_context_t* ctx)
     p = "Appuyez sur une touche...";
     for (i = 0; p[i]; ++i) {
         ctx->screen[19][7 + i].ch = p[i];
-        ctx->screen[19][7 + i].fg = VTX_WHITE;
+        ui_set_fg(&ctx->screen[19][7 + i], VTX_WHITE);
         ctx->screen[19][7 + i].flags = ATTR_FLASH;
     }
     ctx->dirty[19] = 1;
@@ -447,16 +454,16 @@ static void wifi_config_page(vtx_context_t* ctx)
             unsigned char row = 4 + i;
             unsigned char d;
             ctx->screen[row][3].ch = '1' + i;
-            ctx->screen[row][3].fg = VTX_CYAN;
+            ui_set_fg(&ctx->screen[row][3], VTX_CYAN);
             ctx->screen[row][5].ch = '-';
-            ctx->screen[row][5].fg = VTX_WHITE;
+            ui_set_fg(&ctx->screen[row][5], VTX_WHITE);
             for (d = 0; wifi_ssid[i][d] && (7 + d) < VTX_COLS; ++d) {
                 ctx->screen[row][7 + d].ch = wifi_ssid[i][d];
-                ctx->screen[row][7 + d].fg = VTX_YELLOW;
+                ui_set_fg(&ctx->screen[row][7 + d], VTX_YELLOW);
             }
             if (wifi_sec[i] == 'S' && (7 + d + 1) < VTX_COLS) {
                 ctx->screen[row][7 + d + 1].ch = '*';
-                ctx->screen[row][7 + d + 1].fg = VTX_RED;
+                ui_set_fg(&ctx->screen[row][7 + d + 1], VTX_RED);
             }
             ctx->dirty[row] = 1;
         }

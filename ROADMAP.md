@@ -71,6 +71,10 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
       marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
+## v0.9.2 — Cellule 4 octets [TERMINÉ, 2026-09-18]
+- [x] Encre + fond dans un octet (−1 000 o), contexte 80 col. sur drcs +
+      screen ; marge BSS 1 255 o.
+
 ## v0.9.1 — Charte des menus [TERMINÉ, 2026-09-18]
 - [x] Bandeau titre double hauteur, filets mosaïques, item courant sur fond
       bleu, valeurs des réglages en ligne, navigation flèches + ENVOI ;
