@@ -181,6 +181,7 @@ unsigned char keyboard_scan(void)
     if (keyboard_inject) {
         ch = keyboard_inject;
         keyboard_inject = 0;
+        if (ch >= 0xF0) return ch;      /* test : code KEY_* deja traduit (fleches) */
         return keyboard_translate(ch, 0);
     }
     if (queue_empty()) return KEY_NONE;

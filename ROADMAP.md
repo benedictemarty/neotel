@@ -71,10 +71,12 @@ Préalable levé : la STUM Minitel 2 (France Télécom, 1991) est récupérée
 - [x] RAM : cache G1 supprimé (mosaïques calculées à la volée, v0.5.1) ;
       marge BSS ~1,6 Ko (pile C à 256 o, tampons Wi-Fi dans `vtx.drcs`).
 
-## v0.9.1 — Charte des menus [EN COURS]
-- [ ] Bandeau titre double hauteur, cadres et filets mosaïques, item courant
-      en inverse, navigation flèches + ENVOI ; splash, menu, liaison série,
-      aide sur la même charte.
+## v0.9.1 — Charte des menus [TERMINÉ, 2026-09-18]
+- [x] Bandeau titre double hauteur, filets mosaïques, item courant sur fond
+      bleu, valeurs des réglages en ligne, navigation flèches + ENVOI ;
+      splash, menu, serveur, liaison série, aide sur la même charte.
+- [ ] Reste sur l'ancienne présentation : Config WiFi, liste des
+      enregistrements, pages d'échec de connexion / perte de porteuse.
 
 ## v0.9.0 — Rendu par demi-rangées [TERMINÉ, 2026-09-18]
 - [x] Tampon de rangée 2 880 → 1 440 o, deux passes, un seul bloc asm ;

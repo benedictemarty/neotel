@@ -96,6 +96,9 @@ adresses lues dans `build/neotel.lbl`.
    et `neo07` restent sur le stockage.
 6h. **help** / **help-lang** : menu `H` → « AIDE NEOTEL » ; `L` bascule en
    anglais et l'écrit dans `neotel.cfg` (offset 49).
+6h-bis. **menunav** : au menu, `↓ ↓ ENVOI` (flèches injectées comme codes
+   `KEY_*` ≥ `$F0`, rendus tels quels par `keyboard_scan`) bascule l'item 3
+   → `neotel.cfg` : profil Minitel 2.
 6i. **realkeys** : l'écran « Liaison série » est passé par une frappe
    **réelle** (`--type-keys`, file clavier du firmware, pas
    `keyboard_inject`) ; l'état menu doit être atteint. Garde le sens de
