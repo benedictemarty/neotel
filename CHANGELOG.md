@@ -4,6 +4,7 @@ Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
 ## [0.9.3] — 2026-09-18
+- 2026-09-19 : `CLAUDE.md` retiré du dépôt (fichier de travail local, non publié).
 
 ### Ajouté
 - **Charte complète** : Config WiFi (liste des réseaux en items avec
