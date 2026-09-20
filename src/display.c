@@ -213,6 +213,11 @@ void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
         /* 6 pixels utiles (bits 5-0) centres : colonnes 1-6 */
         for (l = 0; l < 8; ++l) pat[l] = (unsigned char)((glyph[l] << 1) & 0x7E);
         pat[8] = 0;
+        /* Barre horizontale basse '_' : caractere JOINTIF (STUM 1B, partie 1
+         * ch. 3 par. 2.1 : les barres occupent toute la largeur de
+         * l'emplacement), sur la derniere ligne du glyphe ; deux '_' voisins
+         * forment un trait continu comme sur un Minitel (v0.9.4). */
+        if (cell->charset == CHARSET_G0 && ch == 0x5F) pat[7] = 0xFF;
     }
     if (cell->flags & ATTR_UNDERLINE) {
         pat[8] = 0xFF;

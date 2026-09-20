@@ -157,6 +157,19 @@ draw_cell:
         tax
         jmp  draw_a
 
+; pat[] := glyphe 6 bits (glyph) : 8 lignes de 6 pixels (bits 5-0)
+; centrees, (g << 1) & $7E ; ligne 8 vide
+glyph6:
+        ldy  #7
+:       lda  (glyph),y
+        asl
+        and  #$7E
+        sta  pat,y
+        dey
+        bpl  :-
+        stz  pat+8
+        rts
+
 ; pat[] := 0
 clear_pat:
         lda  #0
@@ -333,19 +346,19 @@ _blit_run:
         lda  glyph+1
         adc  #>_font_g0
         sta  glyph+1
-        bra  @glyph6
+        jsr  glyph6
+        ; '_' ($5F) : barre horizontale basse JOINTIVE (STUM 1B) : 8 pixels
+        ; sur la derniere ligne du glyphe, comme display_cell_pattern
+        lda  (cellp)
+        cmp  #$5F
+        bne  @underline
+        lda  #$FF
+        sta  pat+7
+        bra  @underline
 @space: jsr  clear_pat
         bra  @underline
 @glyph6:
-        ; 8 lignes de 6 pixels (bits 5-0) centrees : (g << 1) & $7E
-        ldy  #7
-:       lda  (glyph),y
-        asl
-        and  #$7E
-        sta  pat,y
-        dey
-        bpl  :-
-        stz  pat+8
+        jsr  glyph6
         bra  @underline
 @g1:    lda  (cellp)        ; ch
         cmp  #$60

@@ -3,6 +3,20 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.9.4] — 2026-09-20
+### Corrigé
+- **`_` jointif** : la barre horizontale basse (G0 `$5F`) occupe les 8 pixels
+  de l'emplacement sur la dernière ligne du glyphe (ligne 7) : une suite de
+  `_` forme un trait continu, comme sur un Minitel (STUM 1B, partie 1 ch. 3
+  § 2.1 : « barres horizontales ou verticales … caractères dits jointifs »).
+  Auparavant 5 pixels centrés sur la ligne 6 → pointillé (retour PO sur la
+  page d'accueil 3617 : `_ENVOI_`, `_GUIDE_`). Rendu C (`display_cell_pattern`)
+  et asm (`display_asm.s`, sous-programme `glyph6`) alignés ; le souligné
+  (ligne 8) reste distinct. La ligne exacte de la barre dans la matrice 8×10
+  du Minitel n'est pas relue dans la STUM (hypothèse : dernière ligne du
+  glyphe). Test `test_display` : trait de 16 pixels sur deux cellules, `-`
+  inchangé.
+
 ## [0.9.3] — 2026-09-18
 - 2026-09-20 : `build/neotel.neo` (commit `e06c4d0`, SHA-256 `4c63afc11f06c07d…`) publié en bêta sur le dépôt Prophet (`en-developpement/neotel`, prophet.3617.fr) avec OricTel 0.3.20 ; vérifié `/app/neotel` et `/sha256/neotel/0` depuis Internet.
 - 2026-09-19 : `CLAUDE.md` retiré du dépôt (fichier de travail local, non publié).

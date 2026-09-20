@@ -177,6 +177,21 @@ static void test_attributes(void)
         for (i = 0; i < 8; ++i) if (cpx(1, 1, i, 8) != VTX_WHITE) ok = 0;
         CHECK(ok, "souligne : ligne 8 pleine");
     }
+    /* '_' jointif : 8 pixels sur la ligne 7, deux voisins forment un trait
+     * continu ; le souligne (ligne 8) reste distinct */
+    put(2, 0, '_', CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(2, 1, '_', CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(2, 2, '-', CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    display_render_all(&ctx);
+    {
+        int ok = 1; unsigned char i;
+        for (i = 0; i < 16; ++i) if (px(i, 2 * 9 + 7) != VTX_WHITE) ok = 0;
+        for (i = 0; i < 16; ++i) if (px(i, 2 * 9 + 8) != VTX_BLACK) ok = 0;
+        for (i = 0; i < 16; ++i) if (px(i, 2 * 9 + 6) != VTX_BLACK) ok = 0;
+        CHECK(ok, "'_' jointif : trait continu de 16 pixels sur la ligne 7");
+        CHECK(cpx(2, 2, 0, 3) == VTX_BLACK && cpx(2, 2, 7, 3) == VTX_BLACK
+              && cell_count(2, 2, VTX_WHITE) > 0, "'-' : inchange (6 pixels centres)");
+    }
     CHECK(cell_count(2, 1, VTX_WHITE) == 0 && cell_count(2, 1, VTX_RED) == 72,
           "masquage (masque global actif) : fond seul");
     CHECK(cell_count(3, 1, VTX_WHITE) > 0, "flash phase 0 : visible");
