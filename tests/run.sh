@@ -415,12 +415,15 @@ else
     echo "FAIL realkeys (menu jamais atteint avec --type-keys, voir $OUT/phos.log)"; fail=1
 fi
 
-# --- 5. ESC au menu -> sortie vers NeoBASIC --------------------------------
+# --- 5. ESC au menu -> sortie vers le systeme ------------------------------
+# NeoBASIC repond "42" a PRINT 6*7 ; NeoDOS (environnement depuis le 2026-09-20 :
+# Phosphoneo demarre NeoDOS) rejette la commande et rend un second prompt A:\>.
 run "--serve" --cycles 80000000 --poke-at "9000000:$KI=20" --poke-at "12000000:$KI=20" \
     --poke-at "15000000:$KI=1B" --type-keys '40000000:PRINT 6*7\n' \
     --screenshot-text "$OUT/exit.txt"
 if grep -q "^42" "$OUT/exit.txt" 2>/dev/null; then echo "PASS exit (NeoBASIC repond apres ESC : 6*7 = 42)"
-else echo "FAIL exit (NeoBASIC ne repond pas, voir $OUT/exit.txt)"; fail=1; fi
+elif [ "$(grep -c '^A:\\>' "$OUT/exit.txt" 2>/dev/null)" -ge 2 ]; then echo "PASS exit (NeoDOS repond apres ESC : prompt rendu)"
+else echo "FAIL exit (le systeme ne repond pas, voir $OUT/exit.txt)"; fail=1; fi
 
 # --- 6. fumee dans l'emulateur officiel neo --------------------------------
 if [ -x "$NEO" ]; then

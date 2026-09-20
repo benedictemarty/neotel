@@ -255,7 +255,7 @@ static unsigned char select_mode(vtx_context_t* ctx)
         ui_header(ctx, "NEOTEL", g_term_model == TERM_MINITEL_2 ? "Minitel 2" : "Minitel 1B");
         for (i = 0; i < MENU_ITEMS; ++i) menu_draw_item(ctx, i, i == sel);
         ui_print(ctx, 20, 2, "Fleches / chiffre, ENVOI valide", VTX_CYAN);
-        ui_footer(ctx, "H aide", "ESC quitter (NeoBASIC)");
+        ui_footer(ctx, "H aide", "ESC quitter (systeme)");
         display_render_all(ctx);
 
         keyboard_flush();
@@ -1003,7 +1003,7 @@ int main(void)
             if (mode == MODE_QUIT) {
                 g_dbg_state = ST_EXIT;
                 display_status_clear();
-                return 0;           /* crt0 : retour a NeoBASIC */
+                return 0;           /* crt0 : retour au systeme (NeoBASIC ou NeoDOS) */
             }
             break;
         }

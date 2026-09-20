@@ -20,9 +20,10 @@ Changelog, versions SemVer). Auteur : bmarty.
 - Tests : `test_keyboard` (F10 = aide), scénario cible `help-session` (F10 en
   session, ESC, rappel F4, état `ST_HELP_BACK` = 17), références `page`/`drcs`
   régénérées (bandeau).
-- Environnement : le scénario `exit` (retour NeoBASIC) échoue aussi sur le
-  code précédent depuis la reconstruction de Phosphoneo du 2026-09-20 22:42
-  (l'émulateur démarre NeoDOS) ; non lié à ce changement.
+- Environnement : Phosphoneo démarre désormais NeoDOS (nouvel environnement,
+  confirmé par le PO). Le scénario `exit` accepte NeoBASIC (`42`) ou NeoDOS
+  (second prompt `A:\>` après la commande) ; libellés « quitter vers
+  NeoBASIC » → « vers le système » (menu, aide FR/EN).
 
 ## [0.9.4] — 2026-09-20
 ### Corrigé

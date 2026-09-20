@@ -22,7 +22,7 @@ static const char* const fr1[] = {
     "6",       "Relire un enregistrement",
     "7",       "Son ON / OFF",
     "Fleches", "choisir, ENVOI valide",
-    "ESC",     "quitter vers NeoBASIC",
+    "ESC",     "quitter vers le systeme",
     0
 };
 static const char* const en1[] = {
@@ -35,7 +35,7 @@ static const char* const en1[] = {
     "6",       "Replay a recording",
     "7",       "Sound ON / OFF",
     "Arrows",  "select, ENVOI confirms",
-    "ESC",     "quit to NeoBASIC",
+    "ESC",     "quit to the system",
     0
 };
 static const char* const fr2[] = {
