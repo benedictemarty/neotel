@@ -4,6 +4,7 @@ Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
 ## [0.9.5] — 2026-09-20
+- 2026-09-20 : `build/neotel.neo` (commit `82ac1cd`, SHA-256 `47b880e9e2808f8b…`) publié en bêta sur le dépôt Prophet (`en-developpement/neotel`), vérifié depuis Internet.
 ### Modifié
 - **Barre de statut** : la case « vitesse » affichait la vitesse Minitel
   programmée (`1200`, changée seulement par `PRO2 PROG`), sans rapport avec
