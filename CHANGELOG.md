@@ -4,6 +4,7 @@ Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
 ## [0.9.3] — 2026-09-18
+- 2026-09-20 : `build/neotel.neo` (commit `e06c4d0`, SHA-256 `4c63afc11f06c07d…`) publié en bêta sur le dépôt Prophet (`en-developpement/neotel`, prophet.3617.fr) avec OricTel 0.3.20 ; vérifié `/app/neotel` et `/sha256/neotel/0` depuis Internet.
 - 2026-09-19 : `CLAUDE.md` retiré du dépôt (fichier de travail local, non publié).
 
 ### Ajouté
