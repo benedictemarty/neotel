@@ -120,7 +120,7 @@ unsigned char keyboard_translate(unsigned char ch, unsigned char arrow_hid)
     if (ch >= KEY_HOTKEY_BASE && ch < KEY_HOTKEY_BASE + 9) {
         return KEY_FUNC_FLAG | hotkey_func[ch - KEY_HOTKEY_BASE];
     }
-    if (ch == KEY_HOTKEY_BASE + 9) return KEY_TOGGLE_RENDER;     /* F10 */
+    if (ch == KEY_HOTKEY_BASE + 9) return KEY_LOCAL_HELP;        /* F10 = aide */
 
     /* Fleches (codes console partages avec CTRL+lettre) */
     if (arrow_hid) {

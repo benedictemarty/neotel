@@ -73,9 +73,11 @@ démarrage. Sans carte ou sans fichier : valeurs par défaut, sans message.
    (`1` réessayer, `2` autre serveur, `3` entrer quand même, `ESC` menu).
 6. **Session** : la page Videotex occupe les 225 lignes du haut ; la barre
    de statut en bas affiche `C`/`F` (données reçues il y a moins de 30 s),
-   le serveur, le chrono `mm:ss`, le profil (`1B`/`M2`), la vitesse
-   programmée, l'aspect (`COUL`/`GRIS`) et le rappel `F1` (`RE` rouge
-   pendant un enregistrement).
+   le serveur, le chrono `mm:ss`, le profil (`1B`/`M2`), la liaison réelle
+   (`USB` = modem CDC sur le port hôte, `UEXT` = UART à 115 200 ; ce n'est
+   pas la vitesse Minitel programmée par `PRO2 PROG`, purement logique),
+   l'aspect (`COUL`/`GRIS`) et le rappel `F10` = aide (`RE` rouge pendant un
+   enregistrement).
 7. **Perte de porteuse** : quand le modem émet une ligne `NO CARRIER` suivie
    de 4 s de silence : `1` reconnecter, `2` rester en local, `ESC` menu.
 
@@ -106,7 +108,8 @@ se fait par le serveur (`PRO2 MIXTE 2`, `CSI ? {`) ou par `ESC ESC`.
 | Flèches en mode curseur (activé par le serveur, PRO3) | curseur | CSI A/B/C/D |
 | lettres, chiffres, ponctuation | texte | ASCII 7 bits |
 
-Touches locales (rien n'est envoyé) : `F10` / `CTRL+D` aspect couleur/gris,
+Touches locales (rien n'est envoyé) : `F10` aide (au retour, la page est
+vide : `F4` Répétition la redemande au serveur), `CTRL+D` aspect couleur/gris,
 `CTRL+L` effacer la page, `CTRL+F` réinitialiser la liaison série, `CTRL+O`
 enregistrer / arrêter (voir ci-dessous), `ESC`
 pose la question « quitter ? » dans la barre de statut : `ESC` à nouveau

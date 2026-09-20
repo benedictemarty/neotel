@@ -47,7 +47,7 @@
 /* Resultat du scan clavier */
 #define KEY_NONE          0x00  /* Aucune touche */
 #define KEY_FUNC_FLAG     0x80  /* Bit 7 = touche fonction Minitel */
-#define KEY_TOGGLE_RENDER 0xFE  /* CTRL+D / F10 = basculer l'aspect couleur/gris */
+#define KEY_TOGGLE_RENDER 0xFE  /* CTRL+D = basculer l'aspect couleur/gris */
 #define KEY_LOCAL_CLEAR   0xFD  /* CTRL+L = effacer ecran local */
 #define KEY_LOCAL_RESET   0xFC  /* CTRL+F = reinitialiser la liaison serie */
 #define KEY_ARROW_LEFT    0xFB  /* Fleche gauche (mode curseur PRO3) */
@@ -56,6 +56,7 @@
 #define KEY_ARROW_UP      0xF8  /* Fleche haut (mode curseur PRO3) */
 #define KEY_ARROW_DOWN    0xF7  /* Fleche bas (mode curseur PRO3) */
 #define KEY_LOCAL_RECORD  0xF6  /* CTRL+O = enregistrer / arreter (.vdt sur la carte) */
+#define KEY_LOCAL_HELP    0xF5  /* F10 = aide (menu et session, v0.9.5) */
 
 /* Octets prives emis par les hotkeys F1-F10 (2,4) */
 #define KEY_HOTKEY_BASE   0x81

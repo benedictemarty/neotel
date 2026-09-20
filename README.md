@@ -76,7 +76,7 @@ retour à NeoBASIC.
 
 En session : `F1` Sommaire, `F2` Annulation, `F3` Retour, `F4` Répétition,
 `F5` Guide, `F6` Correction, `F7` Suite, `F8`/`Entrée` Envoi, `F9`
-Connexion/Fin, `F10`/`CTRL+D` aspect, `CTRL+L` effacer, `CTRL+F` reset série,
+Connexion/Fin, `F10` aide, `CTRL+D` aspect, `CTRL+L` effacer, `CTRL+F` reset série,
 `ESC` puis `ESC` raccroche et revient au menu. Détails :
 [docs/MANUEL_UTILISATION.md](docs/MANUEL_UTILISATION.md).
 

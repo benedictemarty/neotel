@@ -3,6 +3,27 @@
 Toutes les modifications notables sont consignées ici (format Keep a
 Changelog, versions SemVer). Auteur : bmarty.
 
+## [0.9.5] — 2026-09-20
+### Modifié
+- **Barre de statut** : la case « vitesse » affichait la vitesse Minitel
+  programmée (`1200`, changée seulement par `PRO2 PROG`), sans rapport avec
+  la liaison réelle (retour PO). Elle affiche désormais la liaison : `USB`
+  (modem CDC sur le port hôte, ou route CDC forcée) ou `UEXT` (UART à
+  115 200) ; route AUTO = détection par 14,1 à chaque tracé. `term_speed()`
+  reste pour PRO2 PROG.
+- **F10 = aide** (au menu comme en session) ; le bandeau rappelle `F10`
+  (`RE` rouge pendant un enregistrement). L'ancien rappel `F1` était trompeur :
+  F1 est *Sommaire* (retour PO). `CTRL+D` reste la bascule couleur / gris
+  (F10 ne la fait plus). En session, l'aide occupe la page (pas de RAM pour la
+  sauver) : au retour, page vide avec le rappel « F4 (Repetition) redemande la
+  page » ; sans effet en 80 colonnes. Textes d'aide FR/EN mis à jour.
+- Tests : `test_keyboard` (F10 = aide), scénario cible `help-session` (F10 en
+  session, ESC, rappel F4, état `ST_HELP_BACK` = 17), références `page`/`drcs`
+  régénérées (bandeau).
+- Environnement : le scénario `exit` (retour NeoBASIC) échoue aussi sur le
+  code précédent depuis la reconstruction de Phosphoneo du 2026-09-20 22:42
+  (l'émulateur démarre NeoDOS) ; non lié à ce changement.
+
 ## [0.9.4] — 2026-09-20
 ### Corrigé
 - **`_` jointif** : la barre horizontale basse (G0 `$5F`) occupe les 8 pixels

@@ -34,7 +34,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.4"
+#define NEOTEL_VERSION "v0.9.5"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -95,7 +95,8 @@ unsigned char g_dbg_hangups;    /* sessions quittees par ESC (persistant) */
 #define ST_MIXTE      13   /* session en mode Mixte (80 colonnes) */
 #define ST_REPLAY     14   /* relecture d'un fichier .vdt */
 #define ST_REPLAY_END 15   /* relecture terminee, attente d'une touche */
-#define ST_HELP       16   /* ecran d'aide (menu H) */
+#define ST_HELP       16   /* ecran d'aide (menu H, F10) */
+#define ST_HELP_BACK  17   /* session reprise apres l'aide (F10 en session) */
 
 /* Routage serie choisi (SERIAL_ROUTE_*) */
 static unsigned char s_route = SERIAL_ROUTE_AUTO;
@@ -262,7 +263,7 @@ static unsigned char select_mode(vtx_context_t* ctx)
             key = keyboard_scan();
             if (key == KEY_NONE) continue;
             if (key == KEY_LOCAL_ESCAPE) return MODE_QUIT;
-            if (key == 'H' || key == 'h') { help_show(ctx); break; }
+            if (key == 'H' || key == 'h' || key == KEY_LOCAL_HELP) { help_show(ctx); break; }
             if (key == KEY_TOGGLE_RENDER) { key = '4'; }
             act = 0xFF;
             if (key >= '1' && key < '1' + MENU_ITEMS) act = key - '1';
@@ -659,7 +660,9 @@ static unsigned char carrier_lost_page(vtx_context_t* ctx)
 
 /* ===================================================================
  *  Barre de statut (une ligne sous la page)
- *  [C] serveur  mm:ss  1B  1200  COUL
+ *  [C] serveur  mm:ss  1B  USB  COUL  F10
+ *  (USB = modem CDC sur le port hote, UEXT = UART 115200 : la liaison
+ *  reelle, pas la vitesse Minitel programmee par PRO2 PROG, v0.9.5)
  * =================================================================== */
 static const char*   status_server = "";
 static unsigned char status_connected;
@@ -669,8 +672,7 @@ static unsigned char status_sec_ticks;
 static void status_bar_draw(void)
 {
     char clock[6];
-    char speed[5];
-    unsigned int sp = term_speed();
+    const char* link;
     unsigned char m = (unsigned char)(status_secs / 60u);
     unsigned char sec = (unsigned char)(status_secs % 60u);
 
@@ -680,11 +682,9 @@ static void status_bar_draw(void)
     clock[0] = '0' + m / 10;  clock[1] = '0' + m % 10;  clock[2] = ':';
     clock[3] = '0' + sec / 10; clock[4] = '0' + sec % 10; clock[5] = 0;
 
-    speed[0] = (sp >= 1000) ? (char)('0' + sp / 1000) : ' ';
-    speed[1] = (char)('0' + (sp / 100) % 10);
-    speed[2] = (char)('0' + (sp / 10) % 10);
-    speed[3] = (char)('0' + sp % 10);
-    speed[4] = 0;
+    if (s_route == SERIAL_ROUTE_UEXT) link = "UEXT";
+    else if (s_route == SERIAL_ROUTE_CDC) link = "USB";
+    else link = (serial_cdc_status() == SERIAL_CDC_PRESENT) ? "USB" : "UEXT";
 
     display_status_clear();
     display_status_text(0, status_connected ? " C " : " F ", VTX_CYAN, 1);
@@ -692,13 +692,13 @@ static void status_bar_draw(void)
     display_status_text(18, " ", VTX_CYAN, 0);       /* borne un nom trop long */
     display_status_text(19, clock, VTX_WHITE, 0);
     display_status_text(25, term_model_short(), VTX_YELLOW, 0);
-    display_status_text(28, speed, VTX_WHITE, 0);
-    display_status_text(33, (display_get_look() == DISPLAY_LOOK_GREY)
+    display_status_text(28, link, VTX_WHITE, 0);
+    display_status_text(32, (display_get_look() == DISPLAY_LOOK_GREY)
                             ? "GRIS" : "COUL", VTX_WHITE, 0);
-    /* Colonnes 38-39 : "F1" (aide), ou "RE" inverse rouge pendant un
+    /* Colonnes 37-39 : "F10" (aide), ou "RE" inverse rouge pendant un
      * enregistrement (CTRL+O) */
-    if (record_active()) display_status_text(38, "RE", VTX_RED, 1);
-    else display_status_text(38, "F1", VTX_GREEN, 0);
+    if (record_active()) display_status_text(37, " RE", VTX_RED, 1);
+    else display_status_text(37, "F10", VTX_GREEN, 0);
     display_status_show();
 }
 
@@ -1094,6 +1094,17 @@ int main(void)
         } else if (key == KEY_LOCAL_CLEAR) {
             vtx_clear_page(&vtx);
             vtx.full_refresh = 1;
+        } else if (key == KEY_LOCAL_HELP && !g_screen80) {
+            /* L'aide occupe la page (pas de RAM pour la sauver) : au retour,
+             * page vide, F4 Repetition la redemande au serveur. Les octets
+             * recus pendant l'aide restent dans le tampon du firmware. */
+            help_show(&vtx);
+            vtx_clear_page(&vtx);
+            ui_print(&vtx, 12, 3, g_settings.lang ? "F4 (Repetition) reloads the page"
+                                                  : "F4 (Repetition) redemande la page", VTX_CYAN);
+            vtx.full_refresh = 1;
+            status_bar_draw();
+            g_dbg_state = g_replay ? ST_REPLAY : ST_HELP_BACK;
         } else if (key == KEY_LOCAL_RECORD && !g_replay) {
             const char* msg;
             if (record_active()) {

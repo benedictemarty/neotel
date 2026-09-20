@@ -390,6 +390,18 @@ else
     echo "FAIL help-lang ($STORAGE/neotel.cfg)"; fail=1
 fi
 
+# --- 4h'. F10 en session : aide affichee, ESC revient a la session (page
+# effacee, rappel F4 Repetition). F10 = hotkey $8A traduit par keyboard_scan.
+run "--serve --page tests/page_test.vdt --guard 0.02" --cycles 60000000 $KEYS \
+    --poke-at "30000000:$KI=8A" --poke-at "40000000:$KI=1B" \
+    --dump-ram-when "$ST:10:$OUT/help_s.bin" --dump-ram-when "$ST:11:$OUT/help_back.bin"
+if [ -f "$OUT/help_s.bin" ] && page_has "$OUT/help_s.bin" "AIDE NEOTEL" \
+   && [ -f "$OUT/help_back.bin" ] && page_has "$OUT/help_back.bin" "F4 (Repetition)"; then
+    echo "PASS help-session (F10 : aide en session, ESC : retour, rappel F4)"
+else
+    echo "FAIL help-session (voir $OUT/phos.log)"; fail=1
+fi
+
 # --- 4i. vraie file clavier du firmware (--type-keys, pas keyboard_inject) --
 # Splash passe par injection, puis l'ecran de la liaison serie par une frappe
 # REELLE (Phosphoneo n'accepte qu'un --type-keys) : l'etat menu doit etre

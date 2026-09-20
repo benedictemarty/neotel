@@ -59,7 +59,7 @@ int main(void)
     CHECK(keyboard_translate(0x87, 0) == (KEY_FUNC_FLAG | KEY_SUITE), "F7 = Suite");
     CHECK(keyboard_translate(0x88, 0) == (KEY_FUNC_FLAG | KEY_ENVOI), "F8 = Envoi");
     CHECK(keyboard_translate(0x89, 0) == (KEY_FUNC_FLAG | KEY_CONNEXION), "F9 = Connexion/Fin");
-    CHECK(keyboard_translate(0x8A, 0) == KEY_TOGGLE_RENDER, "F10 = aspect");
+    CHECK(keyboard_translate(0x8A, 0) == KEY_LOCAL_HELP, "F10 = aide");
     CHECK(keyboard_translate(0x8B, 0) == KEY_NONE, "$8B : inconnu");
 
     /* fleches : meme code console que CTRL+lettre, tranchees par le HID */
