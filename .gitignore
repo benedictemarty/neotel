@@ -20,3 +20,4 @@ tests/host/test_record
 tests/host/fuzz_teleinfo
 tests/host/crash-*
 tests/host/leak-*
+ROADMAP.md
