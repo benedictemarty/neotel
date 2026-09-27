@@ -21,3 +21,8 @@ tests/host/fuzz_teleinfo
 tests/host/crash-*
 tests/host/leak-*
 ROADMAP.md
+# Tenus en local uniquement, jamais suivis par git (decision bmarty 2026-09-27)
+CHANGELOG.md
+ROADMAP.md
+changelog.md
+roadmap.md
