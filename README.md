@@ -82,7 +82,7 @@ Connexion/Fin, `F10` aide, `CTRL+D` aspect, `CTRL+L` effacer, `CTRL+F` reset sé
 
 ## Documentation
 
-[CLAUDE.md](CLAUDE.md) (règles du projet) · [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
+[règles locales du projet](règles locales du projet) (règles du projet) · [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
 [docs/MANUEL_UTILISATION.md](docs/MANUEL_UTILISATION.md) ·
 [docs/MINITEL_1B_VS_2.md](docs/MINITEL_1B_VS_2.md) · [docs/TESTS.md](docs/TESTS.md) ·
 [docs/AGILE_PLAN.md](docs/AGILE_PLAN.md) · [ROADMAP.md](ROADMAP.md) ·
@@ -93,3 +93,7 @@ Connexion/Fin, `F10` aide, `CTRL+D` aspect, `CTRL+L` effacer, `CTRL+F` reset sé
 EUPL-1.2, © Bénédicte Marty. Code repris d'OricTel
 (même licence, même auteur). Le format `.neo`, l'API et les emplacements
 mémoire viennent du firmware Neo6502 (Paul Robson et contributeurs, MIT).
+
+## Avertissement
+
+⚠️ Avertissement : ce programme est un programme généré par Claude Code sous la supervision d'un être humain : il a été utilisé pour améliorer, développer, rendre compatible ou traduire ce logiciel.
