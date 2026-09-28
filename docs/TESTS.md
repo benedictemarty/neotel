@@ -81,6 +81,13 @@ adresses lues dans `build/neotel.lbl`.
    dump RAM quand `g_dbg_state` = `ST_REPLAY_END` (0x0F, fichier rejoué),
    la page doit y être décodée. NB : `--dump-ram-when` et `--poke-at`
    lisent les valeurs en **hexadécimal**.
+   **status-msg** (même exécution que record) : dump RAM quand
+   `g_status_hold` passe à 2 (une seconde après `CTRL+O`) → `status_cells`
+   contient « Enregistrement (CTRL+O = fin) » ; capture à 70 M cycles →
+   `RE` sur fond rouge (colonnes 37-39 de la barre). Vérifié en échec quand
+   la barre est redessinée juste après le message (défaut ≤ v0.9.7).
+   `--dump-ram-when` se déclenche dès que l'octet VAUT la valeur : ne jamais
+   surveiller 0 (vrai dès le démarrage).
 6e. **ws** : `tools/ws_page_server.py` sert la page de test en WebSocket
    sur un port libre ; `neotel.cfg` est prérempli avec
    `ws://127.0.0.1:PORT` comme dernier serveur ; menu `1` + ENVOI → le faux

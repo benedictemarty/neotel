@@ -552,7 +552,8 @@ void display_clear(void)
  *  Ligne de statut
  * =================================================================== */
 
-static vtx_cell_t status_cells[STATUS_COLS];
+/* Non statique : lu par les tests cible (texte des messages, build/neotel.lbl). */
+vtx_cell_t status_cells[STATUS_COLS];
 
 static void status_render(void)
 {

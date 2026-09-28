@@ -27,8 +27,8 @@ fail=0
 make -C tests/host render_page >/dev/null 2>&1 || { echo "FAIL: render_page (oracle hote) ne compile pas"; exit 1; }
 
 sym() { grep " \._$1\$" build/neotel.lbl | awk '{print $2}' | sed 's/^00//'; }
-KI=$(sym keyboard_inject); ST=$(sym g_dbg_state); VTX=$(sym vtx); NB=$(sym g_vtx_bytes); HU=$(sym g_dbg_hangups); TM=$(sym g_term_model)
-[ -n "$KI" ] && [ -n "$ST" ] && [ -n "$VTX" ] && [ -n "$NB" ] && [ -n "$HU" ] || { echo "FAIL: symboles absents de build/neotel.lbl"; exit 1; }
+KI=$(sym keyboard_inject); ST=$(sym g_dbg_state); SH=$(sym g_status_hold); SC=$(sym status_cells); VTX=$(sym vtx); NB=$(sym g_vtx_bytes); HU=$(sym g_dbg_hangups); TM=$(sym g_term_model)
+[ -n "$KI" ] && [ -n "$ST" ] && [ -n "$SH" ] && [ -n "$SC" ] && [ -n "$VTX" ] && [ -n "$NB" ] && [ -n "$HU" ] || { echo "FAIL: symboles absents de build/neotel.lbl"; exit 1; }
 SCREEN_OFF=$(tests/host/render_page --screen-offset)
 PAGE_LEN=$(printf '%X' $(wc -c < tests/page_test.vdt))    # octets de la page (hexa, < 256)
 
@@ -263,14 +263,35 @@ fi
 # La page ne part qu'au premier octet tape (--on-rx) : CTRL+O arme
 # l'enregistrement, ENVOI declenche la page, CTRL+O arrete ; le fichier
 # neo01.vdt doit etre la copie exacte de la page.
-rm -rf "$STORAGE"
+rm -rf "$STORAGE"; rm -f "$OUT/status_msg.bin" "$OUT/status_re.ppm"
 run "--serve --page tests/page_test.vdt --on-rx --guard 0.02" --cycles 120000000 $KEYS \
-    --poke-at "30000000:$KI=0F" --poke-at "40000000:$KI=0D" --poke-at "100000000:$KI=0F"
+    --poke-at "30000000:$KI=0F" --poke-at "40000000:$KI=0D" --poke-at "100000000:$KI=0F" \
+    --dump-ram-when "$SH:2:$OUT/status_msg.bin" --screenshot-at "70000000:$OUT/status_re.ppm"
 if [ -f "$STORAGE/neo01.vdt" ] && cmp -s "$STORAGE/neo01.vdt" tests/page_test.vdt; then
     echo "PASS record (CTRL+O : neo01.vdt == page recue)"
 else
     echo "FAIL record ($STORAGE/neo01.vdt ; voir build/modem.log)"; fail=1
 fi
+# Message de CTRL+O : encore sur la barre une seconde apres (g_status_hold
+# passe de 3 a 2), puis la barre normale revient avec "RE" (fond rouge,
+# colonnes 37-39, y 230-238). Jusqu'en v0.9.7 la barre l'ecrasait aussitot.
+python3 - "$OUT/status_msg.bin" "$SC" "$OUT/status_re.ppm" <<'EOF'
+import sys
+try:
+    d = open(sys.argv[1], 'rb').read()
+except OSError:
+    sys.exit(1)
+base = int(sys.argv[2], 16)
+text = ''.join(chr(d[base + c * 4]) for c in range(40))
+if 'Enregistrement (CTRL+O = fin)' not in text:
+    print("barre :", text); sys.exit(1)
+raw = open(sys.argv[3], 'rb').read().split(b'\n', 3)[3]
+red = sum(1 for y in range(230, 239) for x in range(296, 320)
+          if raw[(y * 320 + x) * 3] > 150 and raw[(y * 320 + x) * 3 + 1] < 80)
+sys.exit(0 if red > 50 else 1)
+EOF
+if [ $? -eq 0 ]; then echo "PASS status-msg (CTRL+O : message garde, puis RE sur la barre)"
+else echo "FAIL status-msg (voir $OUT/status_msg.bin, $OUT/status_re.ppm)"; fail=1; fi
 # Relecture sur le meme stockage : menu '6', ENVOI (= dernier enregistrement) ;
 # g_dbg_state passe a ST_REPLAY_END quand tout le fichier a ete rejoue.
 rm -f "$OUT/replay.bin"

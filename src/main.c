@@ -35,7 +35,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.7"
+#define NEOTEL_VERSION "v0.9.8"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -670,6 +670,14 @@ static unsigned char status_connected;
 static unsigned int  status_secs;
 static unsigned char status_sec_ticks;
 
+/* Message temporaire (CTRL+O, CTRL+F...) : garde STATUS_MSG_SECS tops de
+ * l'horloge (2 a 3 s) avant que la barre ne soit redessinee. Jusqu'en
+ * v0.9.7 la barre l'ecrasait aussitot (CTRL+O) ou a la seconde suivante.
+ * Tout redessin explicite (aide, CTRL+D, reprise apres ESC) l'annule. Non
+ * statique : lu par les tests cible (build/neotel.lbl). */
+#define STATUS_MSG_SECS 3
+unsigned char g_status_hold;
+
 static void status_bar_draw(void)
 {
     char clock[6];
@@ -677,6 +685,7 @@ static void status_bar_draw(void)
     unsigned char m = (unsigned char)(status_secs / 60u);
     unsigned char sec = (unsigned char)(status_secs % 60u);
 
+    g_status_hold = 0;
     if (g_screen80) return;         /* pas de barre en mode 1 (25 rangees pleines) */
 
     if (m > 99) m = 99;
@@ -716,8 +725,14 @@ static void status_set_connected(unsigned char on)
 {
     if (status_connected != on) {
         status_connected = on;
-        status_bar_draw();
+        if (!g_status_hold) status_bar_draw();  /* sinon a la fin du message */
     }
+}
+
+static void status_message(const char* msg)
+{
+    display_status(msg);
+    g_status_hold = STATUS_MSG_SECS;
 }
 
 static void status_tick(unsigned char ticks)
@@ -726,6 +741,7 @@ static void status_tick(unsigned char ticks)
     if (status_sec_ticks >= 100) {
         status_sec_ticks -= 100;
         ++status_secs;
+        if (g_status_hold && --g_status_hold) return;   /* message affiche */
         status_bar_draw();
     }
 }
@@ -743,7 +759,7 @@ static unsigned char mixte_enter(void)
 {
     if (!display80_init()) {
         vtx.terminal_mode = TERM_MODE_VIDEOTEX;
-        display_status("80 colonnes: firmware sans mode 1");
+        status_message("80 colonnes: firmware sans mode 1");
         return 0;
     }
     ti_init(&ti);
@@ -1138,10 +1154,10 @@ int main(void)
                 }
             }
             if (g_screen80) display80_status(&ti, msg, ti_save);
-            else { display_status(msg); status_bar_draw(); }
+            else status_message(msg);   /* "RE" apparait a la fin du message */
         } else if (key == KEY_LOCAL_RESET && !g_screen80) {
             serial_init(s_route);
-            display_status("Liaison serie reinitialisee");
+            status_message("Liaison serie reinitialisee");
         } else if (key == KEY_LOCAL_ESCAPE) {
             if (session_escape_page(&vtx)) {
                 break;

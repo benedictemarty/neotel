@@ -127,11 +127,12 @@ Rétrospective : la RAM a dicté chaque choix (aide sans sauvegarde de page,
 tampons logés dans `vtx`) ; le coût venait surtout du code généré par cc65
 pour les accès par pointeur, pas des données.
 
-## Sprint 10 — v0.9.6-0.9.7 (2026-09-28) — EN COURS
+## Sprint 10 — v0.9.6-0.9.8 (2026-09-28) — EN COURS
 | User story | État |
 |---|---|
 | US-30 Le modem USB CDC fonctionne sur la carte réelle | fait (validé par le PO sur carte, 2026-09-28) |
 | US-31 Réduire la taille du programme en RAM | fait (v0.9.6 : contextes uniques `ctx.h`, −8,4 Ko de code ; marge 1 110 o → ~9,3 Ko ; banc −4 à −12 % de cycles) |
 | US-32 Optimiser la réception série | fait (v0.9.6 : un appel API par octet au lieu de deux ; `serial_tx_*` sans code sur la cible) |
 | US-33 Au retour de l'aide F10 en session, je retrouve ma page | fait (v0.9.7 : `session_help` sauve l'état du décodeur et les rangées 1-24, 3 873 o ; scénario `help-session` : page restaurée == oracle) |
+| US-34 Les messages de la barre de statut (CTRL+O, CTRL+F) restent lisibles | fait (v0.9.8 : `status_message`, maintien 2-3 s par `g_status_hold` ; scénario `status-msg`) |
 | US-14 Latence API réelle et budget de rendu sous flux 115200 | à faire (`--api-latency` de Phosphoneo) |

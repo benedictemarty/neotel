@@ -130,8 +130,10 @@ En session, `CTRL+O` ouvre `neoNN.vdt` (NN = 01, 02… jusqu'à 99, puis 01)
 sur la carte SD / clé USB et y copie **tel quel** tout ce que le serveur
 envoie à partir de ce moment (pas d'instantané de l'écran : commencer
 l'enregistrement avant de demander la page). `CTRL+O` de nouveau, `ESC ESC`
-ou une perte de porteuse ferment le fichier. Sans carte : message
-« Enregistrement impossible ». Le fichier est un flux Videotex brut,
+ou une perte de porteuse ferment le fichier. Le message (« Enregistrement
+(CTRL+O = fin) », « Enregistrement termine ») reste 2 à 3 secondes sur la
+barre de statut, puis la barre revient, avec `RE` sur fond rouge pendant
+l'enregistrement. Sans carte : message « Enregistrement impossible ». Le fichier est un flux Videotex brut,
 relisible par le menu `6`, par `tests/host/render_page` ou par tout
 lecteur `.vdt`.
 
