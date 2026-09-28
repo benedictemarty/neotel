@@ -17,7 +17,7 @@
 unsigned char g_blink_phase;
 unsigned char g_global_mask = 1;
 
-static vtx_context_t ctx;
+vtx_context_t vtx;                  /* nom impose sur la cible (ctx.h) */
 
 static void mark(void)
 {
@@ -27,9 +27,9 @@ static void mark(void)
 
 static void bench(void)
 {
-    ctx.full_refresh = 1;
+    vtx.full_refresh = 1;
     mark();
-    display_render_all(&ctx);
+    display_render_all(&vtx);
     mark();
 }
 
@@ -38,24 +38,24 @@ static void fill(unsigned char ch, unsigned char charset)
     unsigned char r, c;
     for (r = 1; r < VTX_ROWS; ++r)
         for (c = 0; c < VTX_COLS; ++c) {
-            ctx.screen[r][c].ch = ch;
-            ctx.screen[r][c].charset = charset;
-            cell_set_fg(&ctx.screen[r][c], 7);
+            vtx.screen[r][c].ch = ch;
+            vtx.screen[r][c].charset = charset;
+            cell_set_fg(&vtx.screen[r][c], 7);
         }
 }
 
 int main(void)
 {
     unsigned int i;
-    vtx_init(&ctx);
+    vtx_init(&vtx);
     display_init();
     bench();                                    /* 1 : page vide */
     fill('A', CHARSET_G0);
     bench();                                    /* 2 : 960 lettres */
     fill(0x2A, CHARSET_G1);
     bench();                                    /* 3 : 960 mosaiques */
-    vtx_init(&ctx);
-    for (i = 0; i < PAGE_TEST_DATA_LEN; ++i) vtx_process(&ctx, page_test_data[i]);
+    vtx_init(&vtx);
+    for (i = 0; i < PAGE_TEST_DATA_LEN; ++i) vtx_process(&vtx, page_test_data[i]);
     bench();                                    /* 4 : page de test */
     for (;;) ;
 }

@@ -8,6 +8,14 @@
 #include "font80.h"
 #include "neo_gfx.h"
 
+/* Contexte unique de la cible (voir ctx.h). */
+#include "ctx.h"
+#ifdef __CC65__
+#define CTX VTX_TI
+#else
+#define CTX (*ctx)
+#endif
+
 extern unsigned char g_blink_phase;
 
 static unsigned char s_available;
@@ -70,14 +78,14 @@ void __fastcall__           blit80_row(void);
 
 void display80_compose_row(ti_context_t* ctx, unsigned char row)
 {
-    const ti_cell_t* rowp = &ctx->screen[row][0];
-    unsigned char ncols = ctx->cols;
+    const ti_cell_t* rowp = &CTX.screen[row][0];
+    unsigned char ncols = CTX.cols;
     unsigned char cursor_col = 0xFF;
 
     /* Curseur : tiret sur la derniere ligne, phase 0 */
-    if (ctx->cur_visible && g_blink_phase == 0) {
-        if (ctx->r0_active) { if (row == 0) cursor_col = ctx->r0_col; }
-        else if (row == ctx->cur_y) cursor_col = ctx->cur_x;
+    if (CTX.cur_visible && g_blink_phase == 0) {
+        if (CTX.r0_active) { if (row == 0) cursor_col = CTX.r0_col; }
+        else if (row == CTX.cur_y) cursor_col = CTX.cur_x;
             /* cur_x peut valoir cols (wrap differe) : hors 0..cols-1, le
              * curseur n'est simplement pas dessine cette phase-la. */
     }
@@ -130,22 +138,22 @@ static unsigned char s_cursor_row = 0xFF;   /* rangee ou le curseur a ete dessin
 static void render_dirty(ti_context_t* ctx, unsigned char max_rows)
 {
     unsigned char row, rendered = 0;
-    unsigned char cur_row = ctx->r0_active ? 0 : ctx->cur_y;
+    unsigned char cur_row = CTX.r0_active ? 0 : CTX.cur_y;
 
-    if (ctx->full_refresh) {
-        memset(ctx->dirty, 1, TI_ROWS);
-        ctx->full_refresh = 0;
+    if (CTX.full_refresh) {
+        memset(CTX.dirty, 1, TI_ROWS);
+        CTX.full_refresh = 0;
     }
     /* Le curseur a bouge de rangee : re-rendre l'ancienne et la nouvelle */
     if (s_cursor_row != cur_row) {
-        if (s_cursor_row < TI_ROWS) ctx->dirty[s_cursor_row] = 1;
-        ctx->dirty[cur_row] = 1;
+        if (s_cursor_row < TI_ROWS) CTX.dirty[s_cursor_row] = 1;
+        CTX.dirty[cur_row] = 1;
         s_cursor_row = cur_row;
     }
     for (row = 0; row < TI_ROWS && rendered < max_rows; ++row) {
-        if (!ctx->dirty[row]) continue;
+        if (!CTX.dirty[row]) continue;
         render_row(ctx, row);
-        ctx->dirty[row] = 0;
+        CTX.dirty[row] = 0;
         ++rendered;
     }
 }
@@ -156,8 +164,8 @@ void display80_render_all(ti_context_t* ctx) { render_dirty(ctx, TI_ROWS); }
 unsigned char display80_dirty_pending(ti_context_t* ctx)
 {
     unsigned char row;
-    if (ctx->full_refresh) return 1;
-    for (row = 0; row < TI_ROWS; ++row) if (ctx->dirty[row]) return 1;
+    if (CTX.full_refresh) return 1;
+    for (row = 0; row < TI_ROWS; ++row) if (CTX.dirty[row]) return 1;
     return 0;
 }
 
@@ -165,12 +173,12 @@ void display80_blink_toggle(ti_context_t* ctx)
 {
     unsigned char row, col;
     g_blink_phase ^= 1;
-    ctx->blink_phase = g_blink_phase;
-    ctx->dirty[ctx->r0_active ? 0 : ctx->cur_y] = 1;      /* tiret du curseur */
+    CTX.blink_phase = g_blink_phase;
+    CTX.dirty[CTX.r0_active ? 0 : CTX.cur_y] = 1;      /* tiret du curseur */
     for (row = 1; row < TI_ROWS; ++row) {
-        const ti_cell_t* c = &ctx->screen[row][0];
+        const ti_cell_t* c = &CTX.screen[row][0];
         for (col = 0; col < TI_COLS; ++col, ++c) {
-            if (c->attr & TI_ATTR_BLINK) { ctx->dirty[row] = 1; break; }
+            if (c->attr & TI_ATTR_BLINK) { CTX.dirty[row] = 1; break; }
         }
     }
 }
@@ -179,13 +187,13 @@ void display80_status(ti_context_t* ctx, const char* msg, ti_cell_t* save)
 {
     /* Composer la rangee 00 a partir du message, sans toucher aux cellules */
     unsigned char c;
-    memcpy(save, &ctx->screen[0][0], TI_COLS * sizeof(ti_cell_t));
+    memcpy(save, &CTX.screen[0][0], TI_COLS * sizeof(ti_cell_t));
     for (c = 0; c < TI_COLS; ++c) {
-        ctx->screen[0][c].ch = (*msg) ? (unsigned char)*msg++ : ' ';
-        ctx->screen[0][c].attr = 0;
+        CTX.screen[0][c].ch = (*msg) ? (unsigned char)*msg++ : ' ';
+        CTX.screen[0][c].attr = 0;
     }
     render_row(ctx, 0);
-    memcpy(&ctx->screen[0][0], save, TI_COLS * sizeof(ti_cell_t));
+    memcpy(&CTX.screen[0][0], save, TI_COLS * sizeof(ti_cell_t));
 }
 
 void display80_status_clear(ti_context_t* ctx)

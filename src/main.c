@@ -31,10 +31,11 @@
 #include "display80.h"
 #include "record.h"
 #include "help.h"
+#include "ctx.h"
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.5"
+#define NEOTEL_VERSION "v0.9.6"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -59,7 +60,7 @@ vtx_context_t vtx;                  /* non statique : lu dans les dumps RAM des 
  * retour au mode Videotex refait vtx_init. La RAM du Neo6502 ne permet pas
  * les deux ecrans cote a cote. (v0.9.2 : cellule Videotex de 4 octets, le
  * contexte ne tenait plus dans screen seul.) */
-#define ti (*(ti_context_t*)&vtx.drcs[0][0][0])
+#define ti VTX_TI              /* ctx.h : meme emplacement pour teleinfo.c */
 /* Tampon de sauvegarde de la rangee 00 pour display80_status : juste derriere
  * le contexte, toujours dans drcs + screen. */
 #define ti_save ((ti_cell_t*)((ti_context_t*)&vtx.drcs[0][0][0] + 1))

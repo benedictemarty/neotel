@@ -57,18 +57,25 @@ unsigned char serial_cdc_status(void);
  */
 void serial_send(unsigned char byte);
 
-/** Compatibilite OricTel : rien a pomper, l'emission est immediate. */
+/** Compatibilite OricTel : rien a pomper, l'emission est immediate.
+ * Macros vides sur la cible (aucun code), fonctions sur l'hote (tests). */
+#ifdef __CC65__
+#define serial_tx_pump()  ((void)0)
+#define serial_tx_flush() ((void)0)
+#else
 void serial_tx_pump(void);
 void serial_tx_flush(void);
+#endif
 
 /**
- * Verifie si un octet attend en reception (10,18).
+ * Verifie si un octet attend en reception. Lit l'octet par 10,17 et le garde
+ * pour serial_recv : un seul appel API par octet recu.
  * @return Non nul si une donnee est disponible
  */
 unsigned char serial_poll(void);
 
 /**
- * Recoit un octet (10,17), non bloquant.
+ * Recoit un octet (celui garde par serial_poll, sinon 10,17), non bloquant.
  * @return Octet recu, ou 0xFF si aucune donnee disponible
  */
 unsigned char serial_recv(void);

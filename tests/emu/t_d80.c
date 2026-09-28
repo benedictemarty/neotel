@@ -5,7 +5,9 @@
 unsigned char g_blink_phase; unsigned char g_global_mask = 1;
 void display_clear(void) {} void display_beep(void) {}
 unsigned char display_rowbuf[2880];
-static ti_context_t ti;
+#include "ctx.h"
+vtx_context_t vtx;                  /* ti loge dans vtx.drcs sur la cible (ctx.h) */
+#define ti VTX_TI
 static void put(unsigned char r, const char* s) { unsigned char c = 0; while (*s) { ti.screen[r][c].ch = (unsigned char)*s++; ti.screen[r][c].attr = 0; ++c; } }
 int main(void)
 {

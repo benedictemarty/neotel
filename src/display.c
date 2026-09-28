@@ -17,6 +17,14 @@
 #include "neo_gfx.h"
 #include "neo_time.h"
 
+/* Contexte unique de la cible (voir ctx.h). */
+#include "ctx.h"
+#ifdef __CC65__
+#define CTX vtx
+#else
+#define CTX (*ctx)
+#endif
+
 /* Phase de clignotement et masque global (main.c / videotex.c) */
 extern unsigned char g_blink_phase;
 extern unsigned char g_global_mask;
@@ -334,7 +342,7 @@ static unsigned char s_want_cursor;
 static void render_half(vtx_context_t* ctx, unsigned char row,
                         unsigned char c0, unsigned char c1)
 {
-    const vtx_cell_t* rowp = &ctx->screen[row][0];   /* pointeur hisse */
+    const vtx_cell_t* rowp = &CTX.screen[row][0];   /* pointeur hisse */
     unsigned char c;
     unsigned char base = (c0 >= HALF_COLS) ? HALF_COLS : 0;
     unsigned char c1max = (unsigned char)(base + HALF_COLS - 1);
@@ -374,7 +382,7 @@ static void render_half(vtx_context_t* ctx, unsigned char row,
      * tour : c'etait 18 000 cycles par rangee, v0.6.1) ; bit 0 de size =
      * double hauteur (1) ou double taille (3). */
     if (row + 1 < SCREEN_ROWS) {
-        const vtx_cell_t* below = &ctx->screen[row + 1][c0];
+        const vtx_cell_t* below = &CTX.screen[row + 1][c0];
         c = c0;
         for (;;) {
             unsigned char n;
@@ -394,13 +402,13 @@ static void render_half(vtx_context_t* ctx, unsigned char row,
     }
 
     /* Curseur : barre encre sur la derniere ligne de la cellule */
-    if (s_want_cursor && row == ctx->cur_y &&
-        ctx->cur_x >= c0 && ctx->cur_x <= c1) {
-        memset(display_rowbuf + (CELL_H - 1) * HALF_W + BUFCOL(ctx->cur_x) * CELL_W,
+    if (s_want_cursor && row == CTX.cur_y &&
+        CTX.cur_x >= c0 && CTX.cur_x <= c1) {
+        memset(display_rowbuf + (CELL_H - 1) * HALF_W + BUFCOL(CTX.cur_x) * CELL_W,
                VTX_WHITE, CELL_W);
-        rb_invalidate(ctx->cur_x);
+        rb_invalidate(CTX.cur_x);
         cur_drawn = 1;
-        cur_drawn_x = ctx->cur_x;
+        cur_drawn_x = CTX.cur_x;
         cur_drawn_y = row;
     }
 
@@ -417,7 +425,7 @@ static void render_row_span(vtx_context_t* ctx, unsigned char row,
     if (c1 >= SCREEN_COLS) c1 = SCREEN_COLS - 1;
     if (c0 > c1) c0 = c1;
     /* Double largeur en colonne 19 : sa moitie droite est en colonne 20 */
-    if (c1 == HALF_COLS - 1 && is_dbl_w(&ctx->screen[row][c1])) ++c1;
+    if (c1 == HALF_COLS - 1 && is_dbl_w(&CTX.screen[row][c1])) ++c1;
     if (c0 < HALF_COLS) render_half(ctx, row, c0, c1);
     if (c1 >= HALF_COLS) render_half(ctx, row, (c0 < HALF_COLS) ? HALF_COLS : c0, c1);
 }
@@ -428,30 +436,30 @@ static void render_dirty(vtx_context_t* ctx, unsigned char max_rows)
     unsigned char row;
     unsigned char rendered;
 
-    if (ctx->full_refresh) {
+    if (CTX.full_refresh) {
         for (row = 0; row < SCREEN_ROWS; ++row) {
-            ctx->dirty[row] = 1;
-            ctx->dirty_min[row] = 0;
-            ctx->dirty_max[row] = SCREEN_COLS - 1;
+            CTX.dirty[row] = 1;
+            CTX.dirty_min[row] = 0;
+            CTX.dirty_max[row] = SCREEN_COLS - 1;
         }
-        ctx->full_refresh = 0;
+        CTX.full_refresh = 0;
     }
 
-    s_want_cursor = (ctx->cur_visible && g_blink_phase == 0 &&
-                     ctx->cur_y < SCREEN_ROWS && ctx->cur_x < SCREEN_COLS)
+    s_want_cursor = (CTX.cur_visible && g_blink_phase == 0 &&
+                     CTX.cur_y < SCREEN_ROWS && CTX.cur_x < SCREEN_COLS)
                     ? 1 : 0;
 
     /* Effacer la barre precedente si le curseur a bouge ou si la phase
      * blink la cache : re-rendre sa cellule. */
     if (cur_drawn && (!s_want_cursor ||
-                      cur_drawn_x != ctx->cur_x ||
-                      cur_drawn_y != ctx->cur_y)) {
+                      cur_drawn_x != CTX.cur_x ||
+                      cur_drawn_y != CTX.cur_y)) {
         vtx_touch(ctx, cur_drawn_y, cur_drawn_x, cur_drawn_x);
         cur_drawn = 0;
     }
     /* Curseur voulu mais pas encore dessine a sa position : salir sa cellule */
     if (s_want_cursor && !cur_drawn) {
-        vtx_touch(ctx, ctx->cur_y, ctx->cur_x, ctx->cur_x);
+        vtx_touch(ctx, CTX.cur_y, CTX.cur_x, CTX.cur_x);
     }
 
     /* Deux passes : toutes les moities gauches des rangees retenues, puis
@@ -462,28 +470,28 @@ static void render_dirty(vtx_context_t* ctx, unsigned char max_rows)
     rendered = 0;
     for (row = 0; row < SCREEN_ROWS && rendered < max_rows; ++row) {
         unsigned char c0, c1;
-        if (!ctx->dirty[row]) continue;
-        c0 = ctx->dirty_min[row];
-        c1 = ctx->dirty_max[row];
+        if (!CTX.dirty[row]) continue;
+        c0 = CTX.dirty_min[row];
+        c1 = CTX.dirty_max[row];
         if (c1 >= SCREEN_COLS) c1 = SCREEN_COLS - 1;
         if (c0 > c1) c0 = c1;
         /* Double largeur en colonne 19 : sa moitie droite est en colonne 20 */
-        if (c1 == HALF_COLS - 1 && is_dbl_w(&ctx->screen[row][c1])) ++c1;
-        ctx->dirty_min[row] = c0;
-        ctx->dirty_max[row] = c1;
+        if (c1 == HALF_COLS - 1 && is_dbl_w(&CTX.screen[row][c1])) ++c1;
+        CTX.dirty_min[row] = c0;
+        CTX.dirty_max[row] = c1;
         if (c0 < HALF_COLS) render_half(ctx, row, c0, c1);
-        ctx->dirty[row] = 2;
+        CTX.dirty[row] = 2;
         ++rendered;
     }
     for (row = 0; row < SCREEN_ROWS; ++row) {
         unsigned char c0, c1;
-        if (ctx->dirty[row] != 2) continue;
-        c0 = ctx->dirty_min[row];
-        c1 = ctx->dirty_max[row];
+        if (CTX.dirty[row] != 2) continue;
+        c0 = CTX.dirty_min[row];
+        c1 = CTX.dirty_max[row];
         if (c1 >= HALF_COLS) render_half(ctx, row, (c0 < HALF_COLS) ? HALF_COLS : c0, c1);
-        ctx->dirty[row] = 0;
-        ctx->dirty_min[row] = 0;
-        ctx->dirty_max[row] = SCREEN_COLS - 1;
+        CTX.dirty[row] = 0;
+        CTX.dirty_min[row] = 0;
+        CTX.dirty_max[row] = SCREEN_COLS - 1;
     }
 }
 
@@ -504,9 +512,9 @@ void display_render_all(vtx_context_t* ctx)
 unsigned char display_dirty_pending(vtx_context_t* ctx)
 {
     unsigned char row;
-    if (ctx->full_refresh) return 1;
+    if (CTX.full_refresh) return 1;
     for (row = 0; row < SCREEN_ROWS; ++row) {
-        if (ctx->dirty[row]) return 1;
+        if (CTX.dirty[row]) return 1;
     }
     return 0;
 }
@@ -522,9 +530,9 @@ void display_blink_toggle(vtx_context_t* ctx)
     unsigned char row, col;
 
     g_blink_phase ^= 1;
-    ctx->blink_phase = g_blink_phase;
+    CTX.blink_phase = g_blink_phase;
     for (row = 0; row < SCREEN_ROWS; ++row) {
-        const vtx_cell_t* c = &ctx->screen[row][0];    /* pointeur hisse */
+        const vtx_cell_t* c = &CTX.screen[row][0];    /* pointeur hisse */
         for (col = 0; col < SCREEN_COLS; ++col, ++c) {
             if (c->flags & ATTR_FLASH) {
                 vtx_touch(ctx, row, 0, SCREEN_COLS - 1);

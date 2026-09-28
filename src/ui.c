@@ -11,6 +11,14 @@
 #include "keyboard.h"   /* keyboard_scan, KEY_* */
 #include "display.h"    /* display_render_all */
 
+/* Contexte unique de la cible (voir ctx.h). */
+#include "ctx.h"
+#ifdef __CC65__
+#define CTX vtx
+#else
+#define CTX (*ctx)
+#endif
+
 void ui_print(vtx_context_t* ctx, unsigned char row,
               unsigned char col, const char* s, unsigned char fg)
 {
@@ -18,16 +26,16 @@ void ui_print(vtx_context_t* ctx, unsigned char row,
     /* Clip sur la largeur ecran: une chaine dont col+longueur depasse
      * VTX_COLS deborderait sinon sur la ligne suivante (UB / corruption). */
     for (i = 0; s[i] && (col + i) < VTX_COLS; ++i) {
-        ctx->screen[row][col + i].ch = s[i];
-        ui_set_fg(&ctx->screen[row][col + i], fg);
+        CTX.screen[row][col + i].ch = s[i];
+        ui_set_fg(&CTX.screen[row][col + i], fg);
     }
-    ctx->dirty[row] = 1;
+    CTX.dirty[row] = 1;
 }
 
 void ui_menu_item(vtx_context_t* ctx, unsigned char row, const char* s)
 {
     ui_print(ctx, row, 12, s, VTX_YELLOW);
-    ui_set_fg(&ctx->screen[row][12], VTX_CYAN);
+    ui_set_fg(&CTX.screen[row][12], VTX_CYAN);
 }
 
 unsigned char ui_text_input(vtx_context_t* ctx, unsigned char row,
@@ -51,15 +59,15 @@ unsigned char ui_text_input(vtx_context_t* ctx, unsigned char row,
                    ((key & KEY_FUNC_FLAG) && (key & 0x7F) == KEY_CORRECTION)) {
             if (pos > 0) {
                 --pos;
-                ctx->screen[row][col + pos].ch = ' ';
-                ctx->dirty[row] = 1;
+                CTX.screen[row][col + pos].ch = ' ';
+                CTX.dirty[row] = 1;
                 display_render_all(ctx);
             }
         } else if (key >= 0x20 && key < 0x7F && pos < maxlen) {
             buf[pos] = key;
-            ctx->screen[row][col + pos].ch = mask ? mask : key;
-            ui_set_fg(&ctx->screen[row][col + pos], VTX_GREEN);
-            ctx->dirty[row] = 1;
+            CTX.screen[row][col + pos].ch = mask ? mask : key;
+            ui_set_fg(&CTX.screen[row][col + pos], VTX_GREEN);
+            CTX.dirty[row] = 1;
             display_render_all(ctx);
             ++pos;
         }
@@ -82,7 +90,7 @@ static unsigned char ui_len(const char* s)
 
 void ui_fill(vtx_context_t* ctx, unsigned char row, unsigned char bg)
 {
-    vtx_cell_t* c = &ctx->screen[row][0];
+    vtx_cell_t* c = &CTX.screen[row][0];
     unsigned char i;
     for (i = 0; i < VTX_COLS; ++i, ++c) {
         c->ch = ' ';
@@ -90,12 +98,12 @@ void ui_fill(vtx_context_t* ctx, unsigned char row, unsigned char bg)
         cell_set_colors(c, VTX_WHITE, bg);
         c->flags = 0;
     }
-    ctx->dirty[row] = 1;
+    CTX.dirty[row] = 1;
 }
 
 void ui_rule(vtx_context_t* ctx, unsigned char row, unsigned char fg)
 {
-    vtx_cell_t* c = &ctx->screen[row][0];
+    vtx_cell_t* c = &CTX.screen[row][0];
     unsigned char i;
     for (i = 0; i < VTX_COLS; ++i, ++c) {
         c->ch = 0x60;                   /* trait (mosaique) */
@@ -103,7 +111,7 @@ void ui_rule(vtx_context_t* ctx, unsigned char row, unsigned char fg)
         cell_set_colors(c, fg, VTX_BLACK);
         c->flags = 0;
     }
-    ctx->dirty[row] = 1;
+    CTX.dirty[row] = 1;
 }
 
 void ui_print_right(vtx_context_t* ctx, unsigned char row, const char* s,
@@ -122,7 +130,7 @@ void ui_banner(vtx_context_t* ctx, const char* title, const char* right,
     ui_fill(ctx, UI_ROW_HEADER - 1, UI_BAND_BG);
     ui_fill(ctx, UI_ROW_HEADER, UI_BAND_BG);
     for (i = 0; title[i] && col < VTX_COLS - 1; ++i, col += step) {
-        vtx_cell_t* c = &ctx->screen[UI_ROW_HEADER][col];
+        vtx_cell_t* c = &CTX.screen[UI_ROW_HEADER][col];
         c->ch = title[i];
         c->flags = (unsigned char)(size << SIZE_SHIFT);
     }
@@ -146,7 +154,7 @@ void ui_footer(vtx_context_t* ctx, const char* left, const char* right)
 void ui_item(vtx_context_t* ctx, unsigned char row, char key,
              const char* label, const char* value, unsigned char sel)
 {
-    vtx_cell_t* c = &ctx->screen[row][0];
+    vtx_cell_t* c = &CTX.screen[row][0];
     unsigned char bg = sel ? UI_BAND_BG : VTX_BLACK;
     unsigned char i, n;
 

@@ -113,15 +113,24 @@ file du firmware ; un bug présent depuis la v0.1 n'a été vu qu'à la premièr
 frappe sur carte. Règle : toute couche « matérielle » a un scénario qui passe
 par le vrai chemin du firmware. La RAM est arrivée à 76 o de marge.
 
-## Sprint 9 — v0.9.x (2026-09-18) — EN COURS
+## Sprint 9 — v0.9.0-0.9.5 (2026-09-18 → 2026-09-20) — TERMINÉ
 | User story | État |
 |---|---|
 | US-27 Dégager de la RAM sans perdre le rendu pixel-exact | fait (v0.9.0 : tampon de demi-rangée, −1 440 o, marge ~1,8 Ko ; banc +11 à +33 %) |
 | US-29 Nouvelle économie de RAM pour finir la charte | fait (v0.9.2 : cellule 4 octets, −1 000 o ; marge 1 255 o) |
 | US-28 Les menus, le splash, la liaison série et l'aide ont une charte moderne (bandeaux, cadres, inverse, flèches) | fait (v0.9.1 : `ui_header/item/footer/nav`, `test_ui` 33, scénario `menunav`) ; v0.9.3 : WiFi, liste des enregistrements, pages d'échec) |
 
-## Sprint 10 — (à planifier)
-- Mesure de la latence API réelle (`--api-latency` de Phosphoneo) et
-  budget de rendu sous flux 115200 (US-14).
-- Validation du modem USB CDC sur carte réelle (`cdc.cpp` du fork jamais
-  exécuté sur une carte).
+Complément v0.9.4-0.9.5 (retours du PO sur carte) : `_` jointif, bandeau
+de liaison USB/UEXT, F10 = aide, environnement NeoDOS.
+
+Rétrospective : la RAM a dicté chaque choix (aide sans sauvegarde de page,
+tampons logés dans `vtx`) ; le coût venait surtout du code généré par cc65
+pour les accès par pointeur, pas des données.
+
+## Sprint 10 — v0.9.6 (2026-09-28) — EN COURS
+| User story | État |
+|---|---|
+| US-30 Le modem USB CDC fonctionne sur la carte réelle | fait (validé par le PO sur carte, 2026-09-28) |
+| US-31 Réduire la taille du programme en RAM | fait (v0.9.6 : contextes uniques `ctx.h`, −8,4 Ko de code ; marge 1 110 o → ~9,3 Ko ; banc −4 à −12 % de cycles) |
+| US-32 Optimiser la réception série | fait (v0.9.6 : un appel API par octet au lieu de deux ; `serial_tx_*` sans code sur la cible) |
+| US-14 Latence API réelle et budget de rendu sous flux 115200 | à faire (`--api-latency` de Phosphoneo) |

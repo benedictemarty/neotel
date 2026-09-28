@@ -26,7 +26,7 @@ logique de session sont ceux d'OricTel.
 |   display.c   lignes sales -> tampon de demi-rangee 160x9 -> blitter |
 |   display_asm.s  blit_run / blit_cell9 : cellules -> pixels          |
 |   keyboard.c  file clavier du firmware -> touches Minitel            |
-|   serial.c    UART API (10,15-10,18), routage CDC (10,19)            |
+|   serial.c    UART API (10,15-10,17), routage CDC (10,19)            |
 |   neo_gfx.c   2,12 / 2,19 / 5,1 / 5,3 / 5,32 / 12,3                   |
 |   neo_time.c  timer 100 Hz (1,1), bip (8,3) ; neo_delay.s           |
 |   crt0.s      pile, BSS, main(), retour NeoBASIC (1,3)               |
@@ -48,7 +48,7 @@ logique de session sont ceux d'OricTel.
 ```
 $0000-$00FF  page zero (cc65 + display_asm.s + display80_asm.s)
 $0100-$01FF  pile 65C02
-$0800-       STARTUP, CODE (~42 Ko en v0.5.0), RODATA (polices 8x9 et 8x14,
+$0800-       STARTUP, CODE (~36 Ko en v0.9.6, ~45 Ko en v0.9.5), RODATA (polices 8x9 et 8x14,
              tables : ~4,7 Ko), DATA
              BSS (~12 Ko) : contexte Videotex (8 Ko dont 1 880 o de DRCS ;
                    cellules de 4 octets (ch, charset, color, flags) ;
@@ -57,8 +57,9 @@ $0800-       STARTUP, CODE (~42 Ko en v0.5.0), RODATA (polices 8x9 et 8x14,
                    de demi-rangee (1 440 o, v0.9.0 ; 2 880 avant), reglages,
                    tampon d'enregistrement (64 o). Plus de cache G1 depuis
                    v0.5.1 (mosaiques calculees a la volee).
-                   Fin ~ $F6D9 en v0.9.2 : ~1,25 Ko sous la pile C (64 o,
-                   $FBC0-$FBFF) ; `grep BSS build/neotel.map`
+                   Fin $D681 en v0.9.6 : ~9,3 Ko sous la pile C (64 o,
+                   $FBC0-$FBFF) ; v0.9.5 : $F76A, 1 110 o ;
+                   `grep BSS build/neotel.map`
 $FBA0-$FBFF  pile C cc65 (96 o ; usage mesure 33 o session et relecture,
              locales statiques ; `PASS stack` dans tests/run.sh)
 $FC00-$FFFF  noyau 6502 du firmware ; $FF00-$FF0F bloc de contrôle API
@@ -69,6 +70,18 @@ symboles (les tests cible y lisent `_keyboard_inject`, `_g_dbg_state`,
 `_g_vtx_bytes`, `_g_dbg_hangups`, `_vtx`). Les dumps RAM sont lus avec
 `offsetof(vtx_context_t, screen)` calculé sur l'hôte : la structure ne doit
 contenir que des `unsigned char` / `unsigned short` (même taille sur cc65).
+
+### Contextes uniques (src/ctx.h, v0.9.6)
+
+Sur la cible il n'existe qu'un contexte Videotex (`vtx`, main.c) et un
+contexte 80 colonnes (`ti`, logé au début de `vtx.drcs`). `videotex.c`,
+`teleinfo.c`, `display.c`, `display80.c` et `ui.c` écrivent `CTX.champ` :
+`vtx` / `VTX_TI` sur la cible (accès absolus), `(*ctx)` sur l'hôte, où les
+tests instancient plusieurs contextes. cc65 traduisait chaque `ctx->champ`
+par un rechargement de pointeur et un accès indirect indexé : −8,4 Ko de
+code et −4 à −12 % de cycles de rendu (`make bench`). Contrainte : sur la
+cible, tout appel passe `&vtx` / `&ti` (le paramètre n'y est plus lu), et un
+programme de test cible définit le global `vtx` (`tests/emu/t_bench.c`).
 
 ## Affichage (display.c, display_asm.s)
 
@@ -157,12 +170,17 @@ lue avant la file : les tests cible y déposent des touches (`--poke-at`).
 
 Groupe 10 : 10,19 routage (AUTO = modem USB CDC si présent, sinon UART
 UEXT), 10,15 format (115200 8N1, ignoré par les modems USB), 10,16 écriture,
-10,18 disponibilité, 10,17 lecture (erreur 1 si rien). 14,1 sert seulement
+10,17 lecture (erreur 1 si rien). `serial_poll` lit directement par 10,17
+et garde l'octet pour `serial_recv` (lecture anticipée d'un octet, sans
+tampon) : un seul appel API par octet reçu (deux, 10,18 puis 10,17, jusqu'à
+la v0.9.5). 14,1 sert seulement
 à afficher la présence d'un modem USB (`serial_cdc_status` : présent,
 absent, ou non supporté sur le firmware amont où l'appel lève le drapeau
 d'erreur).
 L'émission est immédiate (tampon TX du firmware) : `serial_tx_pump/flush`
-sont vides mais conservés pour garder `videotex.c` / `at_modem.c` intacts.
+sont des macros vides sur la cible (aucun code) et des fonctions sur l'hôte,
+conservées pour garder `videotex.c` / `at_modem.c` intacts. La lecture en
+bloc 14,4 (CDC seul) n'est pas utilisée : elle demanderait un tampon en RAM.
 
 ## Base de temps (neo_time.c, neo_delay.s)
 

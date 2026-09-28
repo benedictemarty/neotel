@@ -16,6 +16,16 @@
  * 1 = cacher cellules ATTR_CONCEALED, 0 = les rendre visibles. */
 extern unsigned char g_global_mask;
 
+/* Contexte unique de la cible (voir ctx.h) : -2,8 Ko de code. */
+#include "ctx.h"
+#ifdef __CC65__
+#define CTX  vtx
+#define SCTX vtx
+#else
+#define CTX  (*ctx)
+#define SCTX (*s_ctx)
+#endif
+
 /* ===================================================================
  *  Constantes du protocole (STUM 1B / CEPT) - evite les nombres magiques
  * =================================================================== */
@@ -80,13 +90,13 @@ static void touch_here(unsigned char row,
     if (row >= VTX_ROWS) {
         return;
     }
-    if (!s_ctx->dirty[row]) {
-        s_ctx->dirty[row] = 1;
-        s_ctx->dirty_min[row] = col_from;
-        s_ctx->dirty_max[row] = col_to;
+    if (!SCTX.dirty[row]) {
+        SCTX.dirty[row] = 1;
+        SCTX.dirty_min[row] = col_from;
+        SCTX.dirty_max[row] = col_to;
     } else {
-        if (col_from < s_ctx->dirty_min[row]) s_ctx->dirty_min[row] = col_from;
-        if (col_to   > s_ctx->dirty_max[row]) s_ctx->dirty_max[row] = col_to;
+        if (col_from < SCTX.dirty_min[row]) SCTX.dirty_min[row] = col_from;
+        if (col_to   > SCTX.dirty_max[row]) SCTX.dirty_max[row] = col_to;
     }
 }
 
@@ -105,8 +115,8 @@ static void reset_spans(vtx_context_t* ctx, unsigned char from_row)
 {
     unsigned char r;
     for (r = from_row; r < VTX_ROWS; ++r) {
-        ctx->dirty_min[r] = 0;
-        ctx->dirty_max[r] = VTX_COLS - 1;
+        CTX.dirty_min[r] = 0;
+        CTX.dirty_max[r] = VTX_COLS - 1;
     }
 }
 
@@ -119,37 +129,37 @@ void vtx_init(vtx_context_t* ctx)
     memset(ctx, 0, sizeof(vtx_context_t));
     reset_spans(ctx, 0);
 
-    ctx->state = VTX_STATE_NORMAL;
-    ctx->cur_x = 0;
-    ctx->cur_y = 1;    /* Ligne 1 (ligne 0 = statut) */
-    ctx->cur_visible = 1;
-    ctx->charset = CHARSET_G0;
-    ctx->fg_color = VTX_WHITE;
-    ctx->bg_color = VTX_BLACK;
-    ctx->attr_flags = 0;
-    ctx->attr_size = SIZE_NORMAL;
-    ctx->pending_bg = VTX_BLACK;
-    ctx->pending_underline = 0;
-    ctx->has_pending = 0;
-    ctx->rolling_mode = 0;
-    ctx->lowercase_mode = 0;
-    ctx->terminal_mode = TERM_MODE_VIDEOTEX;
+    CTX.state = VTX_STATE_NORMAL;
+    CTX.cur_x = 0;
+    CTX.cur_y = 1;    /* Ligne 1 (ligne 0 = statut) */
+    CTX.cur_visible = 1;
+    CTX.charset = CHARSET_G0;
+    CTX.fg_color = VTX_WHITE;
+    CTX.bg_color = VTX_BLACK;
+    CTX.attr_flags = 0;
+    CTX.attr_size = SIZE_NORMAL;
+    CTX.pending_bg = VTX_BLACK;
+    CTX.pending_underline = 0;
+    CTX.has_pending = 0;
+    CTX.rolling_mode = 0;
+    CTX.lowercase_mode = 0;
+    CTX.terminal_mode = TERM_MODE_VIDEOTEX;
     /* Aiguillages defaut Minitel 1B: MODEM->ECRAN et CLAVIER->MODEM */
-    ctx->aiguillages = AIG_MDM_TO_SCR | AIG_KBD_TO_MDM;
-    ctx->kbd_extended = 0;
-    ctx->kbd_cursor = 0;
-    ctx->global_mask = 1;  /* defaut: cellules concealed cachees */
+    CTX.aiguillages = AIG_MDM_TO_SCR | AIG_KBD_TO_MDM;
+    CTX.kbd_extended = 0;
+    CTX.kbd_cursor = 0;
+    CTX.global_mask = 1;  /* defaut: cellules concealed cachees */
     g_global_mask = 1;     /* garder la copie renderer synchronisee */
     /* Minitel 2 : jeux de base associes a G0/G1, en-tete DRCS par defaut
      * G'0 (STUM 2 par. 2.2.2 et 2.3.2) ; les formes sont effacees (memset). */
-    ctx->drcs_g0 = 0;
-    ctx->drcs_g1 = 0;
-    ctx->drcs_hdr_set = 0;
+    CTX.drcs_g0 = 0;
+    CTX.drcs_g1 = 0;
+    CTX.drcs_hdr_set = 0;
     vtx_current = ctx;
 
     vtx_clear_page(ctx);
     vtx_clear_status(ctx);
-    ctx->full_refresh = 1;
+    CTX.full_refresh = 1;
 }
 
 /* ===================================================================
@@ -185,29 +195,29 @@ static void reset_cells(vtx_cell_t* cell, unsigned int count)
 
 static void clear_row(vtx_context_t* ctx, unsigned char row)
 {
-    reset_cells(&ctx->screen[row][0], VTX_COLS);
+    reset_cells(&CTX.screen[row][0], VTX_COLS);
     vtx_touch(ctx, row, 0, VTX_COLS - 1);
 }
 
 void vtx_clear_page(vtx_context_t* ctx)
 {
-    reset_cells(&ctx->screen[1][0], VTX_COLS * (VTX_ROWS - 1));
+    reset_cells(&CTX.screen[1][0], VTX_COLS * (VTX_ROWS - 1));
 
     /* Effacer le framebuffer HIRES d'un coup (8000 octets = $40)
      * au lieu de marquer dirty et re-rendre 1000 cellules vides */
     display_clear();
-    memset(&ctx->dirty[1], 0, VTX_ROWS - 1);
+    memset(&CTX.dirty[1], 0, VTX_ROWS - 1);
     reset_spans(ctx, 1);
 
-    ctx->cur_x = 0;
-    ctx->cur_y = 1;
-    ctx->charset = CHARSET_G0;
-    ctx->fg_color = VTX_WHITE;
-    ctx->bg_color = VTX_BLACK;
-    ctx->attr_flags = 0;
-    ctx->attr_size = SIZE_NORMAL;
-    ctx->pending_bg = VTX_BLACK;
-    ctx->has_pending = 0;
+    CTX.cur_x = 0;
+    CTX.cur_y = 1;
+    CTX.charset = CHARSET_G0;
+    CTX.fg_color = VTX_WHITE;
+    CTX.bg_color = VTX_BLACK;
+    CTX.attr_flags = 0;
+    CTX.attr_size = SIZE_NORMAL;
+    CTX.pending_bg = VTX_BLACK;
+    CTX.has_pending = 0;
 }
 
 void vtx_clear_status(vtx_context_t* ctx)
@@ -218,10 +228,10 @@ void vtx_clear_status(vtx_context_t* ctx)
 void vtx_set_cursor(vtx_context_t* ctx, unsigned char row, unsigned char col)
 {
     if (row < VTX_ROWS) {
-        ctx->cur_y = row;
+        CTX.cur_y = row;
     }
     if (col < VTX_COLS) {
-        ctx->cur_x = col;
+        CTX.cur_x = col;
     }
 }
 
@@ -234,7 +244,7 @@ static void scroll_up(vtx_context_t* ctx);
 /* ===================================================================
  *  Adressage rapide des cellules
  *
- *  &ctx->screen[row][col] fait calculer a cc65 row * 160 puis col * 4 :
+ *  &CTX.screen[row][col] fait calculer a cc65 row * 160 puis col * 4 :
  *  deux multiplications 16 bits par des constantes qui ne sont pas des
  *  puissances de deux, payees A CHAQUE CARACTERE recu (put_char etait
  *  mesure a ~3 950 cycles/caractere, cf. make bench-render). Deux tables
@@ -251,8 +261,8 @@ static const unsigned char col_byte_offset[VTX_COLS] = {
 
 /* Cellule (row, col) sans multiplication. row < VTX_ROWS et col < VTX_COLS
  * sont des PRECONDITIONS : les appelants les verifient deja. */
-#define CELL_AT(ctx, row, col)                                          \
-    ((vtx_cell_t*)((unsigned char*)((ctx)->screen)                       \
+#define CELL_AT(c, row, col)                                             \
+    ((vtx_cell_t*)((unsigned char*)((c).screen)                         \
                    + row_byte_offset[(row)] + col_byte_offset[(col)]))
 
 /* Contexte courant, memorise UNE FOIS par appel a vtx_process().
@@ -273,30 +283,30 @@ static void put_char(unsigned char ch, unsigned char cs)
      * `jsr ldptr10sp` a chaque acces. Pas de reentrance ici. */
     static vtx_cell_t* cell;
 
-    if (s_ctx->cur_y >= VTX_ROWS || s_ctx->cur_x >= VTX_COLS) {
+    if (SCTX.cur_y >= VTX_ROWS || SCTX.cur_x >= VTX_COLS) {
         return;
     }
 
     /* Minitel 2 : jeu DRCS associe a G0 / G1 (STUM 2 par. 2.2.2). Les codes
      * 2/0 et 7/F restent ceux du jeu de base (par. 2.3.3.1, remarque). */
     if (ch != 0x20 && ch != 0x7F) {
-        if (cs == CHARSET_G0 && s_ctx->drcs_g0)      cs = CHARSET_DRCS0;
-        else if (cs == CHARSET_G1 && s_ctx->drcs_g1) cs = CHARSET_DRCS1;
+        if (cs == CHARSET_G0 && SCTX.drcs_g0)      cs = CHARSET_DRCS0;
+        else if (cs == CHARSET_G1 && SCTX.drcs_g1) cs = CHARSET_DRCS1;
     }
 
     /* Mode majuscule force (defaut Minitel 1B) : 'a'-'z' -> 'A'-'Z'.
      * Ne s'applique qu'au jeu G0 (alphanumerique). G1 mosaique et
      * G2 supplementaire ne sont pas affectes. */
-    if (cs == CHARSET_G0 && !s_ctx->lowercase_mode &&
+    if (cs == CHARSET_G0 && !SCTX.lowercase_mode &&
         ch >= 'a' && ch <= 'z') {
         ch -= 32;
     }
 
-    cell = CELL_AT(s_ctx, s_ctx->cur_y, s_ctx->cur_x);
+    cell = CELL_AT(SCTX, SCTX.cur_y, SCTX.cur_x);
     cell->ch = ch;
     cell->charset = cs;
-    cell_set_colors(cell, s_ctx->fg_color, s_ctx->bg_color);
-    cell->flags = (unsigned char)(s_ctx->attr_flags | (s_ctx->attr_size << SIZE_SHIFT));
+    cell_set_colors(cell, SCTX.fg_color, SCTX.bg_color);
+    cell->flags = (unsigned char)(SCTX.attr_flags | (SCTX.attr_size << SIZE_SHIFT));
 
     /* Attributs de zone en attente (STUM 1B, codage des attributs definis
      * par zone) : un espace G0 est le delimiteur explicite, il valide tout
@@ -304,7 +314,7 @@ static void put_char(unsigned char ch, unsigned char cs)
      * associe a G1) valide la couleur de fond seulement, les autres
      * attributs latents attendent le premier espace (v0.8.2 ; auparavant
      * les mosaiques gardaient l'ancien fond : cartes du POKER de 3617.fr). */
-    if (s_ctx->has_pending) {
+    if (SCTX.has_pending) {
         unsigned char delim = 0;
         if (cs == CHARSET_G0) {
             if (ch == 0x20) delim = 1;
@@ -312,58 +322,58 @@ static void put_char(unsigned char ch, unsigned char cs)
             delim = 2;                          /* semi-graphique : fond seul */
         }
         if (delim) {
-            cell_set_bg(cell, s_ctx->pending_bg);
-            s_ctx->bg_color = s_ctx->pending_bg;
+            cell_set_bg(cell, SCTX.pending_bg);
+            SCTX.bg_color = SCTX.pending_bg;
         }
         if (delim == 1) {
-            if (s_ctx->pending_underline) {
+            if (SCTX.pending_underline) {
                 cell->flags |= ATTR_UNDERLINE;
-                s_ctx->attr_flags |= ATTR_UNDERLINE;
+                SCTX.attr_flags |= ATTR_UNDERLINE;
             } else {
-                s_ctx->attr_flags &= ~ATTR_UNDERLINE;
+                SCTX.attr_flags &= ~ATTR_UNDERLINE;
             }
-            s_ctx->has_pending = 0;
+            SCTX.has_pending = 0;
         }
     }
 
     /* Marquer la plage modifiee: la cellule, +1 colonne en double
      * largeur/taille (moitie droite du glyphe) */
     {
-        unsigned char span_end = s_ctx->cur_x;
-        if ((s_ctx->attr_size == SIZE_DOUBLE_WIDTH ||
-             s_ctx->attr_size == SIZE_DOUBLE_SIZE) &&
+        unsigned char span_end = SCTX.cur_x;
+        if ((SCTX.attr_size == SIZE_DOUBLE_WIDTH ||
+             SCTX.attr_size == SIZE_DOUBLE_SIZE) &&
             span_end < VTX_COLS - 1) {
             ++span_end;
         }
-        touch_here(s_ctx->cur_y, s_ctx->cur_x, span_end);
+        touch_here(SCTX.cur_y, SCTX.cur_x, span_end);
         /* Double hauteur/taille: la moitie haute du glyphe est rendue
          * dans les lignes pixel de la ligne du dessus. Sans ce dirty,
          * un re-rendu isole de cur_y-1 ecraserait la moitie haute. */
-        if ((s_ctx->attr_size == SIZE_DOUBLE_HEIGHT ||
-             s_ctx->attr_size == SIZE_DOUBLE_SIZE) && s_ctx->cur_y > 0) {
-            touch_here(s_ctx->cur_y - 1, s_ctx->cur_x, span_end);
+        if ((SCTX.attr_size == SIZE_DOUBLE_HEIGHT ||
+             SCTX.attr_size == SIZE_DOUBLE_SIZE) && SCTX.cur_y > 0) {
+            touch_here(SCTX.cur_y - 1, SCTX.cur_x, span_end);
         }
     }
-    s_ctx->last_char = ch;
-    s_ctx->last_charset = cs;
+    SCTX.last_char = ch;
+    SCTX.last_charset = cs;
 
     /* Avancer le curseur (2 colonnes pour double largeur/taille) */
-    if (s_ctx->attr_size == SIZE_DOUBLE_WIDTH ||
-        s_ctx->attr_size == SIZE_DOUBLE_SIZE) {
-        s_ctx->cur_x += 2;
+    if (SCTX.attr_size == SIZE_DOUBLE_WIDTH ||
+        SCTX.attr_size == SIZE_DOUBLE_SIZE) {
+        SCTX.cur_x += 2;
     } else {
-        s_ctx->cur_x++;
+        SCTX.cur_x++;
     }
-    if (s_ctx->cur_x >= VTX_COLS) {
-        s_ctx->cur_x = 0;
-        s_ctx->cur_y++;
-        if (s_ctx->cur_y >= VTX_ROWS) {
-            if (s_ctx->rolling_mode) {
+    if (SCTX.cur_x >= VTX_COLS) {
+        SCTX.cur_x = 0;
+        SCTX.cur_y++;
+        if (SCTX.cur_y >= VTX_ROWS) {
+            if (SCTX.rolling_mode) {
                 scroll_up(s_ctx);
-                s_ctx->cur_y = VTX_ROWS - 1;
+                SCTX.cur_y = VTX_ROWS - 1;
             } else {
                 /* Mode page (defaut): retour en ligne 1 (pas 0 = status) */
-                s_ctx->cur_y = 1;
+                SCTX.cur_y = 1;
             }
         }
     }
@@ -384,28 +394,28 @@ static void put_char(unsigned char ch, unsigned char cs)
 
 static void adopt_zone_bg(void)
 {
-    s_ctx->bg_color = cell_bg(CELL_AT(s_ctx, s_ctx->cur_y, s_ctx->cur_x));
+    SCTX.bg_color = cell_bg(CELL_AT(SCTX, SCTX.cur_y, SCTX.cur_x));
 }
 
 static void cursor_left(vtx_context_t* ctx)
 {
-    if (ctx->cur_x > 0) {
-        ctx->cur_x--;
-    } else if (ctx->cur_y > 1) {
-        ctx->cur_x = VTX_COLS - 1;
-        ctx->cur_y--;
+    if (CTX.cur_x > 0) {
+        CTX.cur_x--;
+    } else if (CTX.cur_y > 1) {
+        CTX.cur_x = VTX_COLS - 1;
+        CTX.cur_y--;
     }
     adopt_zone_bg();
 }
 
 static void cursor_right(vtx_context_t* ctx)
 {
-    ctx->cur_x++;
-    if (ctx->cur_x >= VTX_COLS) {
-        ctx->cur_x = 0;
-        ctx->cur_y++;
-        if (ctx->cur_y >= VTX_ROWS) {
-            ctx->cur_y = VTX_ROWS - 1;
+    CTX.cur_x++;
+    if (CTX.cur_x >= VTX_COLS) {
+        CTX.cur_x = 0;
+        CTX.cur_y++;
+        if (CTX.cur_y >= VTX_ROWS) {
+            CTX.cur_y = VTX_ROWS - 1;
         }
     }
     adopt_zone_bg();
@@ -413,17 +423,17 @@ static void cursor_right(vtx_context_t* ctx)
 
 static void cursor_up(vtx_context_t* ctx)
 {
-    if (ctx->cur_y > 1) {
-        ctx->cur_y--;
+    if (CTX.cur_y > 1) {
+        CTX.cur_y--;
     }
     adopt_zone_bg();
 }
 
 static void cursor_down(vtx_context_t* ctx)
 {
-    if (ctx->cur_y < VTX_ROWS - 1) {
-        ctx->cur_y++;
-    } else if (ctx->rolling_mode) {
+    if (CTX.cur_y < VTX_ROWS - 1) {
+        CTX.cur_y++;
+    } else if (CTX.rolling_mode) {
         /* Mode rouleau: scroll d'une ligne, curseur reste en bas */
         scroll_up(ctx);
     }
@@ -436,10 +446,10 @@ static void scroll_up(vtx_context_t* ctx)
     /* Decale les lignes 2..VTX_ROWS-1 vers 1..VTX_ROWS-2.
      * La ligne 0 (statut) est preservee. La derniere ligne est effacee.
      * Cout: ~5.5 Ko de memmove + full_refresh (~80ms a 1 MHz). */
-    memmove(&ctx->screen[1][0], &ctx->screen[2][0],
+    memmove(&CTX.screen[1][0], &CTX.screen[2][0],
             sizeof(vtx_cell_t) * VTX_COLS * (VTX_ROWS - 2));
     clear_row(ctx, VTX_ROWS - 1);
-    ctx->full_refresh = 1;
+    CTX.full_refresh = 1;
 }
 
 /* ===================================================================
@@ -448,16 +458,16 @@ static void scroll_up(vtx_context_t* ctx)
 
 static void clear_eol(vtx_context_t* ctx)
 {
-    reset_cells(&ctx->screen[ctx->cur_y][ctx->cur_x],
-                VTX_COLS - ctx->cur_x);
-    vtx_touch(ctx, ctx->cur_y, ctx->cur_x, VTX_COLS - 1);
+    reset_cells(&CTX.screen[CTX.cur_y][CTX.cur_x],
+                VTX_COLS - CTX.cur_x);
+    vtx_touch(ctx, CTX.cur_y, CTX.cur_x, VTX_COLS - 1);
 }
 
 static void clear_eos(vtx_context_t* ctx)
 {
     unsigned char r;
     clear_eol(ctx);
-    for (r = ctx->cur_y + 1; r < VTX_ROWS; ++r) {
+    for (r = CTX.cur_y + 1; r < VTX_ROWS; ++r) {
         clear_row(ctx, r);
     }
 }
@@ -470,94 +480,94 @@ static void process_esc(vtx_context_t* ctx, unsigned char byte)
 {
     /* Couleur encre: ESC $40-$47 */
     if (byte >= 0x40 && byte <= 0x47) {
-        ctx->fg_color = byte - 0x40;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.fg_color = byte - 0x40;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
     /* Flash on/off: ESC $48/$49 */
     if (byte == 0x48) {
-        ctx->attr_flags |= ATTR_FLASH;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.attr_flags |= ATTR_FLASH;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
     if (byte == 0x49) {
-        ctx->attr_flags &= ~ATTR_FLASH;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.attr_flags &= ~ATTR_FLASH;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
     /* Taille: ESC $4C-$4F */
     if (byte >= 0x4C && byte <= 0x4F) {
-        ctx->attr_size = byte - 0x4C;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.attr_size = byte - 0x4C;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
     /* Couleur fond: ESC $50-$57 */
     if (byte >= 0x50 && byte <= 0x57) {
         /* Fond = attribut serie, mis en attente */
-        ctx->pending_bg = byte - 0x50;
-        ctx->has_pending = 1;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.pending_bg = byte - 0x50;
+        CTX.has_pending = 1;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
     /* Masquage: ESC $58 */
     if (byte == 0x58) {
-        ctx->attr_flags |= ATTR_CONCEALED;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.attr_flags |= ATTR_CONCEALED;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
     /* Soulignement (G0) / Mosaique separee (G1): ESC $59=off, $5A=on */
     if (byte == 0x59) {
-        if (ctx->charset == CHARSET_G1) {
+        if (CTX.charset == CHARSET_G1) {
             /* Clear separated mosaic mode */
-            ctx->attr_flags &= ~ATTR_SEPARATED;
+            CTX.attr_flags &= ~ATTR_SEPARATED;
         } else {
-            ctx->pending_underline = 0;
-            ctx->has_pending = 1;
+            CTX.pending_underline = 0;
+            CTX.has_pending = 1;
         }
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
     if (byte == 0x5A) {
-        if (ctx->charset == CHARSET_G1) {
+        if (CTX.charset == CHARSET_G1) {
             /* Set separated mosaic mode */
-            ctx->attr_flags |= ATTR_SEPARATED;
+            CTX.attr_flags |= ATTR_SEPARATED;
         } else {
-            ctx->pending_underline = 1;
-            ctx->has_pending = 1;
+            CTX.pending_underline = 1;
+            CTX.has_pending = 1;
         }
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
     /* Mask global: ESC $23 $20 $58/$5F (set/reset)
      * Reference: miedit (constant.js mask-global) */
     if (byte == 0x23) {
-        ctx->state = VTX_STATE_MASK_SP;
+        CTX.state = VTX_STATE_MASK_SP;
         return;
     }
 
     /* CSI: ESC $5B */
     if (byte == 0x5B) {
-        ctx->state = VTX_STATE_CSI;
-        ctx->csi_len = 0;
+        CTX.state = VTX_STATE_CSI;
+        CTX.csi_len = 0;
         return;
     }
 
     /* Inversion: ESC $5C=OFF (fond normal), $5D=ON (fond inverse)
      * Ref: telenet emulateur.js, miedit directStream */
     if (byte == 0x5C) {
-        ctx->attr_flags &= ~ATTR_INVERT;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.attr_flags &= ~ATTR_INVERT;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
     if (byte == 0x5D) {
-        ctx->attr_flags |= ATTR_INVERT;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.attr_flags |= ATTR_INVERT;
+        CTX.state = VTX_STATE_NORMAL;
         return;
     }
 
@@ -566,15 +576,15 @@ static void process_esc(vtx_context_t* ctx, unsigned char byte)
      * PRO3: ESC $3B + 3 octets (commande + 2 parametres)
      * Reference: STUM 1B (specification technique du Minitel) */
     if (byte >= VTX_PRO1_MARK && byte <= VTX_PRO3_MARK) {
-        ctx->state = VTX_STATE_PRO;
-        ctx->pro_kind = byte - VTX_PRO_BASE;  /* $39->1, $3A->2, $3B->3 */
-        ctx->pro_idx = 0;
+        CTX.state = VTX_STATE_PRO;
+        CTX.pro_kind = byte - VTX_PRO_BASE;  /* $39->1, $3A->2, $3B->3 */
+        CTX.pro_idx = 0;
         return;
     }
 
     /* SS2 (G2 single shift): ESC $19 */
     if (byte == 0x19) {
-        ctx->state = VTX_STATE_SS2;
+        CTX.state = VTX_STATE_SS2;
         return;
     }
 
@@ -585,35 +595,35 @@ static void process_esc(vtx_context_t* ctx, unsigned char byte)
      *   ESC 2/9 2/0 4/3 : jeu DRCS G'1 -> G1
      * Les attributs actifs sont conserves. Un Minitel 1B ignore ESC 2/8. */
     if (g_term_model == TERM_MINITEL_2 && (byte == 0x28 || byte == 0x29)) {
-        ctx->state = (byte == 0x28) ? VTX_STATE_ESC_G0SET : VTX_STATE_ESC_G1SET;
+        CTX.state = (byte == 0x28) ? VTX_STATE_ESC_G0SET : VTX_STATE_ESC_G1SET;
         return;
     }
 
     /* Non reconnu: ignorer et revenir a NORMAL */
-    ctx->state = VTX_STATE_NORMAL;
+    CTX.state = VTX_STATE_NORMAL;
 }
 
 /* Suite de ESC 2/8 / ESC 2/9 (Minitel 2). Toute autre valeur : sequence
  * ignoree, retour a NORMAL sans effet. */
 static void process_charset_assoc(vtx_context_t* ctx, unsigned char byte)
 {
-    switch (ctx->state) {
+    switch (CTX.state) {
         case VTX_STATE_ESC_G0SET:
-            if (byte == 0x40)      { ctx->drcs_g0 = 0; break; }
-            else if (byte == 0x20) { ctx->state = VTX_STATE_ESC_G0SET2; return; }
+            if (byte == 0x40)      { CTX.drcs_g0 = 0; break; }
+            else if (byte == 0x20) { CTX.state = VTX_STATE_ESC_G0SET2; return; }
             break;
         case VTX_STATE_ESC_G0SET2:
-            if (byte == 0x42) ctx->drcs_g0 = 1;
+            if (byte == 0x42) CTX.drcs_g0 = 1;
             break;
         case VTX_STATE_ESC_G1SET:
-            if (byte == 0x63)      { ctx->drcs_g1 = 0; break; }
-            else if (byte == 0x20) { ctx->state = VTX_STATE_ESC_G1SET2; return; }
+            if (byte == 0x63)      { CTX.drcs_g1 = 0; break; }
+            else if (byte == 0x20) { CTX.state = VTX_STATE_ESC_G1SET2; return; }
             break;
         default: /* VTX_STATE_ESC_G1SET2 */
-            if (byte == 0x43) ctx->drcs_g1 = 1;
+            if (byte == 0x43) CTX.drcs_g1 = 1;
             break;
     }
-    ctx->state = VTX_STATE_NORMAL;
+    CTX.state = VTX_STATE_NORMAL;
 }
 
 /* ===================================================================
@@ -631,27 +641,27 @@ static void process_charset_assoc(vtx_context_t* ctx, unsigned char byte)
  * telechargeable (2/1..7/E), sinon l'ignore. */
 static void drcs_form_store(vtx_context_t* ctx)
 {
-    if (!ctx->drcs_started) return;
-    ctx->drcs_started = 0;
+    if (!CTX.drcs_started) return;
+    CTX.drcs_started = 0;
     /* Bits en attente d'une rangee incomplete : le reste est du fond */
-    if (ctx->drcs_nbits && ctx->drcs_nrow < DRCS_ROWS) {
-        ctx->drcs_form[ctx->drcs_nrow] =
-            (unsigned char)(ctx->drcs_acc << (8 - ctx->drcs_nbits));
+    if (CTX.drcs_nbits && CTX.drcs_nrow < DRCS_ROWS) {
+        CTX.drcs_form[CTX.drcs_nrow] =
+            (unsigned char)(CTX.drcs_acc << (8 - CTX.drcs_nbits));
     }
-    if (ctx->drcs_code >= DRCS_FIRST && ctx->drcs_code <= DRCS_LAST) {
-        memcpy(&ctx->drcs[ctx->drcs_hdr_set][ctx->drcs_code - DRCS_FIRST][0],
-               ctx->drcs_form, DRCS_ROWS);
+    if (CTX.drcs_code >= DRCS_FIRST && CTX.drcs_code <= DRCS_LAST) {
+        memcpy(&CTX.drcs[CTX.drcs_hdr_set][CTX.drcs_code - DRCS_FIRST][0],
+               CTX.drcs_form, DRCS_ROWS);
     }
 }
 
 static void drcs_form_begin(vtx_context_t* ctx)
 {
-    ctx->drcs_started = 1;
-    ctx->drcs_nbyte = 0;
-    ctx->drcs_nrow = 0;
-    ctx->drcs_nbits = 0;
-    ctx->drcs_acc = 0;
-    memset(ctx->drcs_form, 0, DRCS_ROWS);
+    CTX.drcs_started = 1;
+    CTX.drcs_nbyte = 0;
+    CTX.drcs_nrow = 0;
+    CTX.drcs_nbits = 0;
+    CTX.drcs_acc = 0;
+    memset(CTX.drcs_form, 0, DRCS_ROWS);
 }
 
 /* Un octet de donnees : 6 bits (b5..b0), rangees de 8 pixels remplies de
@@ -659,17 +669,17 @@ static void drcs_form_begin(vtx_context_t* ctx)
  * rangee suivante ; au-dela de 14 octets, filtre (par. 2.3.3.2). */
 static void drcs_data(vtx_context_t* ctx, unsigned char six)
 {
-    if (!ctx->drcs_started || ctx->drcs_nbyte >= DRCS_BYTES) return;
-    ++ctx->drcs_nbyte;
-    ctx->drcs_acc = (unsigned short)((ctx->drcs_acc << 6) | (six & 0x3F));
-    ctx->drcs_nbits += 6;
-    while (ctx->drcs_nbits >= 8) {
-        ctx->drcs_nbits -= 8;
-        if (ctx->drcs_nrow < DRCS_ROWS) {
-            ctx->drcs_form[ctx->drcs_nrow++] =
-                (unsigned char)(ctx->drcs_acc >> ctx->drcs_nbits);
+    if (!CTX.drcs_started || CTX.drcs_nbyte >= DRCS_BYTES) return;
+    ++CTX.drcs_nbyte;
+    CTX.drcs_acc = (unsigned short)((CTX.drcs_acc << 6) | (six & 0x3F));
+    CTX.drcs_nbits += 6;
+    while (CTX.drcs_nbits >= 8) {
+        CTX.drcs_nbits -= 8;
+        if (CTX.drcs_nrow < DRCS_ROWS) {
+            CTX.drcs_form[CTX.drcs_nrow++] =
+                (unsigned char)(CTX.drcs_acc >> CTX.drcs_nbits);
         }
-        ctx->drcs_acc &= (unsigned short)((1u << ctx->drcs_nbits) - 1);
+        CTX.drcs_acc &= (unsigned short)((1u << CTX.drcs_nbits) - 1);
     }
 }
 
@@ -678,46 +688,46 @@ static void drcs_data(vtx_context_t* ctx, unsigned char six)
 static unsigned char drcs_header(vtx_context_t* ctx, unsigned char byte)
 {
     static const unsigned char hdr[4] = { 0x20, 0x20, 0x42, 0x49 };
-    unsigned char i = ctx->drcs_hdr_idx;
+    unsigned char i = CTX.drcs_hdr_idx;
 
     if (i == 0) {
         if (byte == 0x20) {                     /* en-tete */
-            ctx->drcs_hdr_idx = 1;
+            CTX.drcs_hdr_idx = 1;
             return 1;
         }
         if (byte >= DRCS_FIRST && byte <= DRCS_LAST) {   /* transfert : Y */
-            ctx->drcs_code = byte;
-            ctx->drcs_started = 0;
-            ctx->state = VTX_STATE_DRCS_XFER;
+            CTX.drcs_code = byte;
+            CTX.drcs_started = 0;
+            CTX.state = VTX_STATE_DRCS_XFER;
             return 1;
         }
-        ctx->state = VTX_STATE_NORMAL;          /* erronee : ignoree */
+        CTX.state = VTX_STATE_NORMAL;          /* erronee : ignoree */
         return (byte < 0x20) ? 0 : 1;
     }
     if (byte == 0x1F) {                         /* US : rangee 00 ? (US_COL) */
-        ctx->drcs_suspended = 2;
-        ctx->state = VTX_STATE_US_ROW;
+        CTX.drcs_suspended = 2;
+        CTX.state = VTX_STATE_US_ROW;
         return 1;
     }
     if (byte < 0x20) {                          /* C0 : resynchronisation */
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return 0;
     }
     /* i = 1..4 : 2/0 2/0 (4/2|4/3) 4/9 */
     if ((i == 3 && (byte == 0x42 || byte == 0x43)) ||
         (i != 3 && byte == hdr[i - 1])) {
-        if (i == 3) ctx->drcs_code = (byte == 0x43) ? 1 : 0;   /* candidat */
+        if (i == 3) CTX.drcs_code = (byte == 0x43) ? 1 : 0;   /* candidat */
         if (i == 4) {
-            ctx->drcs_hdr_set = ctx->drcs_code;  /* en-tete complete */
-            ctx->state = VTX_STATE_NORMAL;
+            CTX.drcs_hdr_set = CTX.drcs_code;  /* en-tete complete */
+            CTX.state = VTX_STATE_NORMAL;
         } else {
-            ctx->drcs_hdr_idx = i + 1;
+            CTX.drcs_hdr_idx = i + 1;
         }
         return 1;
     }
     /* Syntaxe erronee : l'en-tete precedente reste valide (le jeu candidat
      * n'a pas ete retenu). */
-    ctx->state = VTX_STATE_NORMAL;
+    CTX.state = VTX_STATE_NORMAL;
     return 1;
 }
 
@@ -728,15 +738,15 @@ static unsigned char drcs_xfer(vtx_context_t* ctx, unsigned char byte)
         /* US : sortie du telechargement, sauf si le US est un acces en
          * rangee 00 (decide en US_COL) : le transfert est alors suspendu et
          * reprend sur le LF qui quitte la rangee 00 (par. 2.3.4). */
-        ctx->drcs_suspended = 1;
-        ctx->state = VTX_STATE_US_ROW;
+        CTX.drcs_suspended = 1;
+        CTX.state = VTX_STATE_US_ROW;
         return 1;
     }
     if (byte == 0x00) return 1;                 /* NUL : rien */
     if (byte == 0x30) {                         /* B1 : delimiteur de forme */
-        if (ctx->drcs_started) {
+        if (CTX.drcs_started) {
             drcs_form_store(ctx);
-            ++ctx->drcs_code;
+            ++CTX.drcs_code;
         }
         drcs_form_begin(ctx);
         return 1;
@@ -755,7 +765,7 @@ const unsigned char* vtx_drcs_form(const vtx_context_t* ctx,
                                    unsigned char set, unsigned char ch)
 {
     if (ch < DRCS_FIRST || ch > DRCS_LAST) return 0;
-    return &ctx->drcs[set ? 1 : 0][ch - DRCS_FIRST][0];
+    return &CTX.drcs[set ? 1 : 0][ch - DRCS_FIRST][0];
 }
 
 /* ===================================================================
@@ -769,14 +779,14 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
 
     /* Accumuler les parametres (chiffres et ;) */
     if ((byte >= '0' && byte <= '9') || byte == ';') {
-        if (ctx->csi_len < sizeof(ctx->csi_buf) - 1) {
-            ctx->csi_buf[ctx->csi_len++] = byte;
+        if (CTX.csi_len < sizeof(CTX.csi_buf) - 1) {
+            CTX.csi_buf[CTX.csi_len++] = byte;
         }
         return;
     }
 
     /* Terminer: parser param1[;param2] */
-    ctx->csi_buf[ctx->csi_len] = 0;
+    CTX.csi_buf[CTX.csi_len] = 0;
     param = 0;
     param2 = 0;
     {
@@ -785,13 +795,13 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
          * et un parametre a 3+ chiffres deborderait l'unsigned char (ex.
          * "999A" -> 231) -> mouvement curseur faux ou boucle excessive. Le
          * calcul intermediaire passe par unsigned int pour ne jamais wrapper. */
-        for (i = 0; i < ctx->csi_len && ctx->csi_buf[i] != ';'; ++i) {
-            unsigned int t = (unsigned int)param * 10 + (ctx->csi_buf[i] - '0');
+        for (i = 0; i < CTX.csi_len && CTX.csi_buf[i] != ';'; ++i) {
+            unsigned int t = (unsigned int)param * 10 + (CTX.csi_buf[i] - '0');
             param = (t > 64) ? 64 : (unsigned char)t;
         }
-        if (i < ctx->csi_len && ctx->csi_buf[i] == ';') {
-            for (++i; i < ctx->csi_len && ctx->csi_buf[i] != ';'; ++i) {
-                unsigned int t = (unsigned int)param2 * 10 + (ctx->csi_buf[i] - '0');
+        if (i < CTX.csi_len && CTX.csi_buf[i] == ';') {
+            for (++i; i < CTX.csi_len && CTX.csi_buf[i] != ';'; ++i) {
+                unsigned int t = (unsigned int)param2 * 10 + (CTX.csi_buf[i] - '0');
                 param2 = (t > 64) ? 64 : (unsigned char)t;
             }
         }
@@ -820,7 +830,7 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
             adopt_zone_bg();
             break;
         case 'J':   /* ED - effacer ecran */
-            if (param == 2 || ctx->csi_len == 0) {
+            if (param == 2 || CTX.csi_len == 0) {
                 vtx_clear_page(ctx);
             } else {
                 clear_eos(ctx);
@@ -830,10 +840,10 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
             clear_eol(ctx);
             break;
         case 'h':   /* Mode set (curseur visible, etc.) */
-            ctx->cur_visible = 1;
+            CTX.cur_visible = 1;
             break;
         case 'l':   /* Mode reset (curseur invisible) */
-            ctx->cur_visible = 0;
+            CTX.cur_visible = 0;
             break;
         case 'n':   /* Minitel 2 (STUM 2 par. 2.5) : CSI 3/6 6/E = demande de
                      * position curseur ; reponse CSI Pr 3/B Pc 5/2. Pr = rangee
@@ -842,11 +852,11 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
                 unsigned char v;
                 serial_send(0x1B);
                 serial_send(0x5B);
-                v = ctx->cur_y;
+                v = CTX.cur_y;
                 if (v >= 10) serial_send((unsigned char)('0' + v / 10));
                 serial_send((unsigned char)('0' + v % 10));
                 serial_send(0x3B);
-                v = (unsigned char)(ctx->cur_x + 1);
+                v = (unsigned char)(CTX.cur_x + 1);
                 if (v >= 10) serial_send((unsigned char)('0' + v / 10));
                 serial_send((unsigned char)('0' + v % 10));
                 serial_send(0x52);
@@ -857,7 +867,7 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
             break;
     }
 
-    ctx->state = VTX_STATE_NORMAL;
+    CTX.state = VTX_STATE_NORMAL;
 }
 
 /* ===================================================================
@@ -871,8 +881,8 @@ static void process_csi(vtx_context_t* ctx, unsigned char byte)
 static void dispatch_pro(vtx_context_t* ctx)
 {
     /* PRO1: 1 octet de commande */
-    if (ctx->pro_kind == 1) {
-        switch (ctx->pro_buf[0]) {
+    if (CTX.pro_kind == 1) {
+        switch (CTX.pro_buf[0]) {
             case 0x7B:  /* ENQROM - identification du Minitel.
                          * Meme reponse que ENQ ($05). */
                 send_ident();
@@ -888,7 +898,7 @@ static void dispatch_pro(vtx_context_t* ctx)
      *   $43 = mode rouleau (scroll en bas d'ecran)
      *   $45 = mode minuscules (autoriser 'a'-'z' au lieu de forcer majuscule)
      * Reference: STUM 1B + miedit (constant.js) + eMinitel (Functionalities.cpp) */
-    if (ctx->pro_kind == 2) {
+    if (CTX.pro_kind == 2) {
         unsigned char on;
 
         /* PRO2 + $72 + module = demande de status d'un module.
@@ -897,12 +907,12 @@ static void dispatch_pro(vtx_context_t* ctx)
          * Les modules courants sont $59 (KEYBOARD_IN) et $51 (KEYBOARD_OUT).
          * Le status byte reflete l'etat du clavier: bits 6-7 fixes par
          * convention, plus quelques flags optionnels (minuscules etc.). */
-        if (ctx->pro_buf[0] == 0x72) {
-            unsigned char target = ctx->pro_buf[1];
+        if (CTX.pro_buf[0] == 0x72) {
+            unsigned char target = CTX.pro_buf[1];
             if (target == 0x59 || target == 0x51) {
                 unsigned char status = 0xC0;  /* bits 6-7 fixes (cf. eMinitel) */
-                if (ctx->lowercase_mode) status |= 0x02;
-                if (ctx->rolling_mode)   status |= 0x04;
+                if (CTX.lowercase_mode) status |= 0x02;
+                if (CTX.rolling_mode)   status |= 0x04;
                 serial_send(0x1B);
                 serial_send(0x3B);
                 serial_send(0x73);
@@ -915,19 +925,19 @@ static void dispatch_pro(vtx_context_t* ctx)
 
         /* PRO2 + $32 = changement de mode protocole (VIDEOTEX/MIXED).
          * Reference: STUM 1B, eMinitel PRO2_MODE_VIDEOTEX/MIXED. */
-        if (ctx->pro_buf[0] == 0x32) {
-            if (ctx->pro_buf[1] == 0x7E) {       /* MODE VIDEOTEX */
-                ctx->terminal_mode = TERM_MODE_VIDEOTEX;
+        if (CTX.pro_buf[0] == 0x32) {
+            if (CTX.pro_buf[1] == 0x7E) {       /* MODE VIDEOTEX */
+                CTX.terminal_mode = TERM_MODE_VIDEOTEX;
                 /* ACK: SEP ($13) + $71 (videotex confirme) */
                 serial_send(0x13);
                 serial_send(0x71);
                 serial_tx_flush();
-            } else if (ctx->pro_buf[1] == 0x7D) { /* MODE MIXTE */
+            } else if (CTX.pro_buf[1] == 0x7D) { /* MODE MIXTE */
                 /* PRO2 MIXTE 1 (STUM 1B partie 2 chap. 6 par. 12.2) : passage
                  * au standard Teletel mode Mixte (80 colonnes, ISO 6429),
                  * acquitte par SEP 0x70. main.c bascule l'ecran (teleinfo.c)
                  * quand terminal_mode passe a TERM_MODE_MIXED. */
-                ctx->terminal_mode = TERM_MODE_MIXED;
+                CTX.terminal_mode = TERM_MODE_MIXED;
                 serial_send(0x13);
                 serial_send(0x70);
                 serial_tx_flush();
@@ -939,21 +949,21 @@ static void dispatch_pro(vtx_context_t* ctx)
          * prise peripherique / du modem. La liaison de NeoTel (modem USB) n'en
          * depend pas : la vitesse est memorisee si le modele l'accepte
          * (9600 bauds : Minitel 2 seulement), sans reponse. */
-        if (ctx->pro_buf[0] == 0x6B) {
-            term_prog_speed(ctx->pro_buf[1]);
+        if (CTX.pro_buf[0] == 0x6B) {
+            term_prog_speed(CTX.pro_buf[1]);
             return;
         }
 
         /* PRO2 + $69/$6A = START/STOP d'un mode (rolling, lowercase, ...) */
-        if (ctx->pro_buf[0] == 0x69)      on = 1;  /* START */
-        else if (ctx->pro_buf[0] == 0x6A) on = 0;  /* STOP */
+        if (CTX.pro_buf[0] == 0x69)      on = 1;  /* START */
+        else if (CTX.pro_buf[0] == 0x6A) on = 0;  /* STOP */
         else return;
-        switch (ctx->pro_buf[1]) {
+        switch (CTX.pro_buf[1]) {
             case 0x43:  /* ROLLING */
-                ctx->rolling_mode = on;
+                CTX.rolling_mode = on;
                 break;
             case 0x45:  /* LOWERCASE */
-                ctx->lowercase_mode = on;
+                CTX.lowercase_mode = on;
                 break;
             default:
                 /* Autres cibles PRO2 (PCE, etc.) : TODO */
@@ -975,30 +985,30 @@ static void dispatch_pro(vtx_context_t* ctx)
      *
      * Reference: STUM 1B + miedit (constant.js pro3SwitchOn/Off)
      *            + eMinitel (Functionalities.cpp __func_PRO3) */
-    if (ctx->pro_kind == 3) {
+    if (CTX.pro_kind == 3) {
         unsigned char on;
         unsigned char dest, src, mask;
         /* PRO3 START/STOP module: $69/$6A + $59 (KEYBOARD_IN) + sub-cmd
          *   sub-cmd $41 = clavier etendu (touches alt)
          *   sub-cmd $43 = clavier curseur (fleches actives)
          * Reference: miedit pro3Start/Stop -> startKeyboardFunction. */
-        if ((ctx->pro_buf[0] == 0x69 || ctx->pro_buf[0] == 0x6A)
-            && ctx->pro_buf[1] == 0x59) {
-            unsigned char on2 = (ctx->pro_buf[0] == 0x69);
-            switch (ctx->pro_buf[2]) {
-                case 0x41: ctx->kbd_extended = on2; break;
-                case 0x43: ctx->kbd_cursor   = on2; break;
+        if ((CTX.pro_buf[0] == 0x69 || CTX.pro_buf[0] == 0x6A)
+            && CTX.pro_buf[1] == 0x59) {
+            unsigned char on2 = (CTX.pro_buf[0] == 0x69);
+            switch (CTX.pro_buf[2]) {
+                case 0x41: CTX.kbd_extended = on2; break;
+                case 0x43: CTX.kbd_cursor   = on2; break;
                 default: break;
             }
             return;
         }
 
-        if (ctx->pro_buf[0] == 0x61)      on = 1;  /* SWITCH ON */
-        else if (ctx->pro_buf[0] == 0x60) on = 0;  /* SWITCH OFF */
+        if (CTX.pro_buf[0] == 0x61)      on = 1;  /* SWITCH ON */
+        else if (CTX.pro_buf[0] == 0x60) on = 0;  /* SWITCH OFF */
         else return;  /* autres START/STOP: ignore */
 
-        dest = ctx->pro_buf[1];
-        src  = ctx->pro_buf[2];
+        dest = CTX.pro_buf[1];
+        src  = CTX.pro_buf[2];
         mask = 0;
         if (dest == 0x58 && src == 0x51) mask = AIG_KBD_TO_SCR;
         else if (dest == 0x58 && src == 0x59) mask = AIG_MDM_TO_SCR;
@@ -1006,8 +1016,8 @@ static void dispatch_pro(vtx_context_t* ctx)
         else if (dest == 0x59 && src == 0x58) mask = AIG_SCR_TO_MDM;
         else return;  /* couple non gere */
 
-        if (on) ctx->aiguillages |= mask;
-        else    ctx->aiguillages &= ~mask;
+        if (on) CTX.aiguillages |= mask;
+        else    CTX.aiguillages &= ~mask;
 
         /* ACK PRO3 SWITCH: ESC $3B $63 + dest + status_byte (5 octets).
          * Le status byte resume tous les liens "X -> dest" connus, avec
@@ -1020,11 +1030,11 @@ static void dispatch_pro(vtx_context_t* ctx)
         {
             unsigned char status = 0x40;
             if (dest == 0x58) {  /* dest = ECRAN */
-                if (ctx->aiguillages & AIG_KBD_TO_SCR) status |= 0x02;
-                if (ctx->aiguillages & AIG_MDM_TO_SCR) status |= 0x04;
+                if (CTX.aiguillages & AIG_KBD_TO_SCR) status |= 0x02;
+                if (CTX.aiguillages & AIG_MDM_TO_SCR) status |= 0x04;
             } else if (dest == 0x59) {  /* dest = MODEM */
-                if (ctx->aiguillages & AIG_SCR_TO_MDM) status |= 0x01;
-                if (ctx->aiguillages & AIG_KBD_TO_MDM) status |= 0x02;
+                if (CTX.aiguillages & AIG_SCR_TO_MDM) status |= 0x01;
+                if (CTX.aiguillages & AIG_KBD_TO_MDM) status |= 0x02;
             }
             serial_send(0x1B);
             serial_send(0x3B);
@@ -1056,9 +1066,9 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
 
     /* Telechargement DRCS (Minitel 2) : AVANT la resynchronisation ESC, un
      * C0 en cours de forme est une donnee (STUM 2 par. 2.3.3.2). */
-    if (ctx->state == VTX_STATE_DRCS_XFER) {
+    if (CTX.state == VTX_STATE_DRCS_XFER) {
         if (drcs_xfer(ctx, byte)) return;
-    } else if (ctx->state == VTX_STATE_DRCS_HDR) {
+    } else if (CTX.state == VTX_STATE_DRCS_HDR) {
         if (drcs_header(ctx, byte)) return;
         /* C0 : l'en-tete est abandonnee, l'octet est traite normalement */
     }
@@ -1068,13 +1078,13 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
      * $1B n'est jamais une valeur legitime dans les payloads US/SS2/PRO/CSI
      * (US: $40+ligne, SS2: $20-$7F, CSI param: '0'-'9'/';'), donc le voir
      * signifie qu'on a perdu le sync et qu'une nouvelle commande arrive. */
-    if (byte == 0x1B && ctx->state != VTX_STATE_NORMAL
-                    && ctx->state != VTX_STATE_ESC) {
-        ctx->state = VTX_STATE_ESC;
+    if (byte == 0x1B && CTX.state != VTX_STATE_NORMAL
+                    && CTX.state != VTX_STATE_ESC) {
+        CTX.state = VTX_STATE_ESC;
         return;
     }
 
-    switch (ctx->state) {
+    switch (CTX.state) {
 
     case VTX_STATE_ESC:
         process_esc(ctx, byte);
@@ -1094,57 +1104,57 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
     case VTX_STATE_US_ROW:
         /* Minitel 2 : US 2/3 ouvre une en-tete ou un transfert DRCS */
         if (byte == 0x23 && g_term_model == TERM_MINITEL_2) {
-            ctx->drcs_hdr_idx = 0;
-            ctx->state = VTX_STATE_DRCS_HDR;
+            CTX.drcs_hdr_idx = 0;
+            CTX.state = VTX_STATE_DRCS_HDR;
             return;
         }
         /* Valider la plage en amont: un octet < $40 sous-deborderait
          * l'unsigned char (vtx_set_cursor reclampe en US_COL, mais on rejette
          * proprement plutot que de s'appuyer sur ce filet). */
-        ctx->us_row = (byte >= VTX_ADDR_BASE) ? (byte - VTX_ADDR_BASE) : 0;
-        ctx->state = VTX_STATE_US_COL;
+        CTX.us_row = (byte >= VTX_ADDR_BASE) ? (byte - VTX_ADDR_BASE) : 0;
+        CTX.state = VTX_STATE_US_COL;
         return;
 
     case VTX_STATE_US_COL:
         /* Col = byte - $41. Si byte=$40, col=0 (pas -1).
          * Le Minitel utilise $40 pour col 0. */
-        vtx_set_cursor(ctx, ctx->us_row,
+        vtx_set_cursor(ctx, CTX.us_row,
                         (byte > VTX_ADDR_BASE) ? (byte - (VTX_ADDR_BASE + 1)) : 0);
         /* US reset tous les attributs (norme STUM p.91)
          * Ref: telenet emulateur.js lignes 785-795 */
-        ctx->charset = CHARSET_G0;      /* modeG1 = false */
-        ctx->fg_color = VTX_WHITE;      /* fgColor = 7 */
-        ctx->attr_flags = 0;            /* souligne, inversion, clignotement = false */
-        ctx->attr_size = SIZE_NORMAL;   /* taille = 0 */
-        ctx->has_pending = 0;
+        CTX.charset = CHARSET_G0;      /* modeG1 = false */
+        CTX.fg_color = VTX_WHITE;      /* fgColor = 7 */
+        CTX.attr_flags = 0;            /* souligne, inversion, clignotement = false */
+        CTX.attr_size = SIZE_NORMAL;   /* taille = 0 */
+        CTX.has_pending = 0;
         adopt_zone_bg();                /* fond : celui de la zone d'accueil */
         /* Minitel 2 : un acces en rangee 00 reassocie les jeux de base a
          * G0 et G1 (STUM 2 par. 2.2.2). */
-        if (ctx->us_row == 0) {
-            ctx->drcs_g0 = 0;
-            ctx->drcs_g1 = 0;
+        if (CTX.us_row == 0) {
+            CTX.drcs_g0 = 0;
+            CTX.drcs_g1 = 0;
             /* Telechargement DRCS interrompu par la rangee 00 : il reste
              * suspendu (reprise sur LF, abandon sur FF/RS, par. 2.3.4) */
-        } else if (ctx->drcs_suspended) {
+        } else if (CTX.drcs_suspended) {
             /* US vers une autre rangee : sortie du telechargement en
              * completant la forme en cours (par. 2.3.3.3) */
-            if (ctx->drcs_suspended == 1) drcs_form_store(ctx);
-            ctx->drcs_suspended = 0;
+            if (CTX.drcs_suspended == 1) drcs_form_store(ctx);
+            CTX.drcs_suspended = 0;
         }
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_SS2:
         /* Single shift G2: diacritiques ou caractere G2 standalone */
         if (byte >= SS2_ACC_MIN && byte <= SS2_ACC_MAX) {
             /* Code accent: sauver et attendre le caractere base */
-            ctx->ss2_accent = byte;
-            ctx->state = VTX_STATE_SS2_ACC;
+            CTX.ss2_accent = byte;
+            CTX.state = VTX_STATE_SS2_ACC;
             return;
         }
         /* Caractere G2 standalone (ex: $23=livre, $30=degre) */
         put_char(byte, CHARSET_G2);
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_SS2_ACC:
@@ -1155,7 +1165,7 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
         {
             unsigned char acc_ch = 0;
             /* Mapper (accent, base) -> code interne G2 accentue */
-            switch (ctx->ss2_accent) {
+            switch (CTX.ss2_accent) {
                 case SS2_ACC_ACUTE: /* aigu */
                     if (byte == 0x65)      acc_ch = 0x80; /* e' */
                     else if (byte == 0x45) acc_ch = 0x8E; /* E' */
@@ -1187,7 +1197,7 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                     else if (byte == 0x43) acc_ch = 0x92; /* C, */
                     break;
             }
-            if (ctx->drcs_g0 && ctx->charset == CHARSET_G0) {
+            if (CTX.drcs_g0 && CTX.charset == CHARSET_G0) {
                 /* Minitel 2, G'0 actif : SS2 <accent> X affiche la forme X
                  * du jeu DRCS (STUM 2 par. 2.3.7) ; put_char fait le mapping. */
                 put_char(byte, CHARSET_G0);
@@ -1198,7 +1208,7 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                 put_char(byte, CHARSET_G0);
             }
         }
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_REP:
@@ -1210,44 +1220,44 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                                   ? (byte - VTX_ADDR_BASE) : 0;
             if (count > 40) count = 40;
             while (count-- > 0) {
-                put_char(ctx->last_char, ctx->last_charset);
+                put_char(CTX.last_char, CTX.last_charset);
             }
         }
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_MASK_SP:
         /* Mask global: attend $20 (espace) apres ESC #. */
-        ctx->state = (byte == 0x20) ? VTX_STATE_MASK_END : VTX_STATE_NORMAL;
+        CTX.state = (byte == 0x20) ? VTX_STATE_MASK_END : VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_MASK_END:
         /* Mask global: $58 = masquer (cacher concealed),
          *              $5F = demasquer (rendre concealed visible). */
         if (byte == 0x58) {
-            ctx->global_mask = 1;
+            CTX.global_mask = 1;
             g_global_mask = 1;
         } else if (byte == 0x5F) {
-            ctx->global_mask = 0;
+            CTX.global_mask = 0;
             g_global_mask = 0;
         }
-        ctx->full_refresh = 1;
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.full_refresh = 1;
+        CTX.state = VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_SEP:
         /* Code fonction apres SEP: consomme, aucune action. */
-        ctx->state = VTX_STATE_NORMAL;
+        CTX.state = VTX_STATE_NORMAL;
         return;
 
     case VTX_STATE_PRO:
         /* Accumule un octet de payload PRO. */
-        if (ctx->pro_idx < 3) {
-            ctx->pro_buf[ctx->pro_idx++] = byte;
+        if (CTX.pro_idx < 3) {
+            CTX.pro_buf[CTX.pro_idx++] = byte;
         }
-        if (ctx->pro_idx >= ctx->pro_kind) {
+        if (CTX.pro_idx >= CTX.pro_kind) {
             dispatch_pro(ctx);
-            ctx->state = VTX_STATE_NORMAL;
+            CTX.state = VTX_STATE_NORMAL;
         }
         return;
 
@@ -1273,13 +1283,13 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                 cursor_right(ctx);
                 break;
             case 0x0A:  /* LF - curseur bas */
-                if (ctx->drcs_suspended && ctx->cur_y == 0) {
+                if (CTX.drcs_suspended && CTX.cur_y == 0) {
                     /* Sortie de la rangee 00 par LF : le telechargement DRCS
                      * reprend ou il en etait (STUM 2 par. 2.3.4) */
                     cursor_down(ctx);
-                    ctx->state = (ctx->drcs_suspended == 1)
+                    CTX.state = (CTX.drcs_suspended == 1)
                                  ? VTX_STATE_DRCS_XFER : VTX_STATE_DRCS_HDR;
-                    ctx->drcs_suspended = 0;
+                    CTX.drcs_suspended = 0;
                     break;
                 }
                 cursor_down(ctx);
@@ -1288,28 +1298,28 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                 cursor_up(ctx);
                 break;
             case 0x0C:  /* FF - effacer ecran + home */
-                if (ctx->drcs_suspended) {
+                if (CTX.drcs_suspended) {
                     /* Sortie de la rangee 00 par FF : sortie du telechargement
                      * SANS completer la forme en cours (par. 2.3.4) */
-                    ctx->drcs_started = 0;
-                    ctx->drcs_suspended = 0;
+                    CTX.drcs_started = 0;
+                    CTX.drcs_suspended = 0;
                 }
                 vtx_clear_page(ctx);
                 break;
             case 0x0D:  /* CR - retour chariot */
-                ctx->cur_x = 0;
+                CTX.cur_x = 0;
                 break;
             case 0x0E:  /* SO - basculer G1 (mosaiques) */
-                ctx->charset = CHARSET_G1;
+                CTX.charset = CHARSET_G1;
                 break;
             case 0x0F:  /* SI - basculer G0 (alphanumerique) */
-                ctx->charset = CHARSET_G0;
+                CTX.charset = CHARSET_G0;
                 break;
             case 0x11:  /* DC1/CON - curseur visible */
-                ctx->cur_visible = 1;
+                CTX.cur_visible = 1;
                 break;
             case 0x12:  /* REP - repetition */
-                ctx->state = VTX_STATE_REP;
+                CTX.state = VTX_STATE_REP;
                 break;
             case 0x13:  /* SEP - separateur (touches fonction Minitel) */
                 /* Le prochain octet est le code fonction ($41-$49).
@@ -1317,39 +1327,39 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
                  * serveur qui envoie). Etat dedie: passer par le
                  * mecanisme PRO declencherait dispatch_pro (un SEP
                  * suivi de $7B repondrait ENQROM a tort). */
-                ctx->state = VTX_STATE_SEP;
+                CTX.state = VTX_STATE_SEP;
                 break;
             case 0x14:  /* DC4/COFF - curseur invisible */
-                ctx->cur_visible = 0;
+                CTX.cur_visible = 0;
                 break;
             case 0x16:  /* SS2 - single shift G2 (accents) */
             case 0x19:  /* SS2 - single shift G2 (variante) */
                 /* Minitel 2 : SS2 ignore si le jeu invoque est G1/G'1
                  * (STUM 2 par. 2.3.7). */
-                if (g_term_model == TERM_MINITEL_2 && ctx->charset == CHARSET_G1) {
+                if (g_term_model == TERM_MINITEL_2 && CTX.charset == CHARSET_G1) {
                     break;
                 }
-                ctx->state = VTX_STATE_SS2;
+                CTX.state = VTX_STATE_SS2;
                 break;
             case 0x18:  /* CAN - effacer jusqu'a fin de ligne */
                 clear_eol(ctx);
                 break;
             case 0x1A:  /* SUB - substitution (affiche espace) */
-                put_char(' ', ctx->charset);
+                put_char(' ', CTX.charset);
                 break;
             case 0x1B:  /* ESC */
-                ctx->state = VTX_STATE_ESC;
+                CTX.state = VTX_STATE_ESC;
                 break;
             case 0x1E:  /* RS - home (curseur en 1,0) */
-                if (ctx->drcs_suspended) {          /* idem FF */
-                    ctx->drcs_started = 0;
-                    ctx->drcs_suspended = 0;
+                if (CTX.drcs_suspended) {          /* idem FF */
+                    CTX.drcs_started = 0;
+                    CTX.drcs_suspended = 0;
                 }
-                ctx->cur_x = 0;
-                ctx->cur_y = 1;
+                CTX.cur_x = 0;
+                CTX.cur_y = 1;
                 break;
             case 0x1F:  /* US - positionnement curseur */
-                ctx->state = VTX_STATE_US_ROW;
+                CTX.state = VTX_STATE_US_ROW;
                 break;
             default:
                 break;
@@ -1358,5 +1368,5 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
     }
 
     /* Caracteres affichables ($20-$7F) */
-    put_char(byte, ctx->charset);
+    put_char(byte, CTX.charset);
 }
