@@ -23,15 +23,26 @@ NeoTel sur le 65C02 : Videotex → cellules 40x25 → tampon de demi-rangée →
 
 ## État
 
-**v0.5.0 — sprints 1 à 5 livrés.** Minitel 1B complet (Videotex 40 colonnes :
-G0/G1/G2, couleurs, attributs, doubles tailles, PRO1/2/3, aiguillages),
-profil Minitel 2 (identification, vitesses PRO2 PROG jusqu'à 9600, **jeux
-DRCS téléchargeables** conformes à la STUM 2, demande de position curseur), réglages persistants sur la carte, **mode Mixte / Téléinformatique 80 colonnes** (ISO 6429, mode Hercules du fork), **enregistrement des pages reçues (`CTRL+O`, `.vdt`) et relecture** (menu `6`), menus,
-connexion AT, page de configuration Wi-Fi du Pico, perte de porteuse,
-retour à NeoBASIC. Vérifié dans les émulateurs Phosphoneo et `neo` avec un
-faux modem, et **sur les vrais serveurs PAVI 3617 et MiniPavi** (`make
-test-servers`) ; **non exécuté sur une carte Neo6502 physique** (aucune
-disponible) — voir [ROADMAP.md](ROADMAP.md).
+**v1.0.0 — première version publiée hors bêta** (catalogue Prophet,
+catégorie `tools`). Minitel 1B complet (Videotex 40 colonnes : G0/G1/G2,
+caractères jointifs — barres, diagonales, flèches, pavé — conformes aux
+tables de la STUM, couleurs, attributs, doubles tailles, PRO1/2/3,
+aiguillages), profil Minitel 2 (identification, vitesses PRO2 PROG jusqu'à
+9600, **jeux DRCS téléchargeables** conformes à la STUM 2, demande de
+position curseur), **mode Mixte / Téléinformatique 80 colonnes** (ISO 6429,
+mode Hercules du fork), **enregistrement des pages reçues (`CTRL+O`, `.vdt`)
+et relecture** (menu `6`), aide bilingue (`F10`, la page est restaurée au
+retour), réglages persistants sur la carte, configuration Wi-Fi du Pico,
+perte de porteuse, retour au système (NeoDOS / NeoBASIC).
+
+Vérifié dans les émulateurs Phosphoneo et `neo` avec un faux modem (tests
+automatiques : `make test`), **sur les vrais serveurs PAVI 3617 et
+MiniPavi** (`make test-servers`) et **sur une carte Neo6502 réelle** :
+clavier USB, rendu comparé à un vrai Minitel, **modem USB CDC**
+(PicoWiFiModemUSB, validé le 2026-09-28). Les changements des versions
+0.9.6 à 1.0.0 (RAM, aide, messages de la barre, caractères jointifs) sont
+vérifiés en émulation ; le tracé exact des caractères jointifs au pixel
+près reste une hypothèse à confronter à un vrai Minitel.
 
 Les écarts connus (DRCS, 80 colonnes, jeux DEC du Minitel 2) sont détaillés dans
 [docs/MINITEL_1B_VS_2.md](docs/MINITEL_1B_VS_2.md).
@@ -82,11 +93,10 @@ Connexion/Fin, `F10` aide, `CTRL+D` aspect, `CTRL+L` effacer, `CTRL+F` reset sé
 
 ## Documentation
 
-[règles locales du projet](règles locales du projet) (règles du projet) · [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
 [docs/MANUEL_UTILISATION.md](docs/MANUEL_UTILISATION.md) ·
 [docs/MINITEL_1B_VS_2.md](docs/MINITEL_1B_VS_2.md) · [docs/TESTS.md](docs/TESTS.md) ·
-[docs/AGILE_PLAN.md](docs/AGILE_PLAN.md) · [ROADMAP.md](ROADMAP.md) ·
-[CHANGELOG.md](CHANGELOG.md)
+[docs/AGILE_PLAN.md](docs/AGILE_PLAN.md)
 
 ## Licence
 

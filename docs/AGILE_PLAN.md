@@ -127,7 +127,7 @@ Rétrospective : la RAM a dicté chaque choix (aide sans sauvegarde de page,
 tampons logés dans `vtx`) ; le coût venait surtout du code généré par cc65
 pour les accès par pointeur, pas des données.
 
-## Sprint 10 — v0.9.6-0.9.11 (2026-09-28) — EN COURS
+## Sprint 10 — v0.9.6-1.0.0 (2026-09-28) — TERMINÉ
 | User story | État |
 |---|---|
 | US-30 Le modem USB CDC fonctionne sur la carte réelle | fait (validé par le PO sur carte, 2026-09-28) |
@@ -139,3 +139,11 @@ pour les accès par pointeur, pas des données.
 | US-36 Autres écarts G0 relevés dans la STUM : `$5E` flèche ↑ (aujourd'hui `^`), diagonales jointives `$2F` / `$5C`, `SUB` = pavé d'erreur (aujourd'hui espace) | fait (v0.9.10 : `joint_pat` étendue, `SUB` → pavé G0 `$7F` ; tests hôtes +11, page `g0bars` enrichie) |
 | US-37 Flèches du jeu G2 (`2/C`-`2/F`) jointives comme la flèche du G0 (STUM 1B : flèches « jointes à l'extrémité opposée à la pointe ») | fait (v0.9.11 : `joint_pat` + `joint_g2_arrow`, ↑ partagé avec le G0 ; test_display +4, page `g0bars` enrichie) |
 | US-14 Latence API réelle et budget de rendu sous flux 115200 | à faire (`--api-latency` de Phosphoneo) |
+| US-38 NeoTel est publié hors bêta sur le catalogue Prophet, avec sa jaquette | fait (v1.0.0, 2026-09-28 : `tools/neotel`, jaquette fournie par le PO) |
+
+Rétrospective : chaque correction de fidélité est partie d'une lecture de
+la STUM (scan STUM 2 mesuré au pixel, transcription STUM 1B) et d'un test
+qui échoue sur l'ancien code ; le test asm == C a trouvé une erreur de
+drapeau dans la première version assembleur. Une fragilité de test (octets
+émis découpés par le pty) a été diagnostiquée plutôt que relancée.
+US-14 et les commandes PRO2 restantes passent au sprint suivant.
