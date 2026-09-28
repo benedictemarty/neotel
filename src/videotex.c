@@ -1344,8 +1344,14 @@ void vtx_process(vtx_context_t* ctx, unsigned char byte)
             case 0x18:  /* CAN - effacer jusqu'a fin de ligne */
                 clear_eol(ctx);
                 break;
-            case 0x1A:  /* SUB - substitution (affiche espace) */
-                put_char(' ', CTX.charset);
+            case 0x1A:  /* SUB : symbole d'erreur, « un pave remplissant
+                         * l'emplacement ... avec les attributs courants »,
+                         * en code comme hors code (STUM 1B, § 2-2-1-2-8
+                         * vers p. 99, et § 1-5-1-3 « Le coupleur », vers
+                         * p. 48). Pave G0 $7F (g0_joint)
+                         * : plein meme en disjoint, jamais remplace par un
+                         * DRCS. Jusqu'en v0.9.9 : un espace. */
+                put_char(0x7F, CHARSET_G0);
                 break;
             case 0x1B:  /* ESC */
                 CTX.state = VTX_STATE_ESC;

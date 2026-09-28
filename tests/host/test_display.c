@@ -236,6 +236,37 @@ static void test_attributes(void)
         }
         CHECK(cell_count(7, 20, VTX_WHITE) == 72, "$7F : pave plein (72 pixels)");
     }
+    /* Diagonales et fleche jointives (v0.9.10) : '/' en (18,10) et (17,11)
+     * forment un trait sans rupture ; '\' en (17,13) et (18,14) aussi ; la
+     * hampe de '^' (fleche) en (16,16) rejoint la barre $7C posee dessous. */
+    put(18, 10, 0x2F, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(17, 11, 0x2F, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(17, 13, 0x5C, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(18, 14, 0x5C, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(16, 16, 0x5E, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(17, 16, 0x7C, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    display_render_all(&ctx);
+    {
+        int ok = 1; unsigned char l, x, n;
+        /* '/' : un pixel par ligne, de (0,8) a (7,0), sur 18 lignes */
+        for (l = 0; l < 9; ++l) {
+            for (n = 0, x = 0; x < 8; ++x) n += cpx(10, 18, x, l) == VTX_WHITE;
+            if (n != 1) ok = 0;
+        }
+        if (cpx(10, 18, 0, 8) != VTX_WHITE || cpx(10, 18, 7, 0) != VTX_WHITE) ok = 0;
+        if (cpx(11, 17, 0, 8) != VTX_WHITE || cpx(11, 17, 7, 0) != VTX_WHITE) ok = 0;
+        CHECK(ok, "$2F : diagonale coin bas-gauche -> coin haut-droit, raccordee a la voisine");
+        ok = 1;
+        if (cpx(13, 17, 0, 0) != VTX_WHITE || cpx(13, 17, 7, 8) != VTX_WHITE) ok = 0;
+        if (cpx(14, 18, 0, 0) != VTX_WHITE || cpx(14, 18, 7, 8) != VTX_WHITE) ok = 0;
+        CHECK(ok, "$5C : diagonale coin haut-gauche -> coin bas-droit, raccordee a la voisine");
+        ok = 1;
+        for (l = 3; l < 9; ++l) if (cpx(16, 16, 4, l) != VTX_WHITE) ok = 0;
+        for (l = 0; l < 9; ++l) if (cpx(16, 17, 4, l) != VTX_WHITE) ok = 0;
+        if (cpx(16, 16, 4, 0) != VTX_WHITE || cpx(16, 16, 3, 1) != VTX_WHITE
+            || cpx(16, 16, 5, 1) != VTX_WHITE) ok = 0;
+        CHECK(ok, "$5E : fleche (pointe en haut), hampe colonne 4 jointe a la barre $7C du dessous");
+    }
     CHECK(cell_count(2, 1, VTX_WHITE) == 0 && cell_count(2, 1, VTX_RED) == 72,
           "masquage (masque global actif) : fond seul");
     CHECK(cell_count(3, 1, VTX_WHITE) > 0, "flash phase 0 : visible");

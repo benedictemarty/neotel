@@ -92,13 +92,15 @@ programme de test cible définit le global `vtx` (`tests/emu/t_bench.c`).
   de l'écran 320 × 240 ; une **ligne de statut** de 9 pixels en y = 230.
   Les glyphes G0/G2 d'OricTel (6 × 8, bits 5-0) sont centrés (colonnes
   1-6, lignes 0-7) ; la ligne 8 porte le souligné. Les caractères
-  **jointifs** du G0 (`$5F` barre basse, `$60` barre médiane horizontale,
-  `$7B`/`$7C`/`$7D` barres verticales gauche/médiane/droite, `$7E` barre
-  haute, `$7F` pavé plein) viennent de la table 8 × 9 `g0_joint`
+  **jointifs** du G0 (`$2F` / `$5C` diagonales coin à coin, `$5E` flèche
+  ↑ à hampe jointe en bas, `$5F` barre basse, `$60` barre médiane
+  horizontale, `$7B`/`$7C`/`$7D` barres verticales gauche/médiane/droite,
+  `$7E` barre haute, `$7F` pavé plein, aussi symbole d'erreur de `SUB`)
+  viennent de la table 8 × 9 `g0_joint`
   (display.c, lue aussi par display_asm.s) : les barres couvrent toute la
   largeur ou la hauteur de la cellule et se raccordent. Positions relevées
   sur la table G0 de la STUM 2 (annexe 3.6 p. 86), rapportées à la cellule
-  (hypothèse de tracé, v0.9.9). Les mosaïques G1 sont
+  (hypothèse de tracé, v0.9.9-0.9.10). Les mosaïques G1 sont
   générées en natif 8 × 9 (blocs de 4 × 3 ; séparées : 3 × 2 + interstice
   droite/bas ; `$60` = trait plein sur la ligne 0, comme OricTel d'après
   une capture de Minitel réel) et mises en cache (128 motifs × 2 modes).

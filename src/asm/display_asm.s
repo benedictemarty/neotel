@@ -172,7 +172,7 @@ glyph6:
 
 ; decalage de chaque motif jointif dans g0_joint (9 octets par motif)
 joint_off:
-        .byte 0, 9, 18, 27, 36, 45, 54
+        .byte 0, 9, 18, 27, 36, 45, 54, 63, 72, 81
 
 ; pat[] := 0
 clear_pat:
@@ -331,15 +331,29 @@ _blit_run:
         stx  glyph+1
         bra  @glyph6
 @g0:    lda  (cellp)        ; ch
-        ; barres et pave JOINTIFS ($5F, $60, $7B-$7F) : motif 8x9 de la table
-        ; g0_joint de display.c (meme choix que display_cell_pattern)
-        cmp  #$7B
-        bcs  @joint
+        ; caracteres JOINTIFS ($2F, $5C, $5E, $5F, $60, $7B-$7F) : motif 8x9
+        ; de la table g0_joint de display.c (meme index que g0_joint_index)
+        ldx  #0
+        cmp  #$2F
+        beq  @joint
+        inx
+        cmp  #$5C
+        beq  @joint
+        inx
+        cmp  #$5E
+        beq  @joint
+        inx
         cmp  #$5F
         beq  @joint
+        inx
         cmp  #$60
         beq  @joint
-        sec
+        cmp  #$7B
+        bcc  @alnum
+        sbc  #$7B-5         ; C = 1 : $7B-$7F -> 5-9
+        tax
+        bra  @joint
+@alnum: sec
         sbc  #$20
         bcc  @space
         beq  @space         ; espace : motif nul sans lire le glyphe
@@ -361,15 +375,7 @@ _blit_run:
         sta  glyph+1
         jsr  glyph6
         bra  @underline
-@joint: ; index : $5F,$60 -> 0,1 ; $7B-$7F -> 2-6. Recomparer : on arrive
-        ; aussi par un beq (egalite, C = 1) pour $5F / $60.
-        cmp  #$7B
-        bcc  :+
-        sbc  #$7B-2
-        bra  :++
-:       sec
-        sbc  #$5F
-:       tax
+@joint: ; X = index dans g0_joint
         lda  joint_off,x
         clc
         adc  #<_g0_joint

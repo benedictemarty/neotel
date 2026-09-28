@@ -15,9 +15,9 @@
 /* ===================================================================
  *  G0 - Jeu alphanumerique Minitel
  *  96 caracteres ($20-$7F), 8 octets chacun = 768 octets
- *  Compatible ASCII sauf: $23=# $40=@ $5B=[ $5C=\ $5D=] $5E=^
- *  $5F, $60 et $7B-$7F sont des caracteres JOINTIFS (barres, pave plein,
- *  STUM 2 annexe 3.6) dessines par la table g0_joint de display.c ; leurs
+ *  Compatible ASCII pour $20-$7A, sauf les caracteres JOINTIFS $2F, $5C,
+ *  $5E, $5F, $60 et $7B-$7F (diagonales, fleche, barres, pave plein,
+ *  STUM 2 annexe 3.6), dessines par la table g0_joint de display.c ; leurs
  *  entrees ci-dessous ne sont plus lues (heritage OricTel : $7B-$7F y
  *  etaient des lettres accentuees, ce qui n'est pas le jeu G0 Videotex).
  * =================================================================== */
@@ -53,7 +53,7 @@ const unsigned char font_g0[96 * 8] = {
     0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x00,
     /* $2E . */
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
-    /* $2F / */
+    /* $2F non lu : diagonale jointive (g0_joint, display.c) */
     0x01, 0x01, 0x02, 0x04, 0x08, 0x10, 0x10, 0x00,
     /* $30 0 */
     0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E, 0x00,
@@ -143,11 +143,11 @@ const unsigned char font_g0[96 * 8] = {
     0x1F, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1F, 0x00,
     /* $5B [ */
     0x0E, 0x08, 0x08, 0x08, 0x08, 0x08, 0x0E, 0x00,
-    /* $5C \ */
+    /* $5C non lu : diagonale jointive (g0_joint, display.c) */
     0x10, 0x10, 0x08, 0x04, 0x02, 0x01, 0x01, 0x00,
     /* $5D ] */
     0x0E, 0x02, 0x02, 0x02, 0x02, 0x02, 0x0E, 0x00,
-    /* $5E ^ */
+    /* $5E non lu : fleche vers le haut jointive (g0_joint, display.c) */
     0x04, 0x0A, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00,
     /* $5F non lu : barre basse jointive (g0_joint, display.c) */
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F,

@@ -1191,6 +1191,29 @@ static void test_dirty_spans(void)
  *  Point d'entree
  * =================================================================== */
 
+/* ===================================================================
+ *  Test: SUB = symbole d'erreur (STUM 1B § 2-2-1-2-8, v0.9.10)
+ * =================================================================== */
+static void test_sub_error_symbol(void)
+{
+    vtx_context_t ctx;
+    static const unsigned char hors_code[] = { 0x1B, 0x41, 0x1A };      /* encre rouge, SUB */
+    static const unsigned char en_code[]   = { 0x0E, 0x1B, 0x42, 0x1A }; /* SO, encre verte, SUB */
+
+    printf("Test: SUB = symbole d'erreur (pave plein)\n");
+    vtx_init(&ctx);
+    send_bytes(&ctx, hors_code, sizeof hors_code);
+    ASSERT_EQ("SUB hors code : pave $7F", 0x7F, ctx.screen[1][0].ch);
+    ASSERT_EQ("SUB hors code : jeu G0", CHARSET_G0, ctx.screen[1][0].charset);
+    ASSERT_EQ("SUB hors code : encre courante (rouge)", VTX_RED, cell_fg(&ctx.screen[1][0]));
+    ASSERT_EQ("SUB : le curseur avance", 1, ctx.cur_x);
+    send_bytes(&ctx, en_code, sizeof en_code);
+    ASSERT_EQ("SUB en code : pave $7F", 0x7F, ctx.screen[1][1].ch);
+    ASSERT_EQ("SUB en code : pave G0 (plein meme en disjoint)", CHARSET_G0, ctx.screen[1][1].charset);
+    ASSERT_EQ("SUB en code : encre courante (verte)", VTX_GREEN, cell_fg(&ctx.screen[1][1]));
+    ASSERT_EQ("SUB en code : le jeu courant reste G1", CHARSET_G1, ctx.charset);
+}
+
 int main(void)
 {
     printf("=== OricTel - Tests unitaires decodeur Videotex ===\n\n");
@@ -1224,6 +1247,7 @@ int main(void)
     test_reinit_global_mask();
     test_double_height_dirty();
     test_dirty_spans();
+    test_sub_error_symbol();
 
     printf("\n=== Resultats: %d/%d passes", tests_passed, tests_run);
     if (tests_failed > 0) {

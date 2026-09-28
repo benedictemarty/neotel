@@ -51,7 +51,9 @@ adresses lues dans `build/neotel.lbl`.
    `display_asm.s` et `display.c` font la même chose.
 3-bis. **g0bars** / **g0bars-ref** : `tests/page_g0bars.vdt` (barres et
    pavé jointifs du G0 empilés, en couleur, doubles tailles, inverse,
-   lignage, et les mêmes codes en G1 pour témoin) : capture == oracle hôte
+   lignage, et les mêmes codes en G1 pour témoin ; depuis la v0.9.10 :
+   diagonales raccordées, flèche jointe à une barre, `SUB` hors code et en
+   code, une date avec des `/`) : capture == oracle hôte
    (asm == C), puis identique à `tests/ref/g0bars.ppm`. Ce test a trouvé une
    erreur de drapeau C dans la première version asm (v0.9.9).
 4. **page-ref** : la capture est identique à `tests/ref/page.ppm`
