@@ -49,6 +49,11 @@ adresses lues dans `build/neotel.lbl`.
    **identique pixel pour pixel** au rendu **C** de l'hôte (`render_page`,
    l'une des deux phases de clignotement). C'est la preuve que
    `display_asm.s` et `display.c` font la même chose.
+3-bis. **g0bars** / **g0bars-ref** : `tests/page_g0bars.vdt` (barres et
+   pavé jointifs du G0 empilés, en couleur, doubles tailles, inverse,
+   lignage, et les mêmes codes en G1 pour témoin) : capture == oracle hôte
+   (asm == C), puis identique à `tests/ref/g0bars.ppm`. Ce test a trouvé une
+   erreur de drapeau C dans la première version asm (v0.9.9).
 4. **page-ref** : la capture est identique à `tests/ref/page.ppm`
    (`make ref` après un changement visuel voulu et inspecté).
 4c. **mixte** / **mixte-ref** / **mixte-exit** : `PRO2 MIXTE 1` dans la page,

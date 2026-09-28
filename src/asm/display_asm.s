@@ -28,7 +28,7 @@
         .export   _blit_run, _blit_cell9, _rb_state, _scan_dblh
         .export   _run_cells, _run_col, _run_count
         .export   _blit_pat, _blit_col, _blit_fg, _blit_bg
-        .import   _display_rowbuf, _font_g0, _font_get_g2
+        .import   _display_rowbuf, _font_g0, _font_get_g2, _g0_joint
         .import   _g_global_mask, _g_blink_phase
         .import   _drcs_pattern9, _drcs_pattern_set
 
@@ -170,6 +170,10 @@ glyph6:
         stz  pat+8
         rts
 
+; decalage de chaque motif jointif dans g0_joint (9 octets par motif)
+joint_off:
+        .byte 0, 9, 18, 27, 36, 45, 54
+
 ; pat[] := 0
 clear_pat:
         lda  #0
@@ -299,8 +303,9 @@ _blit_run:
         lda  (cellp),y      ; charset
         beq  @g0
         cmp  #1
-        beq  @g1
-        cmp  #2
+        bne  :+
+        jmp  @g1            ; hors de portee d'un branchement depuis v0.9.9
+:       cmp  #2
         beq  @g2
         ; DRCS G'0 (3) / G'1 (4) : motif 8x9 par le C (fastcall : A = code)
         sec
@@ -326,6 +331,14 @@ _blit_run:
         stx  glyph+1
         bra  @glyph6
 @g0:    lda  (cellp)        ; ch
+        ; barres et pave JOINTIFS ($5F, $60, $7B-$7F) : motif 8x9 de la table
+        ; g0_joint de display.c (meme choix que display_cell_pattern)
+        cmp  #$7B
+        bcs  @joint
+        cmp  #$5F
+        beq  @joint
+        cmp  #$60
+        beq  @joint
         sec
         sbc  #$20
         bcc  @space
@@ -347,13 +360,28 @@ _blit_run:
         adc  #>_font_g0
         sta  glyph+1
         jsr  glyph6
-        ; '_' ($5F) : barre horizontale basse JOINTIVE (STUM 1B) : 8 pixels
-        ; sur la derniere ligne du glyphe, comme display_cell_pattern
-        lda  (cellp)
-        cmp  #$5F
-        bne  @underline
-        lda  #$FF
-        sta  pat+7
+        bra  @underline
+@joint: ; index : $5F,$60 -> 0,1 ; $7B-$7F -> 2-6. Recomparer : on arrive
+        ; aussi par un beq (egalite, C = 1) pour $5F / $60.
+        cmp  #$7B
+        bcc  :+
+        sbc  #$7B-2
+        bra  :++
+:       sec
+        sbc  #$5F
+:       tax
+        lda  joint_off,x
+        clc
+        adc  #<_g0_joint
+        sta  glyph
+        lda  #>_g0_joint
+        adc  #0
+        sta  glyph+1
+        ldy  #8
+:       lda  (glyph),y
+        sta  pat,y
+        dey
+        bpl  :-
         bra  @underline
 @space: jsr  clear_pat
         bra  @underline

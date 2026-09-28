@@ -192,6 +192,50 @@ static void test_attributes(void)
         CHECK(cpx(2, 2, 0, 3) == VTX_BLACK && cpx(2, 2, 7, 3) == VTX_BLACK
               && cell_count(2, 2, VTX_WHITE) > 0, "'-' : inchange (6 pixels centres)");
     }
+    /* Barres et pave JOINTIFS du G0 (STUM 2 annexe 3.6, v0.9.9) : barres
+     * verticales $7B/$7C/$7D empilees sur deux rangees (trait continu de 18
+     * lignes, colonnes 1 / 4 / 6), barres horizontales $7E (ligne 2) et $60
+     * (ligne 4) voisines (16 pixels), $7F pave plein (72 pixels). */
+    put(20, 0, 0x7B, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(21, 0, 0x7B, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 1, 0x7C, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(21, 1, 0x7C, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 2, 0x7D, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(21, 2, 0x7D, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 3, 0x7E, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 4, 0x7E, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 5, 0x60, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 6, 0x60, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(20, 7, 0x7F, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    display_render_all(&ctx);
+    {
+        static const unsigned char vcol[3] = { 1, 4, 6 };
+        unsigned char k, y, x;
+        for (k = 0; k < 3; ++k) {
+            int ok = 1;
+            for (y = 0; y < 18; ++y)
+                for (x = 0; x < 8; ++x)
+                    if (px(k * 8 + x, 20 * 9 + y) != (x == vcol[k] ? VTX_WHITE : VTX_BLACK)) ok = 0;
+            CHECK(ok, k == 0 ? "$7B : barre verticale gauche continue (colonne 1, 18 lignes)"
+                    : k == 1 ? "$7C : barre verticale mediane continue (colonne 4, 18 lignes)"
+                             : "$7D : barre verticale droite continue (colonne 6, 18 lignes)");
+        }
+        {
+            int ok = 1;
+            for (y = 0; y < 9; ++y)
+                for (x = 0; x < 16; ++x)
+                    if (px(3 * 8 + x, 20 * 9 + y) != (y == 2 ? VTX_WHITE : VTX_BLACK)) ok = 0;
+            CHECK(ok, "$7E : barre haute continue (16 pixels, ligne 2)");
+        }
+        {
+            int ok = 1;
+            for (y = 0; y < 9; ++y)
+                for (x = 0; x < 16; ++x)
+                    if (px(5 * 8 + x, 20 * 9 + y) != (y == 4 ? VTX_WHITE : VTX_BLACK)) ok = 0;
+            CHECK(ok, "$60 : barre mediane horizontale continue (16 pixels, ligne 4)");
+        }
+        CHECK(cell_count(7, 20, VTX_WHITE) == 72, "$7F : pave plein (72 pixels)");
+    }
     CHECK(cell_count(2, 1, VTX_WHITE) == 0 && cell_count(2, 1, VTX_RED) == 72,
           "masquage (masque global actif) : fond seul");
     CHECK(cell_count(3, 1, VTX_WHITE) > 0, "flash phase 0 : visible");

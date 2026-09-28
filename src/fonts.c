@@ -16,7 +16,10 @@
  *  G0 - Jeu alphanumerique Minitel
  *  96 caracteres ($20-$7F), 8 octets chacun = 768 octets
  *  Compatible ASCII sauf: $23=# $40=@ $5B=[ $5C=\ $5D=] $5E=^
- *  Minitel specifique: $7B=e' $7C=e` $7D=e^ $7E=u" $7F=a`
+ *  $5F, $60 et $7B-$7F sont des caracteres JOINTIFS (barres, pave plein,
+ *  STUM 2 annexe 3.6) dessines par la table g0_joint de display.c ; leurs
+ *  entrees ci-dessous ne sont plus lues (heritage OricTel : $7B-$7F y
+ *  etaient des lettres accentuees, ce qui n'est pas le jeu G0 Videotex).
  * =================================================================== */
 
 const unsigned char font_g0[96 * 8] = {
@@ -146,10 +149,9 @@ const unsigned char font_g0[96 * 8] = {
     0x0E, 0x02, 0x02, 0x02, 0x02, 0x02, 0x0E, 0x00,
     /* $5E ^ */
     0x04, 0x0A, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00,
-    /* $5F _ barre horizontale basse (derniere ligne ; le rendu l'etend
-     * sur les 8 pixels : caractere jointif) */
+    /* $5F non lu : barre basse jointive (g0_joint, display.c) */
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F,
-    /* $60 ` (trait horizontal discontinu EF9345) */
+    /* $60 non lu : barre mediane jointive (g0_joint, display.c) */
     0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     /* $61 a */
     0x00, 0x00, 0x0E, 0x01, 0x0F, 0x11, 0x0F, 0x00,
@@ -203,15 +205,11 @@ const unsigned char font_g0[96 * 8] = {
     0x00, 0x00, 0x11, 0x11, 0x11, 0x0F, 0x01, 0x0E,
     /* $7A z */
     0x00, 0x00, 0x1F, 0x02, 0x04, 0x08, 0x1F, 0x00,
-    /* $7B e' (e accent aigu - specifique Minitel) */
+    /* $7B-$7F non lus : barres et pave jointifs (g0_joint, display.c) */
     0x02, 0x04, 0x0E, 0x11, 0x1F, 0x10, 0x0E, 0x00,
-    /* $7C e` (e accent grave - specifique Minitel) */
     0x08, 0x04, 0x0E, 0x11, 0x1F, 0x10, 0x0E, 0x00,
-    /* $7D e^ (e accent circonflexe - specifique Minitel) */
     0x04, 0x0A, 0x0E, 0x11, 0x1F, 0x10, 0x0E, 0x00,
-    /* $7E trait horizontal (overline - corrige: pas u trema) */
     0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    /* $7F a` (a accent grave - specifique Minitel) */
     0x08, 0x04, 0x0E, 0x01, 0x0F, 0x11, 0x0F, 0x00,
 };
 

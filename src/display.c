@@ -187,6 +187,30 @@ const unsigned char* __fastcall__ drcs_pattern9(unsigned char ch)
     return s_drcs_pat;
 }
 
+/* Caracteres JOINTIFS du jeu G0 (STUM 1B, § « Formats de caractere »,
+ * 1-3-2-2-2 de la transcription jbellue, vers p. 30 : les barres occupent toute la largeur ou la hauteur de l'emplacement ; deux
+ * voisins forment un trait continu). Positions relevees sur la table G0 de
+ * la STUM 2 (annexe 3.6 p. 86, position du trait / taille de la case) et
+ * rapportees a la cellule 8x9 comme le '_' de la v0.9.4 (lignes : fraction
+ * x 10, matrice Minitel 8x10 ; colonnes : fraction x 8) : HYPOTHESE de
+ * trace, la table est un schema et non la matrice de points. Jusqu'en
+ * v0.9.8, $7B-$7F etaient des lettres accentuees (heritage OricTel) et $60
+ * un trait de 6 pixels en ligne 0. Partagee avec display_asm.s.
+ * Index : $5F, $60, $7B, $7C, $7D, $7E, $7F. */
+const unsigned char g0_joint[7][CELL_H] = {
+    { 0, 0, 0, 0, 0, 0, 0, 0xFF, 0 },       /* $5F barre basse (y 0,75 : ligne 7) */
+    { 0, 0, 0, 0, 0xFF, 0, 0, 0, 0 },       /* $60 barre mediane horizontale (y 0,48 : ligne 4) */
+    { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 },  /* $7B barre gauche (x 0,20 : col. 1) */
+    { 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08 },  /* $7C barre mediane (x 0,51 : col. 4,
+                                                  axe de la pointe de $5E ; nommee dans la STUM 1B,
+                                                  § 2-2-2-2-3-2-1, vers p. 106) */
+    { 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02 },  /* $7D barre droite (x 0,81 : col. 6 ;
+                                                  nommee dans la STUM 1B, § 2-2-2-2-3-2-1) */
+    { 0, 0, 0xFF, 0, 0, 0, 0, 0, 0 },       /* $7E barre haute (y 0,25 : ligne 2) */
+    { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },  /* $7F pave plein (STUM 1B
+                                                  § 2-2-1-2-3-1, vers p. 88 ; STUM 2 § 2.3.3.1) */
+};
+
 void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
                           unsigned char* fg, unsigned char* bg)
 {
@@ -217,15 +241,15 @@ void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
         memcpy(pat, drcs_pattern9(ch), CELL_H);
         if (cell->charset == CHARSET_DRCS1) return;   /* pas de lignage en G'1 */
     } else {
-        glyph = (cell->charset == CHARSET_G2) ? font_get_g2(ch) : font_get_g0(ch);
-        /* 6 pixels utiles (bits 5-0) centres : colonnes 1-6 */
-        for (l = 0; l < 8; ++l) pat[l] = (unsigned char)((glyph[l] << 1) & 0x7E);
-        pat[8] = 0;
-        /* Barre horizontale basse '_' : caractere JOINTIF (STUM 1B, partie 1
-         * ch. 3 par. 2.1 : les barres occupent toute la largeur de
-         * l'emplacement), sur la derniere ligne du glyphe ; deux '_' voisins
-         * forment un trait continu comme sur un Minitel (v0.9.4). */
-        if (cell->charset == CHARSET_G0 && ch == 0x5F) pat[7] = 0xFF;
+        if (cell->charset == CHARSET_G0 && (ch == 0x5F || ch == 0x60 || ch >= 0x7B)) {
+            /* barres et pave jointifs (g0_joint) */
+            memcpy(pat, g0_joint[ch >= 0x7B ? ch - (0x7B - 2) : ch - 0x5F], CELL_H);
+        } else {
+            glyph = (cell->charset == CHARSET_G2) ? font_get_g2(ch) : font_get_g0(ch);
+            /* 6 pixels utiles (bits 5-0) centres : colonnes 1-6 */
+            for (l = 0; l < 8; ++l) pat[l] = (unsigned char)((glyph[l] << 1) & 0x7E);
+            pat[8] = 0;
+        }
     }
     if (cell->flags & ATTR_UNDERLINE) {
         pat[8] = 0xFF;

@@ -98,6 +98,26 @@ sys.exit(1)
 EOF
 if [ $? -eq 0 ]; then echo "PASS page (capture cible == oracle hote, asm == C)"
 else echo "FAIL page (capture != oracle, voir $OUT/page.ppm et $OUT/gold0.ppm)"; fail=1; fi
+
+# --- 2a'. barres et pave JOINTIFS du G0 ($5F, $60, $7B-$7F, STUM 2 annexe
+# 3.6) : empilees, en couleur, doubles tailles, inverse, lignage ; le rendu
+# asm (cible) doit egaler le C (oracle hote), et la reference figee.
+tests/host/render_page tests/page_g0bars.vdt "$OUT/g0bars_gold0.ppm" "$OUT/g0bars_gold1.ppm"
+run "--serve --page tests/page_g0bars.vdt" --cycles 40000000 $KEYS \
+    --screenshot-at "38000000:$OUT/g0bars.ppm"
+python3 - "$OUT/g0bars.ppm" "$OUT/g0bars_gold0.ppm" "$OUT/g0bars_gold1.ppm" <<'EOF'
+import sys
+def load(p):
+    return open(p, 'rb').read().split(b'\n', 3)[3]
+cap, g0, g1 = load(sys.argv[1]), load(sys.argv[2]), load(sys.argv[3])
+n = 320 * 225 * 3          # zone page seulement (le statut porte l'horloge)
+sys.exit(0 if cap[:n] == g0[:n] or cap[:n] == g1[:n] else 1)
+EOF
+if [ $? -eq 0 ]; then echo "PASS g0bars (barres et pave jointifs : capture == oracle hote, asm == C)"
+else echo "FAIL g0bars (voir $OUT/g0bars.ppm et $OUT/g0bars_gold0.ppm)"; fail=1; fi
+if [ "$mode" = ref ]; then cp "$OUT/g0bars.ppm" "$REF/g0bars.ppm"; echo "REF  g0bars"
+elif [ -f "$REF/g0bars.ppm" ] && cmp -s "$OUT/g0bars.ppm" "$REF/g0bars.ppm"; then echo "PASS g0bars-ref"
+elif [ -f "$REF/g0bars.ppm" ]; then echo "FAIL g0bars-ref (capture != tests/ref/g0bars.ppm)"; fail=1; fi
 if [ "$mode" = ref ]; then cp "$OUT/page.ppm" "$REF/page.ppm"; echo "REF  page"
 elif [ -f "$REF/page.ppm" ] && cmp -s "$OUT/page.ppm" "$REF/page.ppm"; then echo "PASS page-ref (identique a tests/ref/page.ppm)"
 elif [ -f "$REF/page.ppm" ]; then echo "FAIL page-ref (capture != tests/ref/page.ppm)"; fail=1; fi
