@@ -35,7 +35,7 @@
 
 /* Version NeoTel affichee au splash. A garder synchronisee avec CHANGELOG.md
  * et VERSION a chaque release. */
-#define NEOTEL_VERSION "v0.9.6"
+#define NEOTEL_VERSION "v0.9.7"
 
 /* Silence exige, en millisecondes, pour CONFIRMER une presomption de perte de
  * porteuse (un vrai NO CARRIER n'est suivi de RIEN, une page qui citerait ces
@@ -857,6 +857,26 @@ static unsigned char session_escape_page(vtx_context_t* ctx)
 static unsigned char g_replay;
 static char          rec_name[RECORD_NAME_MAX];
 
+/* Aide F10 en session : la page est sauvee puis restauree a l'identique
+ * (v0.9.7, RAM degagee en v0.9.6). L'aide efface les rangees 1-24 et remet
+ * a zero curseur, couleurs et jeu (vtx_clear_page) ; elle ne touche ni la
+ * rangee 0 (bandeau) ni les DRCS. On garde donc l'etat du decodeur (debut
+ * du contexte jusqu'aux DRCS, sequence en cours comprise) et les rangees
+ * 1-24 : ~4 Ko. */
+#define HELP_SAVE_STATE offsetof(vtx_context_t, drcs)
+#define HELP_SAVE_CELLS (sizeof vtx.screen - sizeof vtx.screen[0])
+static unsigned char help_save[HELP_SAVE_STATE + HELP_SAVE_CELLS];
+
+static void session_help(void)
+{
+    memcpy(help_save, &vtx, HELP_SAVE_STATE);
+    memcpy(help_save + HELP_SAVE_STATE, vtx.screen[1], HELP_SAVE_CELLS);
+    help_show(&vtx);
+    memcpy(&vtx, help_save, HELP_SAVE_STATE);
+    memcpy(vtx.screen[1], help_save + HELP_SAVE_STATE, HELP_SAVE_CELLS);
+    vtx.full_refresh = 1;
+}
+
 #define REPLAY_LIST_MAX 12
 static unsigned char replay_idx[REPLAY_LIST_MAX];
 
@@ -1096,14 +1116,9 @@ int main(void)
             vtx_clear_page(&vtx);
             vtx.full_refresh = 1;
         } else if (key == KEY_LOCAL_HELP && !g_screen80) {
-            /* L'aide occupe la page (pas de RAM pour la sauver) : au retour,
-             * page vide, F4 Repetition la redemande au serveur. Les octets
-             * recus pendant l'aide restent dans le tampon du firmware. */
-            help_show(&vtx);
-            vtx_clear_page(&vtx);
-            ui_print(&vtx, 12, 3, g_settings.lang ? "F4 (Repetition) reloads the page"
-                                                  : "F4 (Repetition) redemande la page", VTX_CYAN);
-            vtx.full_refresh = 1;
+            /* Page sauvee puis restauree (session_help). Les octets recus
+             * pendant l'aide restent dans le tampon du firmware. */
+            session_help();
             status_bar_draw();
             g_dbg_state = g_replay ? ST_REPLAY : ST_HELP_BACK;
         } else if (key == KEY_LOCAL_RECORD && !g_replay) {

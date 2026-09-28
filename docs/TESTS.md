@@ -99,6 +99,10 @@ adresses lues dans `build/neotel.lbl`.
    et `neo07` restent sur le stockage.
 6h. **help** / **help-lang** : menu `H` → « AIDE NEOTEL » ; `L` bascule en
    anglais et l'écrit dans `neotel.cfg` (offset 49).
+   **help-session** : `F10` en session (page de test) → « AIDE NEOTEL »,
+   `ESC` → état `ST_HELP_BACK` (17) sans texte d'aide en RAM, et capture de
+   la zone page == oracle hôte (`gold0`/`gold1` du test **page**) : la page
+   est restaurée au pixel près (v0.9.7 ; auparavant page vide + rappel F4).
 6h-bis. **menunav** : au menu, `↓ ↓ ENVOI` (flèches injectées comme codes
    `KEY_*` ≥ `$F0`, rendus tels quels par `keyboard_scan`) bascule l'item 3
    → `neotel.cfg` : profil Minitel 2.

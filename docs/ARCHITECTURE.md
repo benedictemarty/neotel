@@ -57,8 +57,11 @@ $0800-       STARTUP, CODE (~36 Ko en v0.9.6, ~45 Ko en v0.9.5), RODATA (polices
                    de demi-rangee (1 440 o, v0.9.0 ; 2 880 avant), reglages,
                    tampon d'enregistrement (64 o). Plus de cache G1 depuis
                    v0.5.1 (mosaiques calculees a la volee).
-                   Fin $D681 en v0.9.6 : ~9,3 Ko sous la pile C (64 o,
-                   $FBC0-$FBFF) ; v0.9.5 : $F76A, 1 110 o ;
+                   Sauvegarde de page de l'aide F10 en session
+                   (`help_save`, 3 873 o : etat du decodeur jusqu'aux
+                   DRCS + rangees 1-24, v0.9.7).
+                   Fin $E5A2 en v0.9.7 : ~5,5 Ko sous la pile C (64 o,
+                   $FBC0-$FBFF) ; v0.9.6 : $D681 ; v0.9.5 : $F76A, 1 110 o ;
                    `grep BSS build/neotel.map`
 $FBA0-$FBFF  pile C cc65 (96 o ; usage mesure 33 o session et relecture,
              locales statiques ; `PASS stack` dans tests/run.sh)

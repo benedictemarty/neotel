@@ -109,7 +109,7 @@ se fait par le serveur (`PRO2 MIXTE 2`, `CSI ? {`) ou par `ESC ESC`.
 | lettres, chiffres, ponctuation | texte | ASCII 7 bits |
 
 Touches locales (rien n'est envoyé) : `F10` aide (au retour, la page est
-vide : `F4` Répétition la redemande au serveur), `CTRL+D` aspect couleur/gris,
+restaurée telle qu'elle était ; sans effet en 80 colonnes), `CTRL+D` aspect couleur/gris,
 `CTRL+L` effacer la page, `CTRL+F` réinitialiser la liaison série, `CTRL+O`
 enregistrer / arrêter (voir ci-dessous), `ESC`
 pose la question « quitter ? » dans la barre de statut : `ESC` à nouveau

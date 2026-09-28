@@ -390,16 +390,29 @@ else
     echo "FAIL help-lang ($STORAGE/neotel.cfg)"; fail=1
 fi
 
-# --- 4h'. F10 en session : aide affichee, ESC revient a la session (page
-# effacee, rappel F4 Repetition). F10 = hotkey $8A traduit par keyboard_scan.
+# --- 4h'. F10 en session : aide affichee, ESC revient a la session avec la
+# page restauree (v0.9.7) : plus de texte d'aide en RAM, et capture de la
+# zone page == oracle hote (gold0/gold1 du test page). F10 = hotkey $8A
+# traduit par keyboard_scan. Capture a 38 M + 5 phases de clignotement.
 run "--serve --page tests/page_test.vdt --guard 0.02" --cycles 60000000 $KEYS \
     --poke-at "30000000:$KI=8A" --poke-at "40000000:$KI=1B" \
-    --dump-ram-when "$ST:10:$OUT/help_s.bin" --dump-ram-when "$ST:11:$OUT/help_back.bin"
+    --dump-ram-when "$ST:10:$OUT/help_s.bin" --dump-ram-when "$ST:11:$OUT/help_back.bin" \
+    --screenshot-at "53500000:$OUT/help_back.ppm"
+python3 - "$OUT/help_back.ppm" "$OUT/gold0.ppm" "$OUT/gold1.ppm" <<'EOF'
+import sys
+def load(p):
+    return open(p, 'rb').read().split(b'\n', 3)[3]
+cap, g0, g1 = load(sys.argv[1]), load(sys.argv[2]), load(sys.argv[3])
+n = 320 * 225 * 3          # zone page seulement (le statut porte l'horloge)
+sys.exit(0 if cap[:n] == g0[:n] or cap[:n] == g1[:n] else 1)
+EOF
+restored=$?
 if [ -f "$OUT/help_s.bin" ] && page_has "$OUT/help_s.bin" "AIDE NEOTEL" \
-   && [ -f "$OUT/help_back.bin" ] && page_has "$OUT/help_back.bin" "F4 (Repetition)"; then
-    echo "PASS help-session (F10 : aide en session, ESC : retour, rappel F4)"
+   && [ -f "$OUT/help_back.bin" ] && ! page_has "$OUT/help_back.bin" "AIDE NEOTEL" \
+   && [ $restored -eq 0 ]; then
+    echo "PASS help-session (F10 : aide en session, ESC : page restauree == oracle)"
 else
-    echo "FAIL help-session (voir $OUT/phos.log)"; fail=1
+    echo "FAIL help-session (voir $OUT/help_back.ppm, $OUT/gold0.ppm, $OUT/phos.log)"; fail=1
 fi
 
 # --- 4i. vraie file clavier du firmware (--type-keys, pas keyboard_inject) --
