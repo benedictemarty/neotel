@@ -28,7 +28,7 @@
         .export   _blit_run, _blit_cell9, _rb_state, _scan_dblh
         .export   _run_cells, _run_col, _run_count
         .export   _blit_pat, _blit_col, _blit_fg, _blit_bg
-        .import   _display_rowbuf, _font_g0, _font_get_g2, _g0_joint
+        .import   _display_rowbuf, _font_g0, _font_get_g2, _joint_pat, _joint_g2_arrow
         .import   _g_global_mask, _g_blink_phase
         .import   _drcs_pattern9, _drcs_pattern_set
 
@@ -170,9 +170,9 @@ glyph6:
         stz  pat+8
         rts
 
-; decalage de chaque motif jointif dans g0_joint (9 octets par motif)
+; decalage de chaque motif jointif dans joint_pat (9 octets par motif)
 joint_off:
-        .byte 0, 9, 18, 27, 36, 45, 54, 63, 72, 81
+        .byte 0, 9, 18, 27, 36, 45, 54, 63, 72, 81, 90, 99, 108
 
 ; pat[] := 0
 clear_pat:
@@ -324,15 +324,25 @@ _blit_run:
         bne  :+
         jmp  @underline     ; G'0 : lignage comme G0
 :       jmp  @paint         ; G'1 : le lignage n'a pas d'effet visuel
-@g2:    ; G2 : glyphe par la table C (fastcall : A = code)
+@g2:    ; G2 : fleches $2C-$2F jointives (joint_pat, index joint_g2_arrow),
+        ; sinon glyphe par la table C (fastcall : A = code)
         lda  (cellp)
+        cmp  #$2C
+        bcc  @g2f
+        cmp  #$30
+        bcs  @g2f
+        tax
+        lda  _joint_g2_arrow-$2C,x
+        tax
+        bra  @joint
+@g2f:   lda  (cellp)
         jsr  _font_get_g2
         sta  glyph
         stx  glyph+1
         bra  @glyph6
 @g0:    lda  (cellp)        ; ch
         ; caracteres JOINTIFS ($2F, $5C, $5E, $5F, $60, $7B-$7F) : motif 8x9
-        ; de la table g0_joint de display.c (meme index que g0_joint_index)
+        ; de la table joint_pat de display.c (meme index que joint_index_g0)
         ldx  #0
         cmp  #$2F
         beq  @joint
@@ -375,12 +385,12 @@ _blit_run:
         sta  glyph+1
         jsr  glyph6
         bra  @underline
-@joint: ; X = index dans g0_joint
+@joint: ; X = index dans joint_pat
         lda  joint_off,x
         clc
-        adc  #<_g0_joint
+        adc  #<_joint_pat
         sta  glyph
-        lda  #>_g0_joint
+        lda  #>_joint_pat
         adc  #0
         sta  glyph+1
         ldy  #8

@@ -267,6 +267,39 @@ static void test_attributes(void)
             || cpx(16, 16, 5, 1) != VTX_WHITE) ok = 0;
         CHECK(ok, "$5E : fleche (pointe en haut), hampe colonne 4 jointe a la barre $7C du dessous");
     }
+    /* Fleches du G2 (v0.9.11) : jointes au bord oppose a la pointe, sur l'axe
+     * des barres medianes : ← suivie de $60, $60 suivie de →, $7C au-dessus
+     * de ↓ ; ↑ du G2 = ↑ du G0 ($5E). */
+    put(24, 20, 0x2C, CHARSET_G2, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(24, 21, 0x60, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(24, 23, 0x60, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(24, 24, 0x2E, CHARSET_G2, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(23, 26, 0x7C, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(24, 26, 0x2F, CHARSET_G2, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(24, 28, 0x2D, CHARSET_G2, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    put(24, 29, 0x5E, CHARSET_G0, VTX_WHITE, VTX_BLACK, 0, SIZE_NORMAL);
+    display_render_all(&ctx);
+    {
+        int ok = 1; unsigned char i, l;
+        for (i = 0; i < 16; ++i) if (px(20 * 8 + i, 24 * 9 + 4) != VTX_WHITE) ok = 0;
+        if (cpx(20, 24, 1, 3) != VTX_WHITE || cpx(20, 24, 1, 5) != VTX_WHITE
+            || cpx(20, 24, 0, 3) != VTX_BLACK) ok = 0;
+        CHECK(ok, "G2 $2C ← : pointe a gauche, tige ligne 4 jointe au $60 de droite");
+        ok = 1;
+        for (i = 0; i < 16; ++i) if (px(23 * 8 + i, 24 * 9 + 4) != VTX_WHITE) ok = 0;
+        if (cpx(24, 24, 6, 3) != VTX_WHITE || cpx(24, 24, 6, 5) != VTX_WHITE
+            || cpx(24, 24, 7, 3) != VTX_BLACK) ok = 0;
+        CHECK(ok, "G2 $2E → : pointe a droite, tige ligne 4 jointe au $60 de gauche");
+        ok = 1;
+        for (l = 0; l < 18; ++l) if (px(26 * 8 + 4, 23 * 9 + l) != VTX_WHITE) ok = 0;
+        if (cpx(26, 24, 3, 7) != VTX_WHITE || cpx(26, 24, 5, 7) != VTX_WHITE
+            || cpx(26, 24, 3, 8) != VTX_BLACK) ok = 0;
+        CHECK(ok, "G2 $2F ↓ : pointe en bas, hampe colonne 4 jointe au $7C du dessus");
+        ok = 1;
+        for (l = 0; l < 9; ++l) for (i = 0; i < 8; ++i)
+            if (cpx(28, 24, i, l) != cpx(29, 24, i, l)) ok = 0;
+        CHECK(ok, "G2 $2D ↑ : identique a la fleche G0 $5E");
+    }
     CHECK(cell_count(2, 1, VTX_WHITE) == 0 && cell_count(2, 1, VTX_RED) == 72,
           "masquage (masque global actif) : fond seul");
     CHECK(cell_count(3, 1, VTX_WHITE) > 0, "flash phase 0 : visible");

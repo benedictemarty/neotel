@@ -127,7 +127,7 @@ Rétrospective : la RAM a dicté chaque choix (aide sans sauvegarde de page,
 tampons logés dans `vtx`) ; le coût venait surtout du code généré par cc65
 pour les accès par pointeur, pas des données.
 
-## Sprint 10 — v0.9.6-0.9.10 (2026-09-28) — EN COURS
+## Sprint 10 — v0.9.6-0.9.11 (2026-09-28) — EN COURS
 | User story | État |
 |---|---|
 | US-30 Le modem USB CDC fonctionne sur la carte réelle | fait (validé par le PO sur carte, 2026-09-28) |
@@ -135,7 +135,7 @@ pour les accès par pointeur, pas des données.
 | US-32 Optimiser la réception série | fait (v0.9.6 : un appel API par octet au lieu de deux ; `serial_tx_*` sans code sur la cible) |
 | US-33 Au retour de l'aide F10 en session, je retrouve ma page | fait (v0.9.7 : `session_help` sauve l'état du décodeur et les rangées 1-24, 3 873 o ; scénario `help-session` : page restaurée == oracle) |
 | US-34 Les messages de la barre de statut (CTRL+O, CTRL+F) restent lisibles | fait (v0.9.8 : `status_message`, maintien 2-3 s par `g_status_hold` ; scénario `status-msg`) |
-| US-35 Les barres jointives du jeu G0 s'affichent comme sur un Minitel | fait (v0.9.9 : `$60`, `$7B`-`$7F` d'après la STUM 2 annexe 3.6 et la STUM 1B ; `g0_joint` partagée C/asm ; scénario `g0bars`) |
-| US-36 Autres écarts G0 relevés dans la STUM : `$5E` flèche ↑ (aujourd'hui `^`), diagonales jointives `$2F` / `$5C`, `SUB` = pavé d'erreur (aujourd'hui espace) | fait (v0.9.10 : `g0_joint` étendue, `SUB` → pavé G0 `$7F` ; tests hôtes +11, page `g0bars` enrichie) |
-| US-37 Flèches du jeu G2 (`2/C`-`2/F`) jointives comme la flèche du G0 (STUM 1B : flèches « jointes à l'extrémité opposée à la pointe ») | à faire (relevé en v0.9.10) |
+| US-35 Les barres jointives du jeu G0 s'affichent comme sur un Minitel | fait (v0.9.9 : `$60`, `$7B`-`$7F` d'après la STUM 2 annexe 3.6 et la STUM 1B ; `joint_pat` partagée C/asm ; scénario `g0bars`) |
+| US-36 Autres écarts G0 relevés dans la STUM : `$5E` flèche ↑ (aujourd'hui `^`), diagonales jointives `$2F` / `$5C`, `SUB` = pavé d'erreur (aujourd'hui espace) | fait (v0.9.10 : `joint_pat` étendue, `SUB` → pavé G0 `$7F` ; tests hôtes +11, page `g0bars` enrichie) |
+| US-37 Flèches du jeu G2 (`2/C`-`2/F`) jointives comme la flèche du G0 (STUM 1B : flèches « jointes à l'extrémité opposée à la pointe ») | fait (v0.9.11 : `joint_pat` + `joint_g2_arrow`, ↑ partagé avec le G0 ; test_display +4, page `g0bars` enrichie) |
 | US-14 Latence API réelle et budget de rendu sous flux 115200 | à faire (`--api-latency` de Phosphoneo) |

@@ -53,7 +53,8 @@ adresses lues dans `build/neotel.lbl`.
    pavé jointifs du G0 empilés, en couleur, doubles tailles, inverse,
    lignage, et les mêmes codes en G1 pour témoin ; depuis la v0.9.10 :
    diagonales raccordées, flèche jointe à une barre, `SUB` hors code et en
-   code, une date avec des `/`) : capture == oracle hôte
+   code, une date avec des `/` ; v0.9.11 : flèches du G2 jointes à des
+   barres) : capture == oracle hôte
    (asm == C), puis identique à `tests/ref/g0bars.ppm`. Ce test a trouvé une
    erreur de drapeau C dans la première version asm (v0.9.9).
 4. **page-ref** : la capture est identique à `tests/ref/page.ppm`
@@ -73,6 +74,11 @@ adresses lues dans `build/neotel.lbl`.
 5. **escape** : ESC ESC en session → `+++` puis `ATH` émis, retour au menu
    (garde Hayes du faux modem réduite : l'émulateur va plus vite que le
    temps réel).
+   Octets émis (`+++`, identification `\x01Cu1\x04` du scénario
+   **enqrom**) : vérifiés par `tx_has`, qui recolle toutes les lignes
+   `> b'…'` du journal du faux modem — le pty peut livrer un envoi en
+   plusieurs morceaux (échec intermittent constaté en v0.9.11 :
+   `b'\x01'` puis `b'Cu1\x04'`, 1 fois sur 10).
 6. **carrier** : `NO CARRIER` 1 s après la page → écran « PERTE DE
    PORTEUSE » après confirmation par le silence.
 6b. **settings-save / settings-load** : `3` au menu écrit `neotel.cfg`

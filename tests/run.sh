@@ -57,6 +57,18 @@ run() {
     return $rc
 }
 
+# Octets emis par NeoTel (lignes "> b'...'" du faux modem) : le pty peut les
+# livrer en plusieurs morceaux (constate : b'\x01' puis b'Cu1\x04'), on
+# recolle donc tout le flux avant de chercher. $1 = litteral Python bytes.
+tx_has() {
+    python3 - "$1" <<'EOF'
+import ast, sys
+tx = b''.join(ast.literal_eval(l.split('> ', 1)[1]) for l in open('build/modem.log', errors='replace')
+              if ' > b' in l)
+sys.exit(0 if ast.literal_eval(sys.argv[1]) in tx else 1)
+EOF
+}
+
 # Texte present dans le buffer ecran Videotex d'un dump RAM ?
 page_has() {   # $1 = dump, $2 = texte
     python3 - "$1" "$2" "$VTX" "$SCREEN_OFF" <<'EOF'
@@ -247,7 +259,7 @@ fi
 run "--serve --page tests/page_test.vdt --guard 0.02" --cycles 120000000 $KEYS \
     --poke-at "40000000:$KI=1B" --poke-at "46000000:$KI=1B" \
     --dump-ram-when "$HU:1:$OUT/hungup.bin"
-if [ -f "$OUT/hungup.bin" ] && grep -q "+++" build/modem.log && grep -q "commande b'ATH'" build/modem.log; then
+if [ -f "$OUT/hungup.bin" ] && tx_has "b'+++'" && grep -q "commande b'ATH'" build/modem.log; then
     echo "PASS escape (ESC ESC : +++ puis ATH emis, retour au menu)"
 else
     echo "FAIL escape (pas de +++/ATH dans build/modem.log, ou etat non atteint)"; fail=1
@@ -358,7 +370,7 @@ python3 -c "
 open('$STORAGE/neotel.cfg','wb').write(b'NT'+bytes([3,0,0,1,0])+bytes(40)+bytes([0,1]))"
 STORAGE_KEEP=1 run "--serve --page tests/page_enqrom.vdt" --cycles 60000000 $KEYS \
     --dump-ram-when "$NB:$(printf '%X' $(wc -c < tests/page_enqrom.vdt)):$OUT/enqrom.bin"
-if [ -f "$OUT/enqrom.bin" ] && page_has "$OUT/enqrom.bin" "PAGE DE TEST NEOTEL" && grep -q "> b'\\\\x01Cu1\\\\x04'" build/modem.log; then
+if [ -f "$OUT/enqrom.bin" ] && page_has "$OUT/enqrom.bin" "PAGE DE TEST NEOTEL" && tx_has "b'\\x01Cu1\\x04'"; then
     echo "PASS enqrom (ESC 9 { en tete de page : identification envoyee, page decodee)"
 else
     echo "FAIL enqrom (voir build/modem.log)"; fail=1

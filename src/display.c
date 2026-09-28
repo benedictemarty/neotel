@@ -197,10 +197,13 @@ const unsigned char* __fastcall__ drcs_pattern9(unsigned char ch)
  * v0.9.8, $7B-$7F etaient des lettres accentuees (heritage OricTel) et $60
  * un trait de 6 pixels en ligne 0. Diagonales et fleche depuis la v0.9.10
  * (auparavant glyphes 6x8 d'OricTel : '/', '\', '^'). Partagee avec
- * display_asm.s (meme ordre, meme selection que g0_joint_index).
- * Index : $2F, $5C, $5E, $5F, $60, $7B, $7C, $7D, $7E, $7F. */
-#define G0_JOINT_COUNT 10
-const unsigned char g0_joint[G0_JOINT_COUNT][CELL_H] = {
+ * display_asm.s (meme ordre, meme selection que joint_index_g0).
+ * Fleches du G2 depuis la v0.9.11 (meme regle ; le ↑ du G2 reprend celui
+ * du G0).
+ * Index : G0 $2F, $5C, $5E, $5F, $60, $7B, $7C, $7D, $7E, $7F ; G2 $2C (←),
+ * $2E (→), $2F (↓). */
+#define JOINT_COUNT 13
+const unsigned char joint_pat[JOINT_COUNT][CELL_H] = {
     /* $2F diagonale jointive bas-gauche -> haut-droit (table : coin a coin),
      * un pixel par ligne : deux voisins en diagonale se raccordent */
     { 0x01, 0x02, 0x04, 0x08, 0x08, 0x10, 0x20, 0x40, 0x80 },
@@ -222,10 +225,21 @@ const unsigned char g0_joint[G0_JOINT_COUNT][CELL_H] = {
     { 0, 0, 0xFF, 0, 0, 0, 0, 0, 0 },       /* $7E barre haute (y 0,25 : ligne 2) */
     { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },  /* $7F pave plein (STUM 1B
                                                   § 2-2-1-2-3-1, vers p. 88 ; STUM 2 § 2.3.3.1) */
+    /* Fleches du G2 (STUM 2 annexe 3.9) : axe sur la barre mediane (ligne 4
+     * des $60 / colonne 4 des $7C, mesure sur le scan : y 0,49, x 0,52),
+     * jointes au bord oppose a la pointe (STUM 1B § 1-3-2-2-2) ; pointe au
+     * bord de la case : hypothese (le schema dessine des fleches centrees). */
+    { 0, 0, 0x20, 0x40, 0xFF, 0x40, 0x20, 0, 0 },       /* G2 $2C ← */
+    { 0, 0, 0x04, 0x02, 0xFF, 0x02, 0x04, 0, 0 },       /* G2 $2E → */
+    { 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x2A, 0x1C, 0x08 },  /* G2 $2F ↓ */
 };
 
-/* Index du caractere G0 dans g0_joint, ou 0xFF s'il n'est pas jointif */
-static unsigned char g0_joint_index(unsigned char ch)
+/* Index des fleches G2 $2C-$2F dans joint_pat (↑ = celui du G0).
+ * Partagee avec display_asm.s. */
+const unsigned char joint_g2_arrow[4] = { 10, 2, 11, 12 };
+
+/* Index du caractere G0 dans joint_pat, ou 0xFF s'il n'est pas jointif */
+static unsigned char joint_index_g0(unsigned char ch)
 {
     if (ch >= 0x7B) return (unsigned char)(ch - 0x7B + 5);
     switch (ch) {
@@ -268,9 +282,11 @@ void display_cell_pattern(const vtx_cell_t* cell, unsigned char pat[CELL_H],
         memcpy(pat, drcs_pattern9(ch), CELL_H);
         if (cell->charset == CHARSET_DRCS1) return;   /* pas de lignage en G'1 */
     } else {
-        if (cell->charset == CHARSET_G0 && (l = g0_joint_index(ch)) != 0xFF) {
-            /* barres, diagonales, fleche et pave jointifs (g0_joint) */
-            memcpy(pat, g0_joint[l], CELL_H);
+        if (cell->charset == CHARSET_G0) l = joint_index_g0(ch);
+        else l = (ch >= 0x2C && ch <= 0x2F) ? joint_g2_arrow[ch - 0x2C] : 0xFF;
+        if (l != 0xFF) {
+            /* barres, diagonales, fleches et pave jointifs (joint_pat) */
+            memcpy(pat, joint_pat[l], CELL_H);
         } else {
             glyph = (cell->charset == CHARSET_G2) ? font_get_g2(ch) : font_get_g0(ch);
             /* 6 pixels utiles (bits 5-0) centres : colonnes 1-6 */

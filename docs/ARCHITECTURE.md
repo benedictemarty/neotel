@@ -96,11 +96,13 @@ programme de test cible définit le global `vtx` (`tests/emu/t_bench.c`).
   ↑ à hampe jointe en bas, `$5F` barre basse, `$60` barre médiane
   horizontale, `$7B`/`$7C`/`$7D` barres verticales gauche/médiane/droite,
   `$7E` barre haute, `$7F` pavé plein, aussi symbole d'erreur de `SUB`)
-  viennent de la table 8 × 9 `g0_joint`
+  et les flèches du G2 (`$2C` ← `$2D` ↑ `$2E` → `$2F` ↓, axe sur les
+  barres médianes, jointes au bord opposé à la pointe ; v0.9.11)
+  viennent de la table 8 × 9 `joint_pat`
   (display.c, lue aussi par display_asm.s) : les barres couvrent toute la
   largeur ou la hauteur de la cellule et se raccordent. Positions relevées
-  sur la table G0 de la STUM 2 (annexe 3.6 p. 86), rapportées à la cellule
-  (hypothèse de tracé, v0.9.9-0.9.10). Les mosaïques G1 sont
+  sur les tables G0 et G2 de la STUM 2 (annexes 3.6 p. 86 et 3.9 p. 89),
+  rapportées à la cellule (hypothèse de tracé, v0.9.9-0.9.11). Les mosaïques G1 sont
   générées en natif 8 × 9 (blocs de 4 × 3 ; séparées : 3 × 2 + interstice
   droite/bas ; `$60` = trait plein sur la ligne 0, comme OricTel d'après
   une capture de Minitel réel) et mises en cache (128 motifs × 2 modes).
